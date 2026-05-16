@@ -1,0 +1,5 @@
+modal>=1.4.0
+fastapi>=0.115.0
+httpx>=0.27.0
+langgraph>=0.2.62
+scrapling[fetchers]==0.4.7

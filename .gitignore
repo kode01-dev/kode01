@@ -1,0 +1,94 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+/playwright-report
+/test-results
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+*.env
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+.vercel
+
+# Mobile builds
+/mobile-admin-package/
+
+# Environment and Temporary files
+*_env.txt
+*_env_temp*.txt
+*_env_utf8*.txt
+v_env*.txt
+*_temp.txt
+vercel_input.txt
+migration_list.txt
+edge_payload.json
+schema.sql
+*.tmp
+s_sec*.txt
+curl-*.txt
+*.log
+trigger_sync.ps1
+sync_payload.json
+
+
+# Supabase
+supabase/.temp/
+
+# Temp directory
+/tmp/
+
+# Tools & Noise
+.gemini/
+nul
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs and debug
+modal_logs.txt
+db_push_out.txt
+scratch/
+
+# VS Code
+.vscode/
+
+.vercel
+.migration-tmp/

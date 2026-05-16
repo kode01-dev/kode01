@@ -1,0 +1,24 @@
+packages:
+  - .
+
+minimumReleaseAge: 1440
+blockExoticSubdeps: true
+strictDepBuilds: true
+packageManagerStrictVersion: true
+
+overrides:
+  lodash: 4.18.1
+  lodash-es: 4.18.1
+  "picomatch@<=2.3.1": 2.3.2
+  "picomatch@>=4.0.0 <4.0.4": 4.0.4
+  postcss: 8.5.12
+
+allowBuilds:
+  sharp: true
+  "@swc/core": true
+  esbuild: true
+  supabase: true
+  "@parcel/watcher": true
+  unrs-resolver: true
+  fsevents: false
+  msw: false

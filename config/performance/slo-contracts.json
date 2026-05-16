@@ -1,0 +1,25 @@
+{
+  "global": {
+    "api_p95_ms": 200,
+    "listing_ttfb_ms": 300,
+    "error_rate_percent": 1
+  },
+  "endpoints": {
+    "/api/market/list": {
+      "p95_ms": 200,
+      "error_rate_percent": 1
+    },
+    "/api/blog/list": {
+      "p95_ms": 200,
+      "error_rate_percent": 1
+    },
+    "/api/news/list": {
+      "p95_ms": 200,
+      "error_rate_percent": 1
+    },
+    "/api/seller/analytics": {
+      "p95_ms": 250,
+      "error_rate_percent": 1
+    }
+  }
+}

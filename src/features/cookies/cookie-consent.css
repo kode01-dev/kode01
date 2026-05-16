@@ -1,0 +1,60 @@
+#cc-main {
+    --cc-font-family: var(--font-outfit), "Inter", sans-serif;
+    --cc-bg: var(--color-kode01-white);
+    --cc-text: var(--color-kode01-noir);
+    --cc-btn-primary-bg: var(--color-kode01-noir);
+    --cc-btn-primary-text: var(--color-kode01-white);
+    --cc-btn-primary-hover-bg: var(--color-noir-surface);
+    --cc-btn-secondary-bg: transparent;
+    --cc-btn-secondary-text: var(--color-kode01-noir);
+    --cc-btn-secondary-hover-bg: var(--color-kode01-cream);
+    --cc-toggle-on-bg: var(--color-bleu-kode01);
+    --cc-toggle-off-bg: #e1e1e1;
+    --cc-toggle-on-knob-bg: var(--color-kode01-white);
+    --cc-toggle-off-knob-bg: var(--color-kode01-white);
+    --cc-modal-border-radius: 0;
+    --cc-btn-border-radius: 0;
+}
+
+#cc-main .cm {
+    border: 2px solid var(--color-kode01-noir);
+    box-shadow: 4px 4px 0 var(--color-kode01-noir);
+}
+
+#cc-main .pm {
+    border: 2px solid var(--color-kode01-noir);
+    box-shadow: 8px 8px 0 var(--color-kode01-noir);
+}
+
+#cc-main .cm__title {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+}
+
+#cc-main .cm__btn {
+    border: 1px solid var(--color-kode01-noir);
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+
+#cc-main .cm__btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 1px 1px 0 var(--color-kode01-noir);
+}
+
+#cc-main .cm__btn--primary {
+    background: var(--color-kode01-noir);
+    color: var(--color-kode01-white);
+}
+
+#cc-main .cm__btn--secondary {
+    background: transparent;
+    color: var(--color-kode01-noir);
+}
+
+#cc-main .section__title {
+    font-weight: 800;
+    text-transform: uppercase;
+}

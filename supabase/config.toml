@@ -1,0 +1,32 @@
+project_id = "noemwcxtlibtimusldyn"
+
+[auth.sessions]
+timebox = "24h"
+inactivity_timeout = "8h"
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.stripe-subscription-checkout]
+verify_jwt = false
+
+[functions.stripe-customer-portal]
+verify_jwt = false
+
+[functions.stripe-checkout]
+verify_jwt = false
+
+[functions.stripe-embedded-checkout]
+verify_jwt = false
+
+[functions.stripe-connect]
+verify_jwt = false
+
+[functions.send-emails-cron]
+verify_jwt = false
+
+[functions.track-product-view]
+verify_jwt = false
+
+[functions.weekly-ai-recap-cron]
+verify_jwt = false

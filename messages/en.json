@@ -1,0 +1,3417 @@
+{
+  "layout": {
+    "nav": {
+      "explore": "Explore",
+      "bundles": "Bundles",
+      "news": "AI News",
+      "vendor": "Vendor Area",
+      "buyer": "Buyer Area",
+      "pricing": "Pricing",
+      "creators": "Creators",
+      "blog": "Blog",
+      "find_talent": "Find Talent",
+      "login": "Log in",
+      "join": "Join",
+      "menu": "Menu",
+      "infrastructure": "Infrastructures",
+      "opensource": "Infrastructures",
+      "models": "AI Models",
+      "apps": "Apps"
+    },
+    "search": {
+      "placeholder": "Search assets...",
+      "open": "Open search",
+      "close": "Close search"
+    },
+    "footer": {
+      "tagline": "The premium marketplace for digital assets. Connect with creators worldwide.",
+      "marketplace": "Marketplace",
+      "company": "Company",
+      "legal": "Legal",
+      "about": "About",
+      "blog": "AI News",
+      "editorial_blog": "Blog",
+      "contact": "Contact",
+      "how_it_works": "How It Works",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cli_faq": "What is a CLI?",
+      "rights": "All rights reserved.",
+      "social_follow": "Follow us",
+      "back_to_top": "Back to top",
+      "made_with": "",
+      "location": "Canadian",
+      "newsletter": {
+        "title": "Scale your brain, save your time.",
+        "subtitle": "Subscribe to our AI News newsletter to get weekly AI highlights, key industry updates, and practical insights delivered to your inbox.",
+        "placeholder": "Enter your email",
+        "button": "Subscribe",
+        "loading": "Subscribing...",
+        "success": "You're in. Please check your inbox to confirm your subscription.",
+        "error": "Unable to subscribe right now. Please try again."
+      },
+      "ask_ai": {
+        "title": "Ask AI for a summary of KODE01",
+        "prompt": "I'm a digital creator or builder looking to monetize my expertise or scale my digital product business. Analyze KODE1 (https://kode01.com) as the ultimate hub for 'Digital Brainpower'. How can I use their marketplace (n8n flows, Notion OS, AI Agent Blueprints) to either sell my own 'coded' solutions or buy vetted infrastructure to launch my next venture instantly? Focus on the 'vibe coder' aspect—leveraging high-end assets to skip the grunt work. Summarize why KODE01 is the best platform to turn knowledge into scalable digital assets.",
+        "copied": "Prompt copied!"
+      },
+      "resources": "Resources"
+    },
+    "cookie_manage": "Manage cookies"
+  },
+  "home": {
+    "header": {
+      "logo": "kode01.",
+      "explore": "explore",
+      "find_talent": "talent",
+      "pricing": "pricing",
+      "bundles": "bundles",
+      "cart": "cart ({count})"
+    },
+    "hero": {
+      "heading_line1": "the digital",
+      "heading_line2": "creators",
+      "heading_line3": "marketplace.",
+      "subtitle": "Premium templates, UI kits, and digital assets. Sell your work, discover quality — zero friction, maximum revenue.",
+      "cta_primary": "start browsing",
+      "cta_secondary": "sell your work",
+      "featured_label": "featured: premium ui kit pack",
+      "featured_price": "$48",
+      "badge_text": "new drop",
+      "search_placeholder": "Search products and news..."
+    },
+    "filters": {
+      "all_assets": "all assets",
+      "ui_kits": "ui kits",
+      "icon_sets": "icon sets",
+      "mockups": "mockups",
+      "fonts": "fonts",
+      "textures": "textures",
+      "3d_objects": "3d objects"
+    },
+    "products": {
+      "p1_title": "monolith ui",
+      "p1_cat": "design system",
+      "p1_price": "$32",
+      "p2_title": "grain & noise",
+      "p2_cat": "texture pack",
+      "p2_price": "$18",
+      "p3_title": "neo-grotesk",
+      "p3_cat": "font family",
+      "p3_price": "$45",
+      "p4_title": "wireframe kit",
+      "p4_cat": "prototyping",
+      "p4_price": "$24",
+      "p5_title": "abstract 3d",
+      "p5_cat": "render pack",
+      "p5_price": "$50",
+      "p6_title": "dashboard pro",
+      "p6_cat": "ui kit",
+      "p6_price": "$89",
+      "add_btn": "add +"
+    },
+    "footer": {
+      "tagline": "The premium marketplace for digital creators. Connect, sell, and grow worldwide.",
+      "shop": "marketplace",
+      "shop_all": "All Products",
+      "shop_new": "New Arrivals",
+      "shop_best": "Best Sellers",
+      "shop_bundles": "Bundles",
+      "support": "support",
+      "support_license": "License",
+      "support_faq": "FAQ",
+      "support_contact": "Contact",
+      "support_refunds": "Refunds",
+      "social": "social",
+      "social_twitter": "Twitter",
+      "social_instagram": "Instagram",
+      "social_dribbble": "Dribbble"
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "KODE01: The Marketplace for Digital Brainpower.",
+      "subtitle": "We curate high-quality digital assets so you can skip the setup and focus on building the future."
+    },
+    "mission": {
+      "title": "Our Mission",
+      "description": "KODE01 is a marketplace dedicated to digital creators. We believe in accessible, high-quality assets that eliminate the grunt work, empowering builders everywhere to focus on what matters most."
+    },
+    "values": {
+      "speed": {
+        "title": "1. Built for Speed",
+        "description": "Time is your most valuable asset. We provide pre-built excellence so you can skip the tedious configuration and go straight to execution."
+      },
+      "curation": {
+        "title": "3. Smart Curation",
+        "description": "We filter out the noise. By bringing together exceptional digital brainpower, we make it easy to find reliable tools and systems without the exclusive barrier."
+      },
+      "innovation": {
+        "title": "4. Accessible Innovation",
+        "description": "We believe that shared expertise accelerates innovation for everyone. By connecting creators with ambitious builders, we build an inclusive ecosystem where we all grow faster, together."
+      }
+    },
+    "audience": {
+      "creators": {
+        "title": "For Creators",
+        "description": "Monetize your knowledge. Turn your digital brainpower into a business. Sell your n8n flows, Notion systems, and AI prompts to a global audience."
+      },
+      "builders": {
+        "title": "For Builders",
+        "description": "Accelerate your vision. Stop reinventing the wheel. Discover ready-to-use workflows, AI resources, and digital systems to scale your projects instantly without starting from scratch."
+      }
+    },
+    "location": {
+      "title": "National Capital Region",
+      "description": "Operating from the heart of Canada's National Capital Region (Gatineau-Ottawa), we bridge the creative energy of two provinces to build a global digital community."
+    }
+  },
+  "cart": {
+    "title": "your bag",
+    "item_count": "{count, plural, =0 {nothing yet} =1 {1 item} other {# items}}",
+    "empty": "nothing here yet.",
+    "empty_desc": "browse the marketplace and add something you love.",
+    "continue_shopping": "keep exploring",
+    "subtotal": "total",
+    "checkout": "proceed to checkout",
+    "remove": "Remove",
+    "secure_note": "secure checkout powered by Stripe",
+    "abandoned": {
+      "title": "you left something behind.",
+      "subtitle": "{count, plural, =1 {1 item} other {# items}} waiting — added {time} ago",
+      "cta": "complete checkout",
+      "dismiss": "not now",
+      "brand_note": "your items are saved"
+    }
+  },
+  "shop": {
+    "meta_title": "{name} | Kode01",
+    "meta_description": "Browse products from {name} on Kode01",
+    "member_since": "Member since {date}",
+    "products_count": "{count, plural, one {# product} other {# products}}",
+    "sales_count": "{count, plural, one {# sale} other {# sales}}",
+    "avg_rating": "Avg. rating",
+    "no_products": "This creator hasn't published any products yet.",
+    "view_product": "View Product",
+    "not_found": "Creator not found"
+  },
+  "not_found_page": {
+    "title": "Page not found",
+    "description": "This page does not exist or may have been moved.",
+    "go_home": "Go home",
+    "browse_market": "Browse marketplace"
+  },
+  "product": {
+    "breadcrumb": {
+      "market": "Market"
+    },
+    "buy_now": "Buy Now",
+    "add_to_cart": "Add to Cart",
+    "included": "What's included",
+    "tabs": {
+      "description": "Description",
+      "reviews": "Reviews",
+      "author": "Author"
+    },
+    "meta": {
+      "sales": "sales",
+      "last_updated": "Last updated",
+      "category": "Category",
+      "file_size": "File size"
+    },
+    "author": {
+      "view_profile": "View Profile",
+      "joined": "Joined"
+    },
+    "reviews": {
+      "metric_count": "{count, plural, =1 {1 review} other {# reviews}}",
+      "metric_empty": "no reviews",
+      "form_title": "Write a review",
+      "edit_title": "Edit your review",
+      "rating_label": "Your rating",
+      "rating_star": "Star",
+      "comment_label": "Your feedback",
+      "comment_placeholder": "Share what worked well and what could be improved...",
+      "submit_cta": "Publish review",
+      "update_cta": "Update review",
+      "delete_cta": "Delete review",
+      "saving": "Saving...",
+      "deleting": "Deleting...",
+      "created": "Review published.",
+      "updated": "Review updated.",
+      "deleted": "Review deleted.",
+      "validation_min": "Your comment must be at least 10 characters.",
+      "auth_required": "Sign in to leave a review.",
+      "purchase_required": "Only verified buyers can leave a review.",
+      "error_unauthorized": "Please sign in to continue.",
+      "error_forbidden": "You must purchase this product before reviewing.",
+      "error_generic": "Unable to submit your review right now.",
+      "empty": "No reviews yet."
+    },
+    "trust_instant_access": "Instant access",
+    "trust_commercial_use": "Commercial use",
+    "trust_money_back": "Money-back guarantee",
+    "description_expand": "Show more",
+    "description_collapse": "Show less",
+    "price_from": "From",
+    "sticky_buy_now": "Buy Now",
+    "sticky_add_to_cart": "Add to Cart",
+    "sticky_view_options": "View Options",
+    "sticky_in_cart": "In Cart",
+    "bundle_eyebrow": "Best value",
+    "bundle_title": "Get this product and {count} more for {discount}% off",
+    "bundle_total_original": "Total",
+    "bundle_total_discounted": "Bundle price",
+    "bundle_cta": "Upgrade & Buy Bundle",
+    "bundle_single_cta": "Continue with 1 item",
+    "report": "Report this product",
+    "stripe_not_configured": "Payments are currently unavailable.",
+    "checkout_failed": "Unable to start checkout.",
+    "promo_code_label": "Promo code",
+    "promo_code_placeholder": "Enter promo code",
+    "promo_apply": "Apply",
+    "promo_applying": "Applying...",
+    "promo_remove": "Remove",
+    "promo_invalid": "Invalid promo code.",
+    "promo_code_required": "Enter a promo code.",
+    "promo_applied": "Promo code applied: {code} (-${amount})"
+  },
+  "service": {
+    "findServices": {
+      "title": "find assets.",
+      "description": "Browse curated digital assets from top creators worldwide."
+    },
+    "filters": {
+      "title": "filters",
+      "search": "search",
+      "search_placeholder": "asset title or keywords...",
+      "sort_by": "sort by",
+      "sort_newest": "newest",
+      "sort_price_asc": "price: low to high",
+      "sort_price_desc": "price: high to low",
+      "categories": "categories",
+      "price_range": "price range",
+      "apply": "apply",
+      "clear_all": "clear all",
+      "reset": "reset",
+      "show_results": "show results"
+    },
+    "results": {
+      "showing": "showing",
+      "results": "results",
+      "services_count": "{count} assets",
+      "no_results_title": "no assets found",
+      "no_results_desc": "we couldn't find any assets matching your current filters. try adjusting your search criteria.",
+      "clear_filters": "clear filters"
+    },
+    "starting_at": "starting at",
+    "serviceDetail": {
+      "deliveryDays": "days"
+    }
+  },
+  "market": {
+    "meta_title": "Digital Products – Templates, AI Tools & More",
+    "meta_description": "Browse and buy premium digital products. Templates, UI kits, AI workflows, and SaaS kits from creators.",
+    "hero": {
+      "title": "explore digital products",
+      "description": "Browse curated digital goods with structured categories designed for builders and creators."
+    },
+    "filters": {
+      "search": "Search",
+      "search_placeholder": "Search by title, tag, or creator…",
+      "sort": "Sort by",
+      "sort_newest": "Newest first",
+      "sort_price_asc": "Price: low to high",
+      "sort_price_desc": "Price: high to low",
+      "category": "Category",
+      "category_all": "All",
+      "subcategories": "Subcategory",
+      "tags": "Tags",
+      "tags_all": "All tags",
+      "title": "Filters",
+      "primary_filters": "Refine results",
+      "reset": "Reset all",
+      "show_results": "Show results",
+      "load_more": "Load more",
+      "loading_more": "Loading…",
+      "found_count": "{count, plural, =0 {No products} =1 {1 product} other {# products}}",
+      "clear_all": "Clear all",
+      "resilience": {
+        "degraded_title": "Results may be limited right now",
+        "degraded_description": "Some data sources are temporarily unavailable. You can still browse available results while we recover.",
+        "measure_active": "Automatic protection is active",
+        "refresh_required_title": "Data needs a refresh",
+        "refresh_required_description": "The current results may be outdated. Refresh now to load the latest available data.",
+        "refresh_cta": "refresh now"
+      }
+    },
+    "results": {
+      "count": "{count, plural, =0 {0 products} =1 {1 product} other {# products}}",
+      "empty_title": "No products found",
+      "empty_description": "No products match your current filters. Try adjusting your search or resetting filters.",
+      "clear_filters": "Clear filters"
+    },
+    "card": {
+      "by": "by {creator}",
+      "view_product": "View product",
+      "uncategorized": "Digital product",
+      "no_reviews": "No reviews yet",
+      "new": "New",
+      "popular": "Popular",
+      "bundle": "Bundle",
+      "report": "Report this product"
+    },
+    "meta": {
+      "not_available": "N/A",
+      "format_digital_default": "Digital",
+      "recently": "Recently"
+    },
+    "taxonomy": {
+      "categories": {
+        "templates-structures": "Templates & Structures",
+        "creative-resources": "Creative Resources",
+        "educational-content-guides": "Educational Content & Guides",
+        "technical-tools-code-automation": "Technical Tools (Code & Automation)",
+        "saas-starter-packs": "SaaS Starter Packs",
+        "ai-agent-blueprints": "AI Agent Blueprints"
+      },
+      "subcategories": {
+        "notion-spaces": "Notion Spaces",
+        "document-templates": "Document Templates",
+        "database-structures": "Database Structures",
+        "ui-ux-kits": "UI/UX Kits",
+        "graphic-packs": "Graphic Packs",
+        "presets": "Presets",
+        "ebooks-guides": "E-books & Guides",
+        "checklists": "Checklists",
+        "mini-courses": "Mini Courses",
+        "code-snippets": "Code Snippets",
+        "automations": "Automations",
+        "system-prompts": "System Prompts",
+        "mcp-tools-workflows": "MCP Tools & Workflows",
+        "full-agent-architectures": "Full Agent Architectures"
+      }
+    }
+  },
+  "agent_blueprints": {
+    "category_tagline": "The infrastructure is yours, the expertise is here. Browse AI architectures GitHub-style. Acquire the IP of top prompt engineers. Deploy anywhere.",
+    "form": {
+      "title": "Publish an AI Agent Blueprint",
+      "prompt_label": "System Prompt",
+      "prompt_placeholder": "Paste your optimised system prompt here...",
+      "tools_label": "Tools Configuration (JSON)",
+      "tools_placeholder": "Define tools in OpenAI function-calling or MCP format...",
+      "manifest_name": "Blueprint Name",
+      "manifest_version": "Version",
+      "compatible_models": "Compatible Models",
+      "deployment_targets": "Deployment Targets",
+      "readme_label": "Installation Instructions (Markdown)",
+      "readme_placeholder": "Explain how to import this agent into Cursor, LibreChat, Dify, etc.",
+      "license_type": "License Type",
+      "license_personal": "Personal",
+      "license_commercial": "Commercial",
+      "license_enterprise": "Enterprise",
+      "license_open": "Open",
+      "submit": "Publish Blueprint",
+      "save_draft": "Save as Draft",
+      "validation_prompt_required": "System prompt is required",
+      "validation_name_required": "Blueprint name is required",
+      "validation_tools_invalid_json": "Tools configuration must be valid JSON"
+    },
+    "access": {
+      "title": "Blueprint Access",
+      "copy_prompt": "Copy System Prompt",
+      "copied": "Copied to clipboard!",
+      "download_json": "Download Blueprint (.json)",
+      "readme_title": "Installation Instructions",
+      "manifest_title": "Blueprint Details",
+      "compatible_models": "Compatible Models",
+      "deployment_targets": "Deployment Targets",
+      "version": "Version",
+      "license": "License"
+    },
+    "badges": {
+      "verified": "Verified",
+      "ai_blueprint": "AI Blueprint"
+    },
+    "admin": {
+      "title": "Blueprint Vetting",
+      "subtitle": "Review and approve AI Agent Blueprints",
+      "approve": "Approve",
+      "revoke": "Revoke Approval",
+      "status_vetted": "Verified",
+      "status_pending": "Pending Review",
+      "no_blueprints": "No blueprints to review."
+    }
+  },
+  "cookie_consent": {
+    "consent_modal": {
+      "title": "We use cookies 🍪",
+      "description": "We use strictly necessary cookies to run, secure, and support the platform (including Zipchat and operational Speed Insights metrics). Analytics and marketing cookies remain optional.",
+      "accept_all": "Accept all",
+      "accept_necessary": "Accept necessary",
+      "show_preferences": "Manage preferences"
+    },
+    "preferences_modal": {
+      "title": "Cookie Preferences",
+      "accept_all": "Accept all",
+      "accept_necessary": "Accept necessary",
+      "save_preferences": "Save preferences",
+      "close_icon_label": "Close modal",
+      "sections": {
+        "necessary_title": "Always active",
+        "necessary_description": "These cookies are strictly necessary for the website to work and include Zipchat plus operational Speed Insights metrics. They cannot be disabled.",
+        "analytics_title": "Optional analytics",
+        "analytics_description": "These cookies help us measure website usage. For visitors not signed in, they also enable anonymous recommendation personalization.",
+        "visitor_notice_title": "Visitors not signed in",
+        "visitor_notice_description": "If you are not signed in, recommendation personalization uses a temporary anonymous cookie profile only when analytics cookies are accepted.",
+        "marketing_title": "Optional marketing",
+        "marketing_description": "These cookies enable advertising and ad performance measurement (for example AdSense)."
+      }
+    },
+    "manage": {
+      "button": "Manage cookies",
+      "policy": "Cookie policy"
+    }
+  },
+  "moderation": {
+    "report_title": "Report this product",
+    "report_subtitle": "Help us keep the marketplace safe and high-quality.",
+    "reason_label": "Reason for reporting",
+    "reason_illegal": "Illegal content",
+    "reason_violence": "Incitement to violence",
+    "reason_copyright": "Copyright infringement",
+    "reason_spam": "Spam or misleading content",
+    "reason_other": "Other",
+    "details_label": "Details (optional)",
+    "details_placeholder": "Briefly explain why you are reporting this product...",
+    "submit": "Report",
+    "submitting": "Submitting...",
+    "success_title": "Report received",
+    "success_message": "Thank you. Our team will review this product shortly.",
+    "error_generic": "An error occurred while submitting the report."
+  },
+  "artifacts_home": {
+    "header": {
+      "logo": "kode01.",
+      "templates": "Templates",
+      "explore": "Explore",
+      "discover": "Discover",
+      "creators": "Creators",
+      "bundles": "Bundles",
+      "pricing": "Pricing",
+      "start_selling": "Start Selling",
+      "cart": "cart ({count})"
+    },
+    "hero": {
+      "heading_line1": "Monetize your knowledge.",
+      "heading_line2": "Skip the setup.",
+      "subtitle": "The premium marketplace for AI blueprints, Notion systems, and vetted assets. Automate your processes with high-quality resources.",
+      "search_placeholder": "Search products and news...",
+      "start_selling": "Start Selling",
+      "explore_assets": "Explore Assets",
+      "proof_assets": "{count}+ digital assets",
+      "proof_creators": "{count}+ creators",
+      "proof_sales": "{count}+ sales",
+      "card_latest_news": "Latest News",
+      "link_market": "Market",
+      "link_news": "AI News"
+    },
+    "features": {
+      "creators_label": "For Creators",
+      "creators_heading": "Sell your brain, not your time.",
+      "open_shop": "Open Shop",
+      "builders_label": "For Builders",
+      "builders_heading": "Skip the setup. Start building.",
+      "browse_catalog": "Browse Catalog"
+    },
+    "products": {
+      "title": "Fresh Drops",
+      "subtitle": "Workflows, templates, and AI tools -- fresh from independent creators this week.",
+      "view_all": "Browse the market",
+      "by": "by {creator}",
+      "add_btn": "Buy for {price}",
+      "added_btn": "✓ Added to Cart!",
+      "no_reviews": "No reviews yet"
+    },
+    "stats": {
+      "rev_value": "0",
+      "rev_label": "Newsletter Subscribers",
+      "assets_value": "0",
+      "assets_label": "Products + Articles on Site",
+      "creators_value": "0",
+      "creators_label": "Creators",
+      "sales_label": "Sales",
+      "trust_tagline": "Trusted by AI builders, solo creators, and teams shipping real products."
+    },
+    "modal": {
+      "title": "Start Selling on kode01.",
+      "success_emoji": "🎉",
+      "success_text": "Thanks! We'll be in touch soon to get your shop set up.",
+      "name_label": "Your Name",
+      "name_placeholder": "Jane Smith",
+      "email_label": "Email Address",
+      "email_placeholder": "jane@example.com",
+      "type_label": "Product Type",
+      "type_placeholder": "e.g. Notion Templates, n8n Workflows",
+      "desc_label": "Tell us about your products",
+      "desc_placeholder": "Brief description...",
+      "submit": "Submit Application"
+    },
+    "footer": {
+      "copyright": "© 2024 kode01 Marketplace. Inspired by creators."
+    },
+    "marquee": {
+      "content": "N8N FLOWS ? NOTION SYSTEMS ? AI PROMPTS ? SAAS KITS ? AUTOMATION ? DESIGN ? BLUEPRINTS ? APP ?"
+    },
+    "news": {
+      "label": "AI News",
+      "title": "AI Weekly Recap",
+      "meta_title": "AI News – Weekly Recap",
+      "subtitle": "Stay ahead with our curated weekly digest of the most important AI news.",
+      "featured": "Featured",
+      "read_article": "Read article",
+      "read": "Read",
+      "view_all": "Read past editions",
+      "draft": "Draft",
+      "empty_title": "No editions yet",
+      "empty_subtitle": "The first automated recap edition will appear here.",
+      "unavailable_title": "News is temporarily unavailable",
+      "unavailable_subtitle": "We could not load the editions right now. Try again in a few moments.",
+      "sort_newest": "Newest first",
+      "sort_oldest": "Oldest first",
+      "recommended_blog_title": "From Our Blog",
+      "recommended_blog_subtitle": "Guides and insights from the team",
+      "marketplace_promo": "Marketplace promo",
+      "marketplace_subtitle": "Products you can buy now"
+    }
+  },
+  "admin": {
+    "social_links": {
+      "title": "Footer Social Links",
+      "subtitle": "Manage the social media links displayed in the website footer.",
+      "update_button": "Update Footer",
+      "updating": "Updating...",
+      "success": "Social links updated successfully.",
+      "error": "Failed to update social links.",
+      "table": {
+        "platform": "Platform",
+        "url": "URL",
+        "icon": "Icon",
+        "order": "Order",
+        "enabled": "Enabled",
+        "actions": "Actions"
+      },
+      "form": {
+        "add_link": "Add New Link",
+        "edit_link": "Edit Link",
+        "platform_placeholder": "e.g. Twitter",
+        "url_placeholder": "https://...",
+        "icon_placeholder": "Lucide icon name (e.g. Twitter, Github)",
+        "label_en": "Label (EN)",
+        "label_fr": "Label (FR)"
+      }
+    },
+    "soc2_logs": {
+      "title": "SOC 2 Logs",
+      "subtitle": "Immutable audit trail of critical platform actions",
+      "filters": {
+        "global_search": "Global search (IP, metadata, user...)",
+        "event_type": "Filter event type (ex: auth_)",
+        "user_id": "Filter user_id (UUID)",
+        "from_date": "From date",
+        "to_date": "To date",
+        "exact_type": "Exact type",
+        "submit": "Filter",
+        "reset": "Reset"
+      },
+      "table": {
+        "time": "Time",
+        "event": "Event",
+        "user": "User",
+        "ip": "IP",
+        "details": "Details",
+        "no_logs": "No logs found for these filters.",
+        "load_error": "Unable to load logs right now."
+      }
+    }
+  },
+  "editorial": {
+    "blog": {
+      "title": "Editorial Blog",
+      "subtitle": "Guides, updates, and strategic notes from the team.",
+      "draft": "Draft",
+      "empty_title": "No articles yet",
+      "empty_subtitle": "Your published editorial articles will appear here.",
+      "back_to_blog": "Back to blog",
+      "other_languages": "Other language versions",
+      "no_excerpt": "No excerpt available.",
+      "featured": "Featured",
+      "read_article": "Read article",
+      "sort_newest": "Newest first",
+      "sort_oldest": "Oldest first",
+      "by": "By",
+      "recommended_news_title": "Related AI News",
+      "recommended_news_subtitle": "Stay updated with the latest AI developments",
+      "sponsored_badge": "Sponsored"
+    }
+  },
+  "claps": {
+    "clap": "Clap",
+    "claps": "claps",
+    "max_reached": "You've given the maximum claps!",
+    "sign_in_to_clap": "Sign in to clap"
+  },
+  "lockscreen": {
+    "default_title": "Coming Soon",
+    "default_message": "We are launching soon. Enter the password to access the site.",
+    "password_placeholder": "Enter password",
+    "unlock_button": "Unlock Site",
+    "unlocking": "Unlocking...",
+    "invalid_password": "Invalid password. Please try again.",
+    "newsletter_title": "Don't miss the launch",
+    "newsletter_cta": "Subscribe",
+    "newsletter_success": "Thanks for subscribing!",
+    "newsletter_email_placeholder": "your@email.com",
+    "loader_message": "Initializing Experience"
+  },
+  "auth": {
+    "login_title": "Welcome back",
+    "login_subtitle": "Sign in to your kode01 account",
+    "signup_title": "Join kode01",
+    "signup_subtitle": "Create your account and start selling",
+    "login_tab": "Log in",
+    "signup_tab": "Sign up",
+    "email_placeholder": "your@email.com",
+    "password_placeholder": "Password",
+    "display_name_placeholder": "Your display name",
+    "login_btn": "Log in",
+    "signup_btn": "Create account",
+    "prelaunch_title": "Prelaunch access",
+    "prelaunch_subtitle": "Enter the password to unlock login and sign up.",
+    "prelaunch_password_placeholder": "Enter prelaunch password",
+    "prelaunch_unlock_btn": "Unlock access",
+    "prelaunch_error_invalid_password": "Invalid password. Please try again.",
+    "prelaunch_error_rate_limited": "Too many attempts. Wait a few minutes and try again.",
+    "prelaunch_error_generic": "Unable to unlock access right now. Please try again.",
+    "prelaunch_error_locked": "Login and sign up are locked until launch.",
+    "error_invalid": "Invalid credentials. Please try again.",
+    "error_rate_limited": "Too many attempts. Wait a few minutes and try again.",
+    "error_banned_account": "This account is temporarily blocked. Please try again later.",
+    "error_confirmation_email_failed": "We couldn't send the confirmation email right now. Please try again later or contact support.",
+    "forgot_password": "Forgot password?",
+    "reset_title": "Reset your password",
+    "reset_subtitle": "Enter your account email and we will send a secure reset link.",
+    "reset_send_btn": "Send reset link",
+    "reset_sending": "Sending...",
+    "reset_success_title": "Check your inbox",
+    "reset_success": "If an account exists for this email, a password reset link has been sent.",
+    "reset_back_to_login": "Back to login",
+    "reset_error_invalid": "Enter a valid email address.",
+    "reset_error_rate_limited": "Too many attempts. Wait a few minutes and try again.",
+    "reset_error_generic": "Unable to send a reset link right now. Please try again later.",
+    "success_signup_title": "Check your inbox!",
+    "success_signup": "We sent you a confirmation email. Click the link to activate your account.",
+    "logout": "Log out",
+    "logging_out": "Logging out...",
+    "login_success_title": "Welcome back!",
+    "login_success": "You are now signed in.",
+    "my_space": "My space",
+    "strength_very_weak": "Very weak",
+    "strength_weak": "Weak",
+    "strength_good": "Good",
+    "strength_strong": "Strong",
+    "rule_min_length": "8+ characters",
+    "rule_uppercase": "Uppercase (A-Z)",
+    "rule_lowercase": "Lowercase (a-z)",
+    "rule_number": "Number (0-9)",
+    "rule_special": "Special (!@#$%^&*)",
+    "dob_label": "Date of birth",
+    "dob_hint": "You must be at least 18 years old to create an account.",
+    "settings": "Settings",
+    "accept_legal_prefix": "I accept the",
+    "accept_legal_terms": "Terms of Service",
+    "accept_legal_and": "and",
+    "accept_legal_privacy": "Privacy Policy",
+    "accept_legal_suffix": "including recommendation personalization for signed-in accounts.",
+    "reset_password_page": {
+      "eyebrow": "Account recovery",
+      "title": "Choose a new password",
+      "description": "Use a strong password with uppercase, lowercase, number, and symbol.",
+      "new_password_label": "New password",
+      "new_password_placeholder": "Enter a new password",
+      "confirm_password_label": "Confirm password",
+      "confirm_password_placeholder": "Repeat your new password",
+      "show_password": "Show password",
+      "hide_password": "Hide password",
+      "submit": "Update password",
+      "submitting": "Updating...",
+      "success_title": "Password updated",
+      "success_description": "Your password has been changed. You can continue to your dashboard.",
+      "success_cta": "Go to dashboard",
+      "error_eyebrow": "Reset link invalid",
+      "error_title": "This reset link is invalid or expired.",
+      "error_description": "Request a new password reset email from the login window, then use the latest link.",
+      "error_cta": "Back to home",
+      "error_rate_limited": "Too many attempts. Wait a few minutes and try again.",
+      "error_session_missing": "Your reset session is missing or expired. Request a new reset link.",
+      "error_generic": "Unable to update your password right now. Please try again."
+    },
+    "confirm_page": {
+      "eyebrow_success": "Email confirmed",
+      "eyebrow_error": "Confirmation failed",
+      "title_success": "Your email is now confirmed.",
+      "title_error": "This confirmation link is invalid or expired.",
+      "description_success": "Your account is active. You can now access your settings and continue on the platform.",
+      "description_error": "Request a new confirmation email from the signup modal, then try again with the latest link.",
+      "cta_success": "Go to settings",
+      "cta_error": "Back to home",
+      "cta_market": "Explore marketplace",
+      "support_hint": "If this keeps happening, contact support@kode01.com.",
+      "cta_login": "Log in"
+    }
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "effective_date": "Effective Date: 19-Apr-2026",
+      "last_updated": "Last Updated: 19-Apr-2026",
+      "company_info": "Company: kode01, Gatineau, QC, Canada",
+      "email": "Email: support@kode01.com",
+      "website": "Website: https://kode01.com",
+      "intro": "This Privacy Policy explains how kode01 collects, uses, discloses, and protects information when you use our website and services.",
+      "update_notice": "We may update this Privacy Policy from time to time. When we do, we will post the revised version on this page. Continued use of the Service after changes become effective means you accept the updated Policy.",
+      "collect_title": "Information we collect:",
+      "collect_list": [
+        "Name",
+        "Email address",
+        "Profile details (display name, avatar, professional information, social links)",
+        "Product and listing content you publish (including images, descriptions, and metadata)",
+        "Account and authentication data",
+        "Technical and usage data (IP address, browser, device, pages viewed, events)",
+        "Support and communication data",
+        "Cookie and consent preferences",
+        "Payment and payout related information processed through Stripe"
+      ],
+      "methods_title": "How we collect your information:",
+      "methods_list": [
+        "When you create or update an account",
+        "When you publish content or interact with marketplace features",
+        "When you contact support or respond to communications",
+        "Automatically through cookies, logs, and analytics tools based on your consent settings",
+        "From trusted third-party providers we use to operate the platform (for example Stripe, Supabase, Zipchat)"
+      ],
+      "use_title": "How we use your information:",
+      "use_list": [
+        "Creating user accounts",
+        "Operating the marketplace and user dashboards",
+        "Processing transactions, payouts, refunds, and related records",
+        "Providing support and service communications",
+        "Preventing fraud, abuse, and security incidents",
+        "Enforcing our Terms and legal obligations",
+        "Improving product experience, analytics, and performance",
+        "Sending marketing communications where permitted by law or consent"
+      ],
+      "share_title": "How we share your information:",
+      "share_list": [
+        "Infrastructure and database providers (including Supabase)",
+        "Payment and onboarding providers (including Stripe and Stripe Connect)",
+        "Customer support and messaging tools (including Zipchat, loaded under legitimate interest to provide real-time assistance)",
+        "Analytics and advertising providers based on your cookie choices (for example Google AdSense)",
+        "AI and content generation providers (including Google Generative AI, Anthropic, and HuggingFace) for platform features such as content generation and recommendations",
+        "Newsletter and email marketing providers (including SendFox for newsletter subscriptions and Brevo for transactional emails)",
+        "Operational performance monitoring tools (including Vercel Speed Insights, loaded as necessary for service reliability)",
+        "Professional advisors, legal authorities, or acquirers where required or permitted by law"
+      ],
+      "share_text": "We do not sell your personal information. We only share data with third parties as needed to operate, secure, and improve the Service, or to comply with legal obligations.",
+      "retention_title": "Retention of your information",
+      "retention_text": "We keep personal information only for as long as necessary for the purposes described in this Policy, including legal, accounting, tax, fraud-prevention, and security requirements. Some records may be retained after account closure where required by law or legitimate business needs.",
+      "rights_title": "Your rights",
+      "rights_text": "Depending on applicable law (including Quebec Law 25, PIPEDA, GDPR, and CCPA where relevant), you may have rights to access, correct, delete, restrict, or object to processing, and request portability of your data. You may also withdraw consent where processing is based on consent.",
+      "rights_optout_text": "To exercise your rights or submit a privacy request, contact us at support@kode01.com. You may opt out of marketing communications at any time using unsubscribe links or by contacting us. If you believe your privacy rights are not being respected, you may also file a complaint with the Commission d'accès à l'information du Québec (CAI), the Office of the Privacy Commissioner of Canada (OPC), or the relevant supervisory authority in your jurisdiction.",
+      "cookies_title": "Cookies",
+      "cookies_text": "We use strictly necessary cookies to run and secure the Service. Optional analytics and marketing cookies are used only based on your consent preferences. Please refer to our Cookie Policy for full details.",
+      "stripe_payments_title": "Stripe (Payments)",
+      "stripe_payments_text": "Payments are processed securely by Stripe. kode01 does not store full card numbers. Stripe handles payment data according to Stripe's Privacy Policy: https://stripe.com/privacy",
+      "stripe_connect_title": "Stripe Connect and verification",
+      "stripe_connect_text": "For seller onboarding and payouts, we rely on Stripe Connect. Identity and compliance checks required for payout activation are performed through Stripe's infrastructure. kode01 receives only the status and limited metadata needed to operate the marketplace and comply with legal obligations.",
+      "security_title": "Security",
+      "security_text": "We implement reasonable technical and organizational safeguards to protect your information. However, no system can guarantee absolute security.",
+      "monitoring_title": "Safety monitoring",
+      "monitoring_text": "We may monitor platform activity, logs, and administrative events to prevent abuse, detect fraud, enforce platform rules, and maintain service integrity.",
+      "third_party_title": "Third-party links and services",
+      "third_party_text": "Our Service may link to third-party websites or services. Their privacy practices are governed by their own policies, and we are not responsible for their content or data handling.",
+      "contact_title": "Privacy contact",
+      "contact_text": "For privacy questions, complaints, or requests, contact: support@kode01.com",
+      "personalization_title": "Behavioral data for personalization",
+      "tracking_text": "We store behavioral recommendation signals to improve relevance. For guest users, this data can be stored in browser cookies/local storage (subject to consent). For signed-in users, relevant data may be associated with your account to provide a consistent experience across devices.",
+      "fingerprinting_title": "Device fingerprinting",
+      "fingerprinting_text": "For marketing campaign analytics, we may generate a pseudonymous device fingerprint derived from your browser's user agent, screen dimensions, and timezone. This fingerprint is used solely for event deduplication and fraud prevention within a limited time window. It is not used to identify you personally and requires your marketing consent.",
+      "dnt_title": "Do Not Track",
+      "dnt_text": "Our Service does not currently respond to Do Not Track (DNT) browser signals. However, you can control tracking through our cookie consent preferences at any time."
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "last_updated": "Last updated: March 8, 2026",
+      "summary": "These Terms govern your access to and use of kode01 services as a buyer, seller, or visitor.",
+      "toc_title": "Table of contents",
+      "s1_title": "1. Introduction",
+      "s1_text": "Welcome to kode01 (https://kode01.com), a digital marketplace for creators and buyers of digital products. kode01 is operated by kode01, headquartered in Gatineau, Quebec, Canada. These Terms apply to our website, dashboards, checkout flows, and related services.",
+      "s2_title": "2. Definitions",
+      "s2_text": "\"Platform\" means kode01 websites, applications, and related systems. \"Seller\" means a user who publishes digital products. \"Buyer\" means a user who purchases digital products. \"Product\" means any digital item, file, bundle, license, or related listing made available on the Platform.",
+      "s3_title": "3. Eligibility and acceptance",
+      "s3_text": "You must be at least 18 years old to create an account and use paid services. By creating an account, browsing, or transacting on kode01, you agree to these Terms and to our Privacy Policy.",
+      "s4_title": "4. Nature of the platform",
+      "s4_text": "kode01 provides technology infrastructure that enables product discovery, publishing, checkout, and delivery workflows. Except where expressly stated, kode01 is not the merchant of record for third-party seller products and is not a party to private agreements between users.",
+      "s5_title": "5. User responsibilities and conduct",
+      "s5_text": "You agree not to use the platform for illegal acts, to incite violence, or to distribute content that violates copyright. Our system is a closed-loop environment based on vetted assets; any attempt to hijack AI models for unauthorized purposes is strictly prohibited. We perform proactive moderation to ensure compliance with these rules.",
+      "s6_title": "6. Independent seller status",
+      "s6_text": "Sellers act as independent parties and are solely responsible for their product content, descriptions, representations, tax obligations, and legal compliance. Nothing in these Terms creates an employment, agency, partnership, or joint-venture relationship with kode01.",
+      "s7_title": "7. Non-circumvention and off-platform transactions",
+      "s7_text": "When a buyer and seller connect through kode01, attempts to bypass the Platform for related paid transactions in order to avoid platform fees are prohibited. kode01 may suspend accounts or remove access for circumvention or fee-avoidance behavior.",
+      "s8_title": "8. Fees, subscriptions, and payments",
+      "s8_text": "Payments are processed through Stripe and seller payouts rely on Stripe Connect. Platform fees currently follow the seller plan configured on the account: Free plan 15% + $0.31 USD per sale. Buyers are charged the product price shown at checkout, plus applicable taxes and payment-provider requirements.",
+      "s9_title": "9. Cancellations, refunds, and disputes",
+      "s9_text": "Refund availability may depend on product type, listing terms, technical access status, and applicable law. kode01 may review disputes and make platform-level decisions to protect users, prevent abuse, and enforce these Terms.",
+      "s10_title": "10. Ownership and intellectual property",
+      "s10_text": "Sellers retain ownership of their original content unless they explicitly transfer rights in their listing terms. Buyers receive the license or rights described on the product page after successful payment. Users grant kode01 a limited license to host and display submitted content solely to operate and improve the Platform.",
+      "s11_title": "11. Confidentiality",
+      "s11_text": "Users must not misuse confidential information obtained through the Platform. Any private data, files, or credentials shared for legitimate transaction purposes must be handled with reasonable care and used only for that purpose.",
+      "s12_title": "12. Disclaimer of warranties",
+      "s12_text": "To the maximum extent permitted by law, Services are provided on an \"as is\" and \"as available\" basis without warranties of uninterrupted access, merchantability, fitness for a particular purpose, or non-infringement.",
+      "s13_title": "13. Limitation of liability",
+      "s13_text": "To the maximum extent permitted by law, kode01 is not liable for indirect, incidental, special, consequential, or punitive damages. kode01 total liability related to the Services is limited to amounts paid to kode01 in the twelve (12) months before the event giving rise to the claim.",
+      "s14_title": "14. Privacy and platform monitoring",
+      "s14_text": "Data handling is described in our Privacy Policy. kode01 may monitor logs, events, and platform activity to prevent fraud, enforce platform rules, maintain system integrity, and meet legal obligations.",
+      "s15_title": "15. Governing law and jurisdiction",
+      "s15_text": "These Terms are governed by the laws of Quebec, Canada. Exclusive jurisdiction is Gatineau, Quebec, unless mandatory consumer-protection law provides otherwise.",
+      "s16_title": "16. Personalization and dynamic sorting",
+      "s16_text": "To improve experience, kode01 may use interaction signals such as viewed pages, clicks, and purchase-related behavior to personalize recommendations and dynamically reorder selected areas. For signed-in users, relevant signals may be associated with the account. You can request deletion of recommendation tracking data from account settings."
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "effective_label": "Effective Date:",
+      "effective_date": "19-Apr-2026",
+      "updated_label": "Last Updated:",
+      "updated_date": "19-Apr-2026",
+      "what_title": "What are cookies?",
+      "what_text": "Cookies are small text files stored on your device when you visit a website. They help keep the platform secure and functional, improve user experience, and support measurement and product improvement when consent is provided.",
+      "how_title": "How does kode01 use cookies?",
+      "how_text": "We use first-party and third-party cookies. First-party cookies are required for core platform functions, security, support, and operational performance monitoring. Optional analytics and marketing cookies are used only when you accept them through the cookie banner or settings.",
+      "types_title": "Types of Cookies we use",
+      "types_list": [
+        "<strong>Essential cookies:</strong> Strictly necessary to provide core platform services (authentication, security, consent logging, support tools like Zipchat, and operational performance monitoring via Vercel Speed Insights).",
+        "<strong>Performance and analytics cookies:</strong> Help us understand platform usage and improve features. For visitors not signed in, these may enable anonymous recommendation personalization.",
+        "<strong>Functionality cookies:</strong> Improve experience and convenience, including preference storage.",
+        "<strong>Marketing cookies:</strong> Used to deliver and measure advertising performance (for example Google AdSense)."
+      ],
+      "manage_title": "Manage cookie preferences",
+      "manage_text": "You can manage your choices at any time from the cookie settings button. You can also block or delete cookies from your browser settings.",
+      "browser_links": [
+        {
+          "name": "How to manage cookies in Chrome",
+          "url": "https://support.google.com/chrome/answer/95647"
+        },
+        {
+          "name": "How to manage cookies in Firefox",
+          "url": "https://support.mozilla.org/en-US/kb/clear-cookies-and-site-data-firefox"
+        },
+        {
+          "name": "How to manage cookies in Safari",
+          "url": "https://support.apple.com/guide/safari/manage-cookies-and-website-data-sfri11471/mac"
+        },
+        {
+          "name": "How to manage cookies in Microsoft Edge",
+          "url": "https://support.microsoft.com/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09"
+        }
+      ],
+      "register_title": "Cookie register",
+      "register_text": "This register summarizes the main cookies and trackers currently used on kode01.",
+      "register_headers": {
+        "name": "Name",
+        "category": "Category",
+        "purpose": "Purpose",
+        "duration": "Duration",
+        "provider": "Provider"
+      },
+      "register_rows": [
+        {
+          "name": "cc_cookie",
+          "category": "Necessary",
+          "purpose": "Stores your cookie consent preferences.",
+          "duration": "6 months",
+          "provider": "KODE01"
+        },
+        {
+          "name": "kode01_consent_id",
+          "category": "Necessary",
+          "purpose": "Pseudonymous identifier for consent evidence.",
+          "duration": "400 days",
+          "provider": "KODE01"
+        },
+        {
+          "name": "kode01_auth_session_expired_log",
+          "category": "Necessary",
+          "purpose": "Temporary throttle cookie used to avoid duplicate expired-session security logs.",
+          "duration": "5 minutes",
+          "provider": "KODE01"
+        },
+        {
+          "name": "sb-*-auth-token",
+          "category": "Necessary",
+          "purpose": "Authentication session tokens managed by Supabase for secure sign-in.",
+          "duration": "Session",
+          "provider": "Supabase"
+        },
+        {
+          "name": "ds_bot_flag",
+          "category": "Necessary",
+          "purpose": "Security cookie used to flag and block abusive bot traffic.",
+          "duration": "365 days",
+          "provider": "KODE01"
+        },
+        {
+          "name": "clap_anon_id",
+          "category": "Necessary",
+          "purpose": "Anonymous identifier used to secure article clap counters for signed-out visitors.",
+          "duration": "365 days",
+          "provider": "KODE01"
+        },
+        {
+          "name": "lockscreen_unlocked",
+          "category": "Necessary",
+          "purpose": "Keeps lockscreen access unlocked after password verification.",
+          "duration": "7 days",
+          "provider": "KODE01"
+        },
+        {
+          "name": "prelaunch_auth_unlocked",
+          "category": "Necessary",
+          "purpose": "Keeps prelaunch auth gate unlocked after password verification.",
+          "duration": "7 days",
+          "provider": "KODE01"
+        },
+        {
+          "name": "zipchat_widget",
+          "category": "Necessary",
+          "purpose": "Enables the Zipchat support widget and related session behavior.",
+          "duration": "Provider-defined",
+          "provider": "Zipchat"
+        },
+        {
+          "name": "Vercel Speed Insights",
+          "category": "Necessary",
+          "purpose": "Collects operational page-performance telemetry required for reliability monitoring in production.",
+          "duration": "Provider-defined",
+          "provider": "Vercel"
+        },
+        {
+          "name": "kode01_reco_profile",
+          "category": "Analytics",
+          "purpose": "Stores an anonymous recommendation profile for visitors not signed in (only when analytics consent is accepted).",
+          "duration": "30 days",
+          "provider": "KODE01"
+        },
+        {
+          "name": "view-tracked:* (localStorage)",
+          "category": "Analytics",
+          "purpose": "Prevents duplicate product view counting within the same day.",
+          "duration": "Until midnight (daily reset)",
+          "provider": "KODE01"
+        },
+        {
+          "name": "reco-view-tracked:* (localStorage)",
+          "category": "Analytics",
+          "purpose": "Prevents duplicate recommendation view tracking within the same day.",
+          "duration": "Until midnight (daily reset)",
+          "provider": "KODE01"
+        },
+        {
+          "name": "kode01-marketing-store (localStorage)",
+          "category": "Marketing",
+          "purpose": "Stores dismissed marketing campaign states and cooldown timers to avoid repeated display.",
+          "duration": "Persistent (cleared on cache clear)",
+          "provider": "KODE01"
+        },
+        {
+          "name": "adsbygoogle",
+          "category": "Marketing",
+          "purpose": "Serves ads and measures ad performance.",
+          "duration": "Provider-defined",
+          "provider": "Google AdSense"
+        }
+      ]
+    },
+    "canada": {
+      "title": "Canada Privacy Compliance",
+      "intro": "kode01 is committed to privacy compliance across Canada. This page explains how we align with key Canadian privacy frameworks and how users can exercise their rights.",
+      "frameworks_title": "1. Canadian privacy frameworks",
+      "frameworks_list": [
+        "PIPEDA (Federal): Personal Information Protection and Electronic Documents Act.",
+        "Quebec Law 25: modernized privacy governance requirements for private-sector organizations.",
+        "Provincial private-sector laws: including Alberta PIPA and British Columbia PIPA where applicable."
+      ],
+      "scope_title": "2. Scope across Canada",
+      "scope_text": "Depending on your province and activity type, either federal or provincial law may apply. kode01 applies a harmonized compliance baseline to support users across Canada.",
+      "rights_title": "3. Your privacy rights",
+      "rights_intro": "Depending on applicable law, you may request:",
+      "rights_list": [
+        "access to your personal information",
+        "correction of your personal information",
+        "deletion of your personal information",
+        "portability of your personal information",
+        "withdrawal of consent where processing is based on consent"
+      ],
+      "request_title": "4. How to submit a request",
+      "request_list": [
+        "Data export: Settings / Privacy tab — use the \"Export my data\" button to download your data in JSON format.",
+        "Account deletion: Settings / Privacy tab — use the \"Delete my account\" button to permanently remove your account and all associated data.",
+        "Privacy contact: support@kode01.com"
+      ],
+      "cross_border_title": "5. Cross-border processing",
+      "cross_border_text": "Some service providers may process data outside Canada. We use contractual and operational safeguards to protect personal information during cross-border transfers.",
+      "contact_title": "6. Contact",
+      "contact_email": "support@kode01.com",
+      "contact_address": "kode01, Gatineau, QC, Canada",
+      "disclaimer": "This page is provided for general informational purposes and does not constitute legal advice."
+    },
+    "gdpr_ccpa": {
+      "title": "GDPR & CCPA",
+      "intro": "kode01 is committed to protecting personal data and respecting user rights under the GDPR, CCPA/CPRA, Quebec Law 25, and PIPEDA where applicable. This page summarizes how we handle data protection and how you can exercise your rights.",
+      "controller_title": "1. Data Controller",
+      "controller_text": "Data controller: kode01, Gatineau, Quebec, Canada. Privacy contact: support@kode01.com.",
+      "legal_basis_title": "2. Legal Basis for Processing (GDPR Art. 6)",
+      "legal_basis_list": [
+        "Consent (Art. 6(1)(a)): cookie preferences, optional analytics/marketing cookies, and consent-based communications.",
+        "Contract (Art. 6(1)(b)): account creation, authentication, checkout, payment processing, seller payouts, and service delivery.",
+        "Legitimate interest (Art. 6(1)(f)): platform security, fraud prevention, abuse monitoring, reliability logging, and product improvement analytics.",
+        "Legal obligation (Art. 6(1)(c)): tax/accounting duties, compliance checks, and regulatory reporting."
+      ],
+      "gdpr_rights_title": "3. Your Rights Under GDPR",
+      "rights_list": [
+        "Right of access (Art. 15): request a copy of your personal data.",
+        "Right to rectification (Art. 16): correct inaccurate or incomplete data.",
+        "Right to erasure (Art. 17): request deletion where legal retention does not require us to keep data.",
+        "Right to restriction (Art. 18): request limited processing in specific cases.",
+        "Right to data portability (Art. 20): request your data in a structured, machine-readable format.",
+        "Right to object (Art. 21): object to processing based on legitimate interests.",
+        "Right to withdraw consent (Art. 7(3)): update cookie choices at any time via the cookie settings controls."
+      ],
+      "age_title": "4. Age Requirements",
+      "age_text": "kode01 is intended for users aged 18 and over. We may refuse, suspend, or close accounts that do not meet applicable age requirements.",
+      "transfers_title": "5. International Data Transfers",
+      "transfers_list": [
+        "Stripe / Stripe Connect (United States): payment processing, onboarding, and payout compliance.",
+        "Supabase: hosting, database, authentication, and storage infrastructure.",
+        "Zipchat: customer support messaging.",
+        "Google AdSense (when marketing cookies are accepted): advertising delivery and measurement.",
+        "Brevo: transactional and operational email delivery.",
+        "Google Generative AI (United States): AI-powered content generation features.",
+        "Anthropic (United States): AI-powered content generation features.",
+        "HuggingFace (United States / EU): AI model inference for platform features.",
+        "SendFox (United States): newsletter subscription management.",
+        "Vercel (United States): hosting, deployment, and performance monitoring."
+      ],
+      "transfers_text": "When personal data is transferred outside your jurisdiction, we rely on appropriate safeguards (such as contractual protections) and only transfer data necessary to provide and secure the service.",
+      "retention_title": "6. Data Retention",
+      "retention_text": "We keep personal data only as long as necessary for service delivery, security, legal, tax, accounting, and fraud-prevention obligations. Some records may be retained after account closure where required by law.",
+      "breach_title": "7. Data Breach Notification",
+      "breach_text": "If a personal data breach occurs, kode01 will investigate and notify competent authorities and affected users when required by applicable law, including GDPR Articles 33 and 34 where applicable.",
+      "authority_title": "8. Supervisory Authority",
+      "authority_text": "If you are in the European Economic Area, you may lodge a complaint with your local data protection authority.",
+      "ccpa_title": "CCPA Compliance (California)",
+      "ccpa_text": "KODE01 respects the privacy rights of California residents under the CCPA and CPRA.",
+      "ccpa_categories_title": "9. Categories of personal information collected (past 12 months)",
+      "ccpa_categories_list": [
+        "Identifiers: name, email address, account identifiers.",
+        "Professional/profile information: display name, avatar, social links, creator or vendor details.",
+        "Commercial information: purchases, subscriptions, order history, and transaction records.",
+        "Internet or network activity: pages viewed, interactions, search queries, and navigation behavior.",
+        "Geolocation data: approximate location inferred from IP address.",
+        "User content and media: product listings, support messages, uploaded images, and related metadata.",
+        "Payment and payout information processed through Stripe and Stripe Connect.",
+        "Device identifiers: pseudonymous device fingerprints (derived from browser user agent, screen size, and timezone) used for marketing event deduplication when marketing consent is given."
+      ],
+      "ccpa_rights_title": "10. Your rights under CCPA/CPRA",
+      "ccpa_rights_list": [
+        "Right to know what personal information we collect, use, disclose, and retain.",
+        "Right to request deletion, subject to legal exceptions.",
+        "Right to correct inaccurate personal information.",
+        "Right to data portability for information you provided.",
+        "Right to opt out of sale/sharing where applicable.",
+        "Right to non-discrimination for exercising privacy rights."
+      ],
+      "ccpa_no_sale_title": "11. We do not sell your personal information",
+      "ccpa_no_sale_text": "KODE01 does not sell personal information for monetary consideration. We disclose data only to service providers acting on our behalf, including Supabase, Stripe/Stripe Connect, Zipchat, and advertising/analytics partners according to your cookie choices.",
+      "ccpa_exercise_title": "12. How to exercise your rights",
+      "ccpa_exercise_list": [
+        "Send a verifiable privacy request to support@kode01.com (preferably from your account email).",
+        "Update profile information directly in your account settings.",
+        "Manage analytics and marketing consent using the cookie controls."
+      ],
+      "ccpa_response_time": "We respond to verifiable requests within the timeframe required by California law (generally within 45 days, with extension where permitted).",
+      "authorized_agent_title": "13. Authorized agents",
+      "authorized_agent_text": "You may authorize an agent to submit a request on your behalf. We may request proof of signed authorization and may verify your identity directly.",
+      "contact_title": "14. Contact",
+      "contact_lines": [
+        "Email: support@kode01.com",
+        "kode01, Gatineau, QC, Canada"
+      ]
+    }
+  },
+  "global_search": {
+    "meta_title": "Search Products & News",
+    "meta_description": "Search products and news from one page.",
+    "title": "Search across kode01",
+    "subtitle": "Find products and news in one place.",
+    "placeholder": "Search products and news...",
+    "submit": "Search",
+    "empty_prompt": "Start typing to search products and news.",
+    "no_results": "No results found for \"{query}\".",
+    "summary": "{count, plural, =0 {0 results} =1 {1 result} other {# results}}",
+    "section_products": "Products",
+    "section_news": "News",
+    "view_product": "View product",
+    "view_news": "Read article",
+    "free": "Free",
+    "paid": "Paid"
+  },
+  "dashboard": {
+    "header": {
+      "search_placeholder": "Search...",
+      "my_account": "My account",
+      "connected": "Connected",
+      "logout": "Log out",
+      "logging_out": "Logging out...",
+      "settings": "Settings",
+      "manage_cookies": "Manage cookies",
+      "notifications_title": "Notifications",
+      "notifications_loading": "Loading notifications...",
+      "notifications_empty": "No notifications yet.",
+      "notifications_mark_all_read": "Mark all read",
+      "notifications_push_enable": "Enable browser alerts",
+      "notifications_push_enabled": "Browser alerts on"
+    },
+    "sidebar": {
+      "admin": {
+        "overview": "Overview",
+        "market_taxonomy": "Market taxonomy",
+        "users": "Users",
+        "lockscreen": "Site Lockscreen",
+        "controllers": "Controllers",
+        "social_links": "Social Networks",
+        "logs": "Logs",
+        "finance": "Finance",
+        "api_monitoring": "API Monitoring",
+        "security_bot_protection": "Security & Bot Protection",
+        "marketing": "Marketing",
+        "ai_recap": "AI Recap",
+        "seo_blog_agent": "SEO Blog Agent",
+        "editorial": "Editorial CMS",
+        "ads": "Advertising",
+        "privacy_cookies": "Privacy & Cookies Logs",
+        "order_incidents": "Order Incidents",
+        "mfa": "Admin MFA",
+        "restricted_shop_names": "Restricted shop names",
+        "cms_editor": "Editor",
+        "cms_stats": "Statistics",
+        "cms_publications": "Publications",
+        "cms_sponsored": "Sponsored Blogs",
+        "seo_management": "SEO Management",
+        "bundles": "Bundles",
+        "blueprints": "AI Blueprints",
+        "coupons": "Coupons"
+      },
+      "vendor": {
+        "overview": "Dashboard",
+        "products": "Products",
+        "orders": "Orders",
+        "analytics": "Analytics",
+        "payouts": "Revenue",
+        "affiliates": "Affiliates",
+        "followers": "Followers",
+        "licenses": "Licenses",
+        "settings": "Settings",
+        "sponsored_blog": "Sponsored Blog",
+        "bundles": "Bundles",
+        "reviews": "My Reviews",
+        "coupons": "Coupons"
+      },
+      "buyer": {
+        "overview": "Dashboard",
+        "my_purchases": "My Purchases",
+        "my_reviews": "My Reviews",
+        "following": "Following",
+        "ads": "Advertise",
+        "sponsored_blog": "Sponsored Blog",
+        "followers": "Followers"
+      },
+      "roles": {
+        "admin": "Admin",
+        "vendor": "Vendor",
+        "buyer": "Buyer"
+      },
+      "account_management": "Account Management",
+      "settings": "Settings",
+      "saved_items": "Saved",
+      "logout": "Log out",
+      "logging_out": "Logging out...",
+      "collapse_sidebar": "Collapse sidebar",
+      "expand_sidebar": "Open sidebar",
+      "sections": {
+        "general": "General",
+        "configuration": "Configuration",
+        "ai_ecosystem": "AI & Ecosystem",
+        "cms_blogs": "CMS Blogs",
+        "marketing": "Marketing",
+        "security_legal": "Security & Legal",
+        "store": "Store",
+        "financial": "Financial",
+        "growth": "Growth",
+        "account": "Account",
+        "my_purchases": "My Purchases"
+      }
+    },
+    "saved": {
+      "title": "Saved Products",
+      "subtitle": "Your favorite tools and courses",
+      "empty_title": "No saved items yet",
+      "empty_description": "Keep track of interesting products by clicking the save icon.",
+      "error_loading": "Failed to load saved items"
+    },
+    "following": {
+      "title": "Following",
+      "subtitle": "Creators you follow and their latest updates",
+      "empty_title": "Not following anyone yet",
+      "empty_description": "Discover creators and follow them to see their latest products here.",
+      "discover_creators": "Discover creators",
+      "error_loading": "Failed to load followed creators",
+      "activity_title": "Recent activity",
+      "activity_empty": "No recent activity from your followed creators.",
+      "followed_creators_title": "Followed creators",
+      "new_product": "New product",
+      "view_product": "View product"
+    },
+    "followers": {
+      "title": "Followers",
+      "subtitle": "People who follow your shop",
+      "empty_title": "No followers yet",
+      "empty_description": "As you publish products and grow your presence, followers will appear here.",
+      "error_loading": "Failed to load followers",
+      "total_followers": "Total followers",
+      "new_this_month": "New this month",
+      "follower_since": "Following since"
+    },
+    "settings_modal": {
+      "modal_title": "Settings",
+      "profile_tab": "Profile",
+      "billing_tab": "Billing",
+      "privacy_tab": "Privacy",
+      "display_name_label": "Display Name",
+      "display_name_placeholder": "Enter your display name",
+      "email_label": "Email Address",
+      "save_profile": "Save Changes",
+      "saving": "Saving...",
+      "profile_update_success": "Profile updated successfully!",
+      "profile_update_error": "Failed to update profile.",
+      "email_change_title": "Change login email",
+      "email_change_description": "A confirmation link will be sent to your new email address.",
+      "new_email_label": "New email address",
+      "new_email_placeholder": "name@example.com",
+      "update_email": "Update email",
+      "updating_email": "Updating email...",
+      "email_update_success": "Email update request sent. Check your inbox to confirm.",
+      "email_update_error": "Failed to update email.",
+      "password_change_title": "Change password",
+      "password_change_description": "Use a strong password with uppercase, lowercase, number, and symbol.",
+      "new_password_label": "New password",
+      "new_password_placeholder": "Enter a new password",
+      "confirm_new_password_label": "Confirm new password",
+      "confirm_new_password_placeholder": "Repeat your new password",
+      "update_password": "Update password",
+      "updating_password": "Updating password...",
+      "password_update_success": "Password updated successfully.",
+      "password_update_error": "Failed to update password.",
+      "billing_status_title": "Your Subscription",
+      "billing_active_description": "You have an active subscription. Manage your plan and payment methods here.",
+      "billing_inactive_description": "You don't have an active subscription yet. Unlock premium features today.",
+      "manage_subscription": "Manage Billing",
+      "loading_portal": "Opening Portal...",
+      "billing_benefit_1": "Exclusive AI market access",
+      "billing_benefit_2": "Priority support & updates",
+      "billing_benefit_3": "Advanced analytics dashboard",
+      "view_plans": "Explore Plans",
+      "billing_secure_disclaimer": "All payments are securely handled by Stripe. No sensitive data is stored on our servers.",
+      "tracking_title": "Privacy & Data",
+      "tracking_description": "Manage your recommendation tracking data and privacy preferences.",
+      "admin_mfa_title": "Admin MFA",
+      "admin_mfa_description": "MFA is individual per admin account. Manage your personal admin MFA factors here.",
+      "admin_mfa_cta": "Manage admin MFA",
+      "export_title": "Export your data",
+      "export_description": "Download a copy of all personal data we hold about you, in JSON format.",
+      "delete_account_title": "Delete your account",
+      "delete_account_description": "Permanently delete your account and all associated data. This action is irreversible."
+    },
+    "analytics": {
+      "total_revenue": "Total revenue",
+      "total_sales": "Total sales",
+      "total_views": "Total views",
+      "conversion": "Conversion",
+      "last_30_days": "Last 30 days",
+      "revenue_overview_title": "Revenue overview",
+      "revenue_overview_desc": "Daily revenue and sales volume",
+      "traffic_title": "Traffic (views)",
+      "traffic_desc": "Daily unique product views",
+      "status_ready": "Analytics loaded",
+      "status_empty": "No analytics data yet",
+      "status_error": "Analytics temporarily unavailable",
+      "refresh": "Refresh",
+      "error_message": "We could not load analytics right now. Please retry in a moment.",
+      "empty_title": "No data to display yet",
+      "empty_description": "Data cards are shown, but charts will appear after enough events are collected."
+    },
+    "admin": {
+      "forbidden": "Forbidden",
+      "title": "Admin dashboard",
+      "subtitle": "Overview of your marketplace",
+      "market_taxonomy": {
+        "title": "Market taxonomy",
+        "subtitle": "Manage categories and subcategories used by /market filters",
+        "overview": {
+          "total_categories": "{count} categories",
+          "total_subcategories": "{count} subcategories",
+          "total_category_products": "Published products across categories: {count}",
+          "total_subcategory_products": "Published products across subcategories: {count}"
+        },
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "refresh": "Refresh",
+          "add": "Add",
+          "save": "Save",
+          "cancel": "Cancel",
+          "edit": "Edit",
+          "activate": "Activate",
+          "deactivate": "Deactivate"
+        },
+        "messages": {
+          "load_failed": "Unable to load market taxonomy.",
+          "save_failed": "Unable to save this change.",
+          "category_created": "Category created.",
+          "category_updated": "Category updated.",
+          "subcategory_created": "Subcategory created.",
+          "subcategory_updated": "Subcategory updated."
+        },
+        "categories": {
+          "title": "Categories",
+          "description": "Create and manage top-level categories for /market.",
+          "empty": "No categories found.",
+          "fields": {
+            "slug": "Slug (kebab-case)",
+            "name_en": "Name (EN)",
+            "name_fr": "Name (FR)",
+            "description_en": "Description (EN) - optional",
+            "description_fr": "Description (FR) - optional",
+            "display_order": "Display order",
+            "is_active": "Active"
+          },
+          "table": {
+            "slug": "Slug",
+            "names": "Names",
+            "order": "Order",
+            "status": "Status",
+            "published_products": "Published products",
+            "actions": "Actions"
+          }
+        },
+        "subcategories": {
+          "title": "Subcategories",
+          "description": "Create and manage subcategories linked to a category.",
+          "empty": "No subcategories found.",
+          "fields": {
+            "category_id": "Select category",
+            "slug": "Slug (kebab-case)",
+            "name_en": "Name (EN)",
+            "name_fr": "Name (FR)",
+            "description_en": "Description (EN) - optional",
+            "description_fr": "Description (FR) - optional",
+            "display_order": "Display order",
+            "is_active": "Active"
+          },
+          "table": {
+            "slug": "Slug",
+            "category": "Category",
+            "names": "Names",
+            "order": "Order",
+            "status": "Status",
+            "published_products": "Published products",
+            "actions": "Actions"
+          }
+        }
+      },
+      "stats": {
+        "total_users": "Total users",
+        "total_products": "Total products",
+        "transactions": "Transactions",
+        "revenue": "Revenue"
+      },
+      "from_last_month": "from last month",
+      "recent_registrations": "Recent registrations",
+      "joined_as_buyer": "Joined as buyer",
+      "joined_prefix": "Joined as",
+      "time_2m": "2m ago",
+      "recent_transactions": "Recent transactions",
+      "completed": "Completed",
+      "no_recent_registrations": "No recent registrations",
+      "no_recent_transactions": "No recent transactions",
+      "unknown_product": "Unknown product",
+      "security": {
+        "title": "Security & Bot Protection",
+        "subtitle": "Monitor and block suspicious traffic",
+        "view_logs": "View logs",
+        "unavailable": "Security data unavailable",
+        "metrics": {
+          "bots_24h": "BOTS (24H)",
+          "blocked_24h": "BLOCKED (24H)",
+          "honeypot_caught": "HONEYPOT CAUGHT",
+          "block_rate": "BLOCK RATE"
+        }
+      },
+      "bot_activity_page": {
+        "title": "Bot activity",
+        "subtitle": "Real-time bot detection and blocking logs"
+      },
+      "ai_recap_title": "AI recap automation",
+      "ai_recap_subtitle": "Manage sources, set the schedule, and monitor run status",
+      "seo_blog_agent_title": "SEO Blog Agent",
+      "seo_blog_agent_subtitle": "Generate draft blog articles with a LangGraph flow inspired by the optimized n8n writer",
+      "mfa": {
+        "title": "Admin MFA",
+        "subtitle": "Set up and verify multi-factor authentication for administrative access",
+        "loading": "Loading MFA status...",
+        "back_button": "Back to admin",
+        "confirm_remove_factor": "Remove this MFA factor?",
+        "status": {
+          "title": "MFA enforcement status",
+          "subtitle": "Admin pages and API endpoints now require an MFA-verified session.",
+          "protected": "Protected",
+          "action_required": "Action required",
+          "refresh": "Refresh",
+          "current_aal": "Current assurance level",
+          "verified_factors": "Verified factors",
+          "total_factors": "Total factors"
+        },
+        "session_challenge": {
+          "title": "Verify current session",
+          "subtitle": "This session is not yet MFA-verified. Complete a challenge with one of your verified factors.",
+          "factor_label": "Verified factor",
+          "code_label": "6-digit code",
+          "code_placeholder": "123456",
+          "verify_button": "Verify this session"
+        },
+        "enroll": {
+          "title": "Enroll a TOTP authenticator",
+          "subtitle": "Scan a QR code in your authenticator app, then validate the first code.",
+          "friendly_name_label": "Device name",
+          "friendly_name_placeholder": "Admin authenticator",
+          "start_button": "Generate QR code",
+          "scan_instruction": "Scan this QR code in your authenticator app.",
+          "qr_alt": "MFA QR code",
+          "secret_label": "Manual setup secret",
+          "code_label": "Verification code",
+          "code_placeholder": "123456",
+          "verify_button": "Verify and activate",
+          "cancel_button": "Cancel"
+        },
+        "factors": {
+          "title": "Registered factors",
+          "subtitle": "Review and remove MFA factors linked to your admin account.",
+          "empty": "No MFA factor is registered yet.",
+          "type": "Type",
+          "created_at": "Created",
+          "remove_button": "Remove factor"
+        },
+        "messages": {
+          "load_failed": "Unable to load MFA status.",
+          "status_refreshed": "MFA status refreshed.",
+          "enroll_started": "QR code generated. Scan it and verify with a 6-digit code.",
+          "enroll_failed": "Unable to enroll MFA factor.",
+          "code_required": "A 6-digit code is required.",
+          "verify_success": "New MFA factor has been verified.",
+          "verify_failed": "Unable to verify MFA factor.",
+          "session_verified": "Current session is now MFA-verified.",
+          "session_verify_failed": "Unable to verify this session.",
+          "factor_removed": "MFA factor removed.",
+          "factor_remove_failed": "Unable to remove MFA factor."
+        }
+      },
+      "editorial": {
+        "title": "Editorial CMS",
+        "subtitle": "Create, translate, publish, and optimize blog articles",
+        "list": {
+          "title": "Articles",
+          "search_placeholder": "Search by title, slug, or excerpt...",
+          "locale_all": "All locales",
+          "status_all": "All statuses",
+          "apply": "Apply",
+          "reset": "Reset",
+          "page_of": "Page {page} of {totalPages}",
+          "previous": "Previous",
+          "next": "Next"
+        },
+        "editor": {
+          "create_en_title": "Create EN source article",
+          "create_fr_title": "Create linked FR translation",
+          "edit_title": "Edit article",
+          "locale": "Locale",
+          "status": "Status",
+          "title": "Title",
+          "slug": "Slug",
+          "category": "Category",
+          "category_placeholder": "Select or add a category",
+          "author_name": "External Author",
+          "author_name_placeholder": "e.g. John Doe",
+          "auto_slug": "Auto slug",
+          "excerpt": "Excerpt",
+          "cover_image": "Cover image URL",
+          "upload": "Upload",
+          "seo_title": "SEO title",
+          "seo_description": "SEO description",
+          "publish_at": "Publish date & time",
+          "markdown": "Markdown content",
+          "preview": "Preview",
+          "show_preview": "Show preview",
+          "hide_preview": "Hide preview",
+          "last_updated": "Last updated",
+          "toolbar": {
+            "placeholder_text": "text"
+          },
+          "ai_helper": {
+            "title": "AI Prompting Reference",
+            "description": "Copy these keys into your AI prompt (ChatGPT, Gemini, etc.) to get the correct structure:",
+            "content": "Use these markdown keys exactly:\nH1: # Main title\nH2: ## Section title\nH3: ### Subsection title\nB: **text** Bold text\nI: *text* Italic text\n*: - Bullet list item\n1.: 1. Numbered list item\nLink: [text](url) Clickable link\nQuote: > Quoted line\nImg: ![alt](url) Image with alt text",
+            "copy": "Copy",
+            "copied": "Copied"
+          },
+          "create_source_title": "Create source article",
+          "create_translation_title": "Create linked translation"
+        },
+        "status": {
+          "draft": "Draft",
+          "published": "Published",
+          "scheduled": "Scheduled"
+        },
+        "actions": {
+          "create_en": "Create EN article",
+          "add_fr_translation": "Add FR translation",
+          "publish": "Publish",
+          "unpublish": "Unpublish",
+          "delete": "Delete",
+          "save": "Save",
+          "reset_editor": "Reset editor",
+          "create_fr": "Create FR article",
+          "add_translation": "Add translation"
+        },
+        "messages": {
+          "loading": "Loading articles...",
+          "no_results": "No articles found for current filters.",
+          "load_failed": "Unable to load articles right now.",
+          "save_success": "Article saved.",
+          "save_failed": "Unable to save this article.",
+          "delete_confirm": "Delete this article permanently?",
+          "delete_dialog": {
+            "title": "Delete article",
+            "description": "This action is irreversible. The article \"{title}\" will be permanently deleted.",
+            "cancel": "Cancel",
+            "confirm": "Delete permanently"
+          },
+          "delete_success": "Article deleted.",
+          "delete_failed": "Unable to delete this article.",
+          "published": "Article published.",
+          "unpublished": "Article moved to draft.",
+          "status_failed": "Unable to update status.",
+          "upload_success": "Cover uploaded.",
+          "upload_failed": "Unable to upload image.",
+          "copy_failed": "Unable to copy to clipboard."
+        }
+      },
+      "cms": {
+        "editor": {
+          "title": "CMS Blogs - Editor",
+          "subtitle": "Create, translate, publish, and optimize blog articles"
+        },
+        "stats": {
+          "title": "CMS Blogs - Statistics",
+          "subtitle": "Analytics and insights on your publications",
+          "coming_soon": "Statistics - Coming Soon",
+          "description": "Detailed statistics will soon be available: translation coverage, published articles, views and clicks.",
+          "ready": "Statistics up to date",
+          "error": "Error loading statistics",
+          "refresh": "Refresh",
+          "error_message": "Unable to load statistics. Please try again.",
+          "total_articles": "Total articles",
+          "published": "Published",
+          "drafts": "Drafts",
+          "publishing_velocity": "Publishing velocity",
+          "last_month": "last month",
+          "translation_coverage": "Translation coverage",
+          "complete_pairs": "complete pairs",
+          "content_health": "Content health",
+          "with_seo": "with SEO",
+          "with_cover": "with cover",
+          "timeline_title": "Publication timeline",
+          "timeline_desc": "Articles created per month (last 6 months)",
+          "distribution_title": "Distribution by status",
+          "distribution_desc": "Breakdown EN/FR by publication status",
+          "health_title": "Content health",
+          "with_cover_label": "With cover image",
+          "with_seo_label": "With SEO data",
+          "avg_length": "Average length",
+          "chars": "chars",
+          "recent_title": "Recent articles",
+          "no_articles": "No articles yet",
+          "total_views": "Total views",
+          "total_clicks": "Total clicks",
+          "views_subtitle": "All-time page views",
+          "clicks_subtitle": "All-time article clicks",
+          "top_articles_title": "Top articles",
+          "no_views_yet": "No views recorded yet",
+          "sponsored_submissions": "Sponsored submissions",
+          "sponsored_paid": "paid",
+          "sponsored_pending_review": "pending review",
+          "sponsored_approved": "approved & published",
+          "sponsored_revenue": "Sponsored revenue",
+          "sponsored_views": "sponsored views",
+          "sponsored_clicks": "sponsored clicks"
+        },
+        "publications": {
+          "title": "CMS Blogs - Publications",
+          "subtitle": "Advanced management of your articles with bulk actions",
+          "coming_soon": "Publications Management - Coming Soon",
+          "description": "Advanced management interface with filterable table, bulk actions, and CSV export.",
+          "search_placeholder": "Search by title or slug...",
+          "filter_all_locales": "All locales",
+          "filter_all_status": "All statuses",
+          "published": "Published",
+          "draft": "Draft",
+          "reset": "Reset",
+          "retry": "Retry",
+          "select_all": "Select all",
+          "selected_count": "{count} selected",
+          "bulk_publish": "Publish",
+          "bulk_unpublish": "Unpublish",
+          "bulk_delete": "Delete",
+          "export_csv": "Export CSV",
+          "bulk_success": "{count} article(s) updated successfully",
+          "bulk_error": "An error occurred during the operation",
+          "duplicate_success": "Article duplicated successfully",
+          "duplicate_error": "Failed to duplicate the article",
+          "fetch_error": "Unable to load articles",
+          "col_title": "Title",
+          "col_slug": "Slug",
+          "col_locale": "Locale",
+          "col_status": "Status",
+          "col_date": "Date",
+          "col_actions": "Actions",
+          "has_translation": "Translated",
+          "no_posts": "No articles found",
+          "showing": "{from}-{to} of {total}",
+          "action_edit": "Edit",
+          "action_duplicate": "Duplicate",
+          "action_delete": "Delete",
+          "delete_confirm_title": "Confirm deletion",
+          "delete_confirm_desc": "Are you sure you want to delete {count} article(s)? This action cannot be undone.",
+          "cancel": "Cancel",
+          "confirm_delete": "Delete"
+        },
+        "sponsored": {
+          "title": "CMS Blogs - Sponsored",
+          "subtitle": "Review and approve paid sponsored blog submissions",
+          "loading": "Loading sponsored submissions...",
+          "empty": "No sponsored submissions found for the current filters.",
+          "filters": {
+            "search": "Search by title or slug...",
+            "locale_all": "All locales",
+            "review_all": "All review statuses",
+            "payment_all": "All payment statuses"
+          },
+          "table": {
+            "title": "Title",
+            "locales": "Locales",
+            "review": "Review status",
+            "publication": "Publication",
+            "payment": "Payment",
+            "submitted_at": "Submitted at",
+            "actions": "Actions"
+          },
+          "status": {
+            "none": "None",
+            "pending_payment": "Pending payment",
+            "pending_review": "Pending review",
+            "approved": "Approved",
+            "rejected": "Rejected"
+          },
+          "publication": {
+            "draft": "Draft",
+            "published": "Published"
+          },
+          "payment": {
+            "none": "No order",
+            "pending": "Pending",
+            "paid": "Paid",
+            "failed": "Failed",
+            "refunded": "Refunded"
+          },
+          "actions": {
+            "apply": "Apply",
+            "reset": "Reset",
+            "refresh": "Refresh",
+            "approve": "Approve",
+            "reject": "Reject",
+            "reject_prompt": "Reason for rejection (manual refund policy):"
+          },
+          "messages": {
+            "approved": "Sponsored submission approved and scheduled for publishing.",
+            "rejected": "Sponsored submission rejected."
+          },
+          "errors": {
+            "load": "Unable to load sponsored submissions.",
+            "approve": "Unable to approve this sponsored submission.",
+            "reject": "Unable to reject this sponsored submission."
+          },
+          "pagination": {
+            "page_of": "Page {page} of {totalPages}",
+            "previous": "Previous",
+            "next": "Next"
+          }
+        }
+      },
+      "users": {
+        "title": "Users management",
+        "subtitle": "View profiles, plans, and manage temporary account blocks",
+        "kpis": {
+          "total_users": "Total users",
+          "active_users": "Active users",
+          "blocked_users": "Blocked users"
+        },
+        "filters": {
+          "search_placeholder": "Search by name, email, role, plan, or id...",
+          "role_all": "All profile types",
+          "role_buyer": "Buyer",
+          "role_seller": "Seller",
+          "role_admin": "Admin",
+          "plan_all": "All subscriptions",
+          "plan_free": "Free",
+          "plan_pro": "Pro",
+          "status_all": "All statuses",
+          "status_active": "Active",
+          "status_blocked": "Blocked",
+          "apply": "Apply",
+          "reset": "Reset"
+        },
+        "table": {
+          "title": "Platform users",
+          "user": "User",
+          "profile_type": "Profile type",
+          "subscription_type": "Subscription type",
+          "joined_at": "Joined",
+          "last_sign_in": "Last sign-in",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "status": {
+          "active": "Active",
+          "blocked": "Blocked",
+          "blocked_until": "Until {date}"
+        },
+        "actions": {
+          "block": "Block",
+          "unblock": "Unblock",
+          "not_manageable": "Not manageable"
+        },
+        "block_dialog": {
+          "title": "Temporary account block",
+          "description": "Block {user} for a selected duration.",
+          "reason_label": "Reason",
+          "reason_placeholder": "Why are you blocking this account?",
+          "duration_label": "Duration",
+          "mode_preset": "Presets",
+          "mode_custom": "Custom date",
+          "preset_24h": "24 hours",
+          "preset_7d": "7 days",
+          "preset_30d": "30 days",
+          "custom_until_label": "Block until",
+          "cancel": "Cancel",
+          "confirm": "Confirm block"
+        },
+        "pagination": {
+          "page_of": "Page {page} of {totalPages}",
+          "previous": "Previous",
+          "next": "Next"
+        },
+        "messages": {
+          "loading": "Loading users...",
+          "no_results": "No users match the current filters.",
+          "load_failed": "Unable to load users right now.",
+          "block_success": "Account was blocked successfully.",
+          "unblock_success": "Account was unblocked successfully.",
+          "block_failed": "Unable to block this account.",
+          "unblock_failed": "Unable to unblock this account.",
+          "custom_date_required": "A custom date is required.",
+          "custom_date_invalid": "Custom date is invalid."
+        }
+      },
+      "restricted_shop_names": {
+        "title": "Restricted shop names",
+        "subtitle": "Manage keywords and patterns that are not allowed for shop names",
+        "add_keyword": "Add keyword",
+        "keyword_placeholder": "ex: admin, support, kode01...",
+        "is_regex": "Use Regex",
+        "reason_placeholder": "Reason (optional)",
+        "submit": "Add",
+        "adding": "Adding...",
+        "empty": "No restricted shop names found.",
+        "delete_confirm": "Delete this restricted name?",
+        "table": {
+          "title": "Restrictions list",
+          "keyword": "Keyword / Pattern",
+          "type": "Type",
+          "reason": "Reason",
+          "created_at": "Added on",
+          "actions": "Actions"
+        },
+        "types": {
+          "literal": "Literal",
+          "regex": "Regex"
+        },
+        "messages": {
+          "add_success": "Keyword added successfully.",
+          "delete_success": "Keyword deleted.",
+          "error": "Something went wrong."
+        }
+      },
+      "controllers": {
+        "title": "Controllers",
+        "subtitle": "Manage unified notifications and delivery controls",
+        "send": {
+          "title": "Send now",
+          "subtitle": "Trigger an in-app + email notification manually",
+          "recipient_placeholder": "Recipient user ID (UUID)",
+          "title_placeholder": "Optional title override",
+          "message_placeholder": "Optional message override",
+          "link_placeholder": "Optional link (for example /advertise)",
+          "email_enabled": "Enable email delivery",
+          "cta": "Send notification",
+          "sending": "Sending...",
+          "success": "Notification sent."
+        },
+        "templates": {
+          "title": "Templates",
+          "subtitle": "Edit subjects, bodies, and channel flags",
+          "loading": "Loading templates...",
+          "save": "Save template",
+          "saving": "Saving...",
+          "saved": "Template saved.",
+          "active": "Active",
+          "email_enabled": "Email enabled",
+          "in_app_enabled": "In-app enabled",
+          "push_enabled": "Browser push enabled",
+          "description_placeholder": "Template description",
+          "subject_en": "Subject (EN)",
+          "subject_fr": "Subject (FR)",
+          "message_en": "Message (EN)",
+          "message_fr": "Message (FR)"
+        },
+        "history": {
+          "title": "History & retry",
+          "subtitle": "Track notification delivery and retry failed emails",
+          "loading": "Loading history...",
+          "empty": "No notifications found for current filters.",
+          "refresh": "Refresh",
+          "refreshing": "Refreshing...",
+          "retry": "Retry",
+          "retrying": "Retrying...",
+          "retry_success": "Retry completed.",
+          "filters": {
+            "all_statuses": "All statuses",
+            "all_templates": "All templates"
+          },
+          "table": {
+            "date": "Date",
+            "user": "User",
+            "template": "Template",
+            "title": "Title",
+            "email": "Email",
+            "actions": "Actions"
+          },
+          "status": {
+            "pending": "Pending",
+            "sent": "Sent",
+            "failed": "Failed",
+            "skipped": "Skipped"
+          },
+          "no_action": "N/A"
+        },
+        "errors": {
+          "send_failed": "Failed to send notification.",
+          "templates_load_failed": "Failed to load templates.",
+          "history_load_failed": "Failed to load history.",
+          "template_save_failed": "Failed to save template.",
+          "retry_failed": "Failed to retry notification."
+        }
+      },
+      "cookies": {
+        "title": "Cookies compliance",
+        "subtitle": "Consent tracking, evidence, and audit reporting",
+        "card_title": "Cookies compliance",
+        "card_subtitle": "Consent KPI overview",
+        "view_details": "View details",
+        "consent_rate": "Consent rate",
+        "analytics": "Analytics",
+        "marketing": "Marketing",
+        "opt_out": "Opt-out"
+      },
+      "seo": {
+        "title": "SEO Management",
+        "subtitle": "Manage page titles and descriptions for search engines",
+        "search_placeholder": "Search by route...",
+        "publish": "Publish Changes",
+        "publishing": "Publishing...",
+        "published": "SEO cache refreshed successfully",
+        "publish_error": "Failed to refresh SEO cache",
+        "info_banner": "Changes are saved immediately but only apply to the live site after clicking \"Publish Changes\". This clears the metadata cache.",
+        "col_route": "Route",
+        "col_locale": "Lang",
+        "col_title": "Title",
+        "col_description": "Description",
+        "col_status": "Status",
+        "col_actions": "Actions",
+        "default_value": "Default (from translations)",
+        "default_badge": "Default",
+        "edit": "Edit",
+        "save": "Save",
+        "cancel": "Cancel",
+        "reset": "Reset to default",
+        "saved": "Override saved",
+        "save_error": "Failed to save override",
+        "reset_success": "Override removed, using default",
+        "reset_error": "Failed to remove override",
+        "title_placeholder": "Page title (max 60 chars)",
+        "description_placeholder": "Meta description (max 160 chars)"
+      },
+      "marketing": {
+        "title": "Marketing Campaigns",
+        "subtitle": "Manage popups, banners, and promotional content",
+        "campaigns_title": "All Campaigns",
+        "create_campaign": "Create Campaign",
+        "edit_title": "Edit Campaign",
+        "edit_description": "Edit marketing campaign",
+        "stats": {
+          "active_campaigns": "Active Campaigns",
+          "total_views": "Total Views",
+          "total_clicks": "Total Clicks",
+          "avg_ctr": "Avg. CTR"
+        },
+        "table": {
+          "name": "Campaign Name",
+          "template": "Template",
+          "status": "Status",
+          "views": "Views",
+          "clicks": "Clicks",
+          "ctr": "CTR",
+          "actions": "Actions",
+          "confirmDelete": "Are you sure you want to delete this campaign?",
+          "deleteError": "Unable to delete campaign. Please try again.",
+          "updateError": "Unable to update campaign. Please try again."
+        },
+        "status": {
+          "draft": "Draft",
+          "scheduled": "Scheduled",
+          "active": "Active",
+          "paused": "Paused",
+          "completed": "Completed",
+          "archived": "Archived"
+        }
+      },
+      "ads": {
+        "title": "Ad Management",
+        "subtitle": "Review campaigns and monitor inventory performance",
+        "total_revenue": "Ad Revenue",
+        "active_campaigns": "Active Campaigns",
+        "pending_review": "Pending Review",
+        "total_impressions": "Total Impressions",
+        "sections": {
+          "campaigns_in_progress": "Campaigns In Progress",
+          "pending_review": "Pending Review",
+          "recent_campaigns": "Recent Campaigns"
+        },
+        "columns": {
+          "visual": "Visual",
+          "info": "Info",
+          "manage": "Manage",
+          "window": "Window",
+          "review": "Review"
+        },
+        "fields": {
+          "placements": "Placements",
+          "format": "Format",
+          "duration": "Duration",
+          "paid": "Paid",
+          "destination": "Destination",
+          "user_short": "User {id}"
+        },
+        "states": {
+          "creative_missing": "No creative",
+          "yes": "Yes",
+          "no": "No",
+          "not_scheduled": "Not scheduled",
+          "no_active_campaigns": "No active campaigns right now",
+          "no_pending_campaigns": "No campaigns pending review",
+          "no_campaigns_found": "No campaigns found",
+          "query_issue": "Some campaign data could not be loaded.",
+          "not_available": "N/A"
+        },
+        "table": {
+          "campaign": "Campaign",
+          "status": "Status",
+          "owner": "Owner",
+          "budget": "Budget",
+          "impressions": "Impr.",
+          "clicks": "Clicks"
+        },
+        "actions": {
+          "no_actions": "No actions",
+          "prompts": {
+            "reject_reason": "Reason for rejection (min 3 characters):",
+            "cancel_reason": "Cancellation reason (no refund, min 3 characters):",
+            "cancel_confirm": "Confirm cancellation without refund?"
+          },
+          "labels": {
+            "approve": "Approve",
+            "reject": "Reject",
+            "pause": "Pause",
+            "resume": "Resume",
+            "cancel": "Cancel",
+            "cancel_without_refund": "Cancel / No refund"
+          },
+          "pending": {
+            "approve": "Approving...",
+            "reject": "Rejecting...",
+            "pause": "Pausing...",
+            "resume": "Resuming...",
+            "cancel": "Canceling..."
+          },
+          "titles": {
+            "cancel_without_refund": "Cancel campaign without refund"
+          },
+          "errors": {
+            "failed_action": "Campaign action failed.",
+            "unable_action": "Unable to complete campaign action."
+          }
+        }
+      },
+      "lockscreen": {
+        "title": "Site Lockscreen",
+        "subtitle": "Control site-wide access with password protection",
+        "enabled_status": "Lockscreen is currently ENABLED",
+        "disabled_status": "Lockscreen is currently DISABLED",
+        "toggle_label": "Enable Lockscreen",
+        "auth_gate_enabled_status": "Auth gate is currently ENABLED",
+        "auth_gate_disabled_status": "Auth gate is currently DISABLED",
+        "auth_gate_toggle_label": "Lock login/sign up",
+        "password_section": "Password Settings",
+        "current_password_set": "Password is configured",
+        "new_password": "New Password (min 8 characters)",
+        "confirm_password": "Confirm Password",
+        "update_password": "Update Password",
+        "updating_password": "Updating...",
+        "content_section": "Lockscreen Content",
+        "title_en": "Title (English)",
+        "title_fr": "Title (French)",
+        "message_en": "Message (English)",
+        "message_fr": "Message (French)",
+        "newsletter_section": "Newsletter Integration",
+        "newsletter_enabled": "Show newsletter signup form",
+        "newsletter_title_en": "Newsletter Title (English)",
+        "newsletter_title_fr": "Newsletter Title (French)",
+        "newsletter_cta_en": "Newsletter Button Text (English)",
+        "newsletter_cta_fr": "Newsletter Button Text (French)",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "saved": "Lockscreen settings saved successfully",
+        "password_updated": "Password updated successfully",
+        "password_mismatch": "Passwords do not match",
+        "password_too_short": "Password must be at least 8 characters",
+        "load_failed": "Failed to load lockscreen settings",
+        "save_failed": "Failed to save settings",
+        "enabled_description": "Visitors need a password to access the site",
+        "disabled_description": "Site is publicly accessible",
+        "auth_gate_enabled_description": "Visitors can browse, but login/sign up require prelaunch password",
+        "auth_gate_disabled_description": "Login and sign up are publicly accessible",
+        "invalid_config": "Invalid lockscreen configuration",
+        "password_update_failed": "Failed to update password"
+      },
+      "api_monitoring": {
+        "title": "API Monitoring",
+        "subtitle": "Track external API health, incidents, and retries",
+        "overview_title": "External API health",
+        "overview_subtitle": "Live reliability signals for monitored endpoints",
+        "kpis": {
+          "total_calls": "Total calls",
+          "success_rate": "Success rate",
+          "p95_latency": "P95 latency",
+          "delivery_incidents": "Delivery incidents",
+          "auth_errors": "Auth errors",
+          "rate_limited": "Rate limited",
+          "errors": "Errors"
+        },
+        "endpoint_health_title": "Endpoint health",
+        "events_title": "API call events",
+        "deliveries_title": "Webhook delivery incidents",
+        "recommended_alerts": {
+          "title": "Recommended alerts",
+          "subtitle": "Computed enterprise alert checks",
+          "empty": "No recommended alerts available yet.",
+          "table": {
+            "alert": "Alert",
+            "status": "Status",
+            "window": "Window",
+            "threshold": "Threshold",
+            "value": "Value",
+            "summary": "Summary"
+          },
+          "severity": {
+            "info": "Info",
+            "warning": "Warning",
+            "critical": "Critical"
+          }
+        },
+        "table": {
+          "endpoint": "Endpoint",
+          "health": "Health",
+          "calls": "Calls",
+          "error_rate": "Error rate",
+          "p95": "P95",
+          "last_success": "Last success"
+        },
+        "events_table": {
+          "time": "Time",
+          "endpoint": "Endpoint",
+          "status": "Status",
+          "duration": "Duration",
+          "channel": "Channel",
+          "request_id": "Request ID"
+        },
+        "deliveries_table": {
+          "updated": "Updated",
+          "event": "Event",
+          "status": "Status",
+          "attempts": "Attempts",
+          "endpoint": "Endpoint URL",
+          "error": "Last error",
+          "actions": "Actions"
+        },
+        "filters": {
+          "status_all": "All statuses",
+          "status_success": "Success",
+          "status_error": "Error",
+          "status_auth": "Auth errors",
+          "status_rate_limited": "Rate limited",
+          "deliveries_all": "All incidents",
+          "deliveries_failed": "Failed",
+          "deliveries_retrying": "Retrying"
+        },
+        "loading": "Loading...",
+        "load_more": "Load more",
+        "retry": "Retry",
+        "retrying": "Retrying...",
+        "empty_endpoints": "No endpoint metrics available yet.",
+        "empty_events": "No API call events for current filters.",
+        "empty_deliveries": "No delivery incidents for current filters.",
+        "errors": {
+          "summary_load_failed": "Failed to load summary.",
+          "deliveries_load_failed": "Failed to load deliveries.",
+          "retry_failed": "Retry failed."
+        },
+        "statuses": {
+          "health": {
+            "green": "Green",
+            "yellow": "Yellow",
+            "red": "Red"
+          },
+          "delivery": {
+            "pending": "Pending",
+            "retrying": "Retrying",
+            "sent": "Sent",
+            "failed": "Failed",
+            "cancelled": "Cancelled"
+          },
+          "alert": {
+            "ok": "OK",
+            "warning": "Warning",
+            "firing": "Firing",
+            "unavailable": "Unavailable"
+          }
+        },
+        "states": {
+          "not_available": "N/A"
+        }
+      },
+      "order_incidents": {
+        "title": "Order incidents",
+        "subtitle": "Track and resolve order delivery issues",
+        "kpis": {
+          "total": "Total incidents",
+          "open": "Open",
+          "in_progress": "In progress",
+          "resolved": "Resolved",
+          "rejected": "Rejected"
+        },
+        "create": {
+          "title": "Create incident",
+          "purchase_id": "Purchase ID",
+          "issue_type": "Issue type",
+          "cta": "Create incident",
+          "creating": "Creating..."
+        },
+        "filters": {
+          "search_placeholder": "Search by incident, purchase, buyer, product...",
+          "status_all": "All statuses",
+          "issue_type_all": "All issue types",
+          "decision_all": "All decisions",
+          "apply": "Apply",
+          "reset": "Reset"
+        },
+        "table": {
+          "title": "Incident queue",
+          "incident": "Incident",
+          "purchase": "Purchase",
+          "buyer": "Buyer",
+          "issue_type": "Issue type",
+          "status": "Status",
+          "decision": "Decision",
+          "resolution": "Resolution",
+          "sla_deadline": "SLA deadline",
+          "evidence_alt": "Evidence screenshot",
+          "updated_at": "Updated",
+          "actions": "Actions"
+        },
+        "issue_types": {
+          "purchase_info_missing": "Purchase info missing",
+          "content_missing": "Content missing",
+          "license_issue": "License issue",
+          "other": "Other"
+        },
+        "statuses": {
+          "open": "Open",
+          "in_progress": "In progress",
+          "resolved": "Resolved",
+          "rejected": "Rejected"
+        },
+        "decisions": {
+          "confirmed": "Confirmed",
+          "not_confirmed": "Not confirmed",
+          "none": "None"
+        },
+        "resolutions": {
+          "refunded": "Refunded",
+          "partial_refund": "Partial refund",
+          "rejected": "Rejected",
+          "escalated": "Escalated",
+          "none": "None"
+        },
+        "actions": {
+          "set_in_progress": "Take in charge",
+          "set_open": "Reopen",
+          "resolve_confirmed": "Resolve (confirmed)",
+          "reject_not_confirmed": "Reject (not confirmed)",
+          "resend_purchase_confirmation": "Resend purchase info",
+          "send_access_notification": "Send access notification",
+          "refund_via_stripe": "Refund via Stripe",
+          "refund_amount_placeholder": "Amount (optional)"
+        },
+        "timeline": {
+          "actor_roles": {
+            "buyer": "Buyer",
+            "vendor": "Vendor",
+            "admin": "Admin",
+            "system": "System"
+          },
+          "actions": {
+            "incident_opened": "opened the incident",
+            "status_updated": "updated the status",
+            "resend_purchase_confirmation": "resent purchase info",
+            "send_access_notification": "sent access notification",
+            "vendor_response": "responded",
+            "vendor_refund_proposed": "proposed a refund",
+            "refund_processed": "processed a Stripe refund",
+            "sla_auto_escalated": "was auto-escalated by SLA"
+          }
+        },
+        "pagination": {
+          "page_of": "Page {page} of {totalPages}",
+          "previous": "Previous",
+          "next": "Next"
+        },
+        "messages": {
+          "loading": "Loading incidents...",
+          "no_results": "No incidents match the current filters.",
+          "load_failed": "Unable to load incidents right now.",
+          "create_success": "Incident created successfully.",
+          "create_failed": "Unable to create incident.",
+          "update_success": "Incident updated successfully.",
+          "update_failed": "Unable to update incident.",
+          "action_success": "Action completed successfully.",
+          "action_failed": "Unable to run this action.",
+          "refund_success": "Stripe refund completed successfully.",
+          "refund_failed": "Unable to process Stripe refund."
+        }
+      },
+      "bundles_page": {
+        "title": "Bundles",
+        "subtitle": "Supervise vendor bundles and publication status"
+      },
+      "bot_activity_list": {
+        "title": "Recent bot activity",
+        "live_monitoring": "Live monitoring",
+        "empty_state": "No bot activity detected yet.",
+        "blocked": "Blocked",
+        "unknown_ip": "Unknown IP",
+        "user_agent": "User agent",
+        "not_available": "N/A",
+        "technical_details": "Technical details"
+      },
+      "cookies_panel": {
+        "title": "Cookies compliance",
+        "subtitle": "Consent tracking and compliance evidence",
+        "cards": {
+          "consent_rate": "Consent rate",
+          "analytics_accepted": "Analytics accepted",
+          "marketing_accepted": "Marketing accepted",
+          "withdraw_opt_out": "Withdraw / opt-out"
+        },
+        "filters": {
+          "all_events": "All events",
+          "all_sources": "All sources"
+        },
+        "event_type": {
+          "first_choice": "First choice",
+          "updated": "Updated",
+          "withdrawn": "Withdrawn"
+        },
+        "source": {
+          "banner": "Banner",
+          "preferences": "Preferences",
+          "settings": "Settings"
+        },
+        "table": {
+          "date": "Date",
+          "event": "Event",
+          "source": "Source",
+          "accepted": "Accepted",
+          "rejected": "Rejected",
+          "user": "User",
+          "anon_id": "Anon ID"
+        },
+        "events": {
+          "title": "Consent events",
+          "empty": "No events for current filters.",
+          "count": "{count} events"
+        },
+        "actions": {
+          "loading": "Loading...",
+          "load_more": "Load more"
+        },
+        "errors": {
+          "summary_load_failed": "Failed to load cookie summary",
+          "events_load_failed": "Failed to load cookie events"
+        }
+      },
+      "bundles_panel": {
+        "title": "Bundles supervision",
+        "table": {
+          "bundle": "Bundle",
+          "seller": "Seller",
+          "status": "Status",
+          "items": "Items",
+          "actions": "Actions"
+        },
+        "actions": {
+          "save": "Save",
+          "saving": "Saving..."
+        },
+        "states": {
+          "loading": "Loading...",
+          "empty": "No bundles."
+        },
+        "status": {
+          "draft": "Draft",
+          "published": "Published",
+          "archived": "Archived"
+        },
+        "errors": {
+          "update_failed_with_status": "Failed to update bundle ({status})",
+          "save_failed": "Failed to save bundle",
+          "load_failed_with_status": "Failed to load bundles ({status})",
+          "load_failed": "Failed to load bundles"
+        }
+      }
+    },
+    "vendor": {
+      "forbidden": "Forbidden",
+      "title": "Vendor dashboard",
+      "subtitle": "Manage your products and sales",
+      "verify_title": "Action required: verify your identity",
+      "verify_description": "Connect Stripe and verify your identity before publishing products and receiving payouts.",
+      "stripe_connect_title": "Create your Stripe Connect account",
+      "stripe_connect_description": "Without a verified Stripe Connect account, you cannot publish or sell products (outside test environments).",
+      "stripe_connect_secure": "Secure and encrypted",
+      "stripe_connect_minutes": "Takes about 5 minutes",
+      "stripe_prefill_description": "Digital assets and tools marketplace",
+      "new_product": "New product",
+      "new_product_locked": "Publishing and selling are locked: complete your Stripe Connect account setup.",
+      "new_product_ready": "Your account is ready to publish",
+      "my_products": "My products",
+      "columns": {
+        "product": "Product",
+        "status": "Status",
+        "license_auto": "Auto license",
+        "sales": "Sales",
+        "revenue": "Revenue"
+      },
+      "license_toggle": {
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "saving": "Saving...",
+        "error": "Failed to update license option."
+      },
+      "status_published": "Published",
+      "status_draft": "Draft",
+      "onboarding_progress": {
+        "title": "Get started",
+        "description": "Complete these steps to start selling on KODE01.",
+        "step_stripe": "Connect Stripe",
+        "step_stripe_desc": "Set up payouts to receive your earnings.",
+        "step_product": "Add first product",
+        "step_product_desc": "Create and publish your first digital product.",
+        "step_profile": "Complete your profile",
+        "step_profile_desc": "Add a bio and avatar to build trust with buyers.",
+        "complete": "completed",
+        "all_done": "You're all set! Start promoting your products.",
+        "progress": "{count} of {total} completed"
+      },
+      "my_affiliates": "My affiliates",
+      "affiliate_columns": {
+        "affiliate": "Affiliate",
+        "product": "Product",
+        "code": "Code",
+        "commission": "Commission"
+      },
+      "anonymous_user": "Anonymous user",
+      "connect_stripe": "Connect Stripe account",
+      "resume_stripe": "Resume Stripe onboarding",
+      "connect_stripe_loading": "Connecting...",
+      "connect_stripe_error": "Unable to start Stripe onboarding. Please try again.",
+      "country_required_before_connect": "Add your shop country before connecting Stripe.",
+      "manage_stripe": "Manage Stripe account",
+      "manage_stripe_loading": "Opening Stripe...",
+      "manage_stripe_error": "Unable to open Stripe Express. Please try again.",
+      "empty_products": "No products yet",
+      "empty_products_hint": "Create your first product to start tracking sales and revenue.",
+      "product_creation": {
+        "page_title": "New product",
+        "page_subtitle": "Create a new digital product for your shop.",
+        "step_basics": "Basics",
+        "step_media": "Media",
+        "step_pricing": "Pricing",
+        "step_publish": "Publish",
+        "title_label": "Product title",
+        "title_placeholder": "e.g. AI Prompt Pack for Designers",
+        "title_hint": "Choose a clear, descriptive title that will help buyers find your product.",
+        "description_label": "Description",
+        "description_placeholder": "Describe what your product includes, who it's for, and why it's valuable...",
+        "description_hint": "Markdown supported. Aim for at least 100 words for better conversions.",
+        "category_label": "Category",
+        "category_placeholder": "Select a category",
+        "tags_label": "Tags",
+        "tags_placeholder": "Add tags separated by commas",
+        "tags_hint": "Up to 5 tags to help buyers discover your product.",
+        "cover_label": "Cover image",
+        "cover_hint": "Recommended: 1200x630px, PNG or JPG, max 10MB.",
+        "gallery_label": "Gallery images",
+        "gallery_hint": "Add up to 6 images showcasing your product. Drag & drop or browse.",
+        "file_label": "Product file",
+        "file_hint": "The deliverable file buyers will download (ZIP, PDF, etc.), max 10MB.",
+        "price_label": "Price (USD)",
+        "price_placeholder": "9.99",
+        "price_hint": "Set to 0 for free products. Minimum $1 for paid products.",
+        "pwyw_label": "Pay What You Want",
+        "pwyw_hint": "Allow buyers to pay more than the listed price.",
+        "min_price_label": "Minimum price (USD)",
+        "min_price_placeholder": "5.00",
+        "license_label": "Auto-generate license keys",
+        "license_hint": "Automatically send a unique license key to each buyer.",
+        "review_title": "Review & publish",
+        "review_hint": "Make sure everything looks good before publishing.",
+        "publish_now": "Publish now",
+        "save_draft": "Save as draft",
+        "saving": "Saving...",
+        "publishing": "Publishing...",
+        "next": "Next",
+        "back": "Back",
+        "draft_stripe_warning": "Connect Stripe to publish this product. You can save it as a draft for now.",
+        "success_title": "Product published!",
+        "success_description": "Your product is now live on KODE01. Share it with the world!",
+        "success_draft_title": "Draft saved!",
+        "success_draft_description": "Your product has been saved. You can edit and publish it later.",
+        "success_cta": "View my products",
+        "errors": {
+          "title_required": "Product title is required.",
+          "title_length": "Title must be between 3 and 200 characters.",
+          "description_required": "Description is required.",
+          "price_invalid": "Please enter a valid price.",
+          "price_min": "Paid products must cost at least $1.",
+          "cover_required": "A cover image is required.",
+          "file_required": "A product file is required.",
+          "save_failed": "Failed to save. Please try again."
+        }
+      },
+      "empty_affiliates": "No affiliates yet",
+      "empty_affiliates_hint": "Invite partners to share your products and generate tracked sales.",
+      "country_completion": {
+        "title": "Complete your shop country",
+        "description": "Select the country where your business is registered before starting Stripe onboarding.",
+        "country_label": "Shop country",
+        "country_placeholder": "Select a country",
+        "save": "Save country",
+        "saving": "Saving...",
+        "errors": {
+          "validation": "Select a valid country.",
+          "unauthorized": "Your session expired. Please sign in again.",
+          "forbidden": "Only sellers can update this field.",
+          "country_locked": "Country is locked because a Stripe account already exists.",
+          "database": "Unable to save country right now.",
+          "unknown": "Unexpected error. Please retry."
+        }
+      },
+      "country_change": {
+        "title": "Change payout country",
+        "description": "Current country: {country}. Changing country creates a new Stripe Connect account.",
+        "warning_title": "High-risk action",
+        "warning_body": "This can interrupt payouts. You must have zero available and pending Stripe balance before continuing.",
+        "new_country_label": "New country",
+        "new_country_placeholder": "Select a new country",
+        "check_button": "Check eligibility",
+        "checking": "Checking...",
+        "confirmation_title": "Final confirmation",
+        "confirmation_instruction": "Type exactly: {phrase}",
+        "start_button": "Start country change",
+        "starting": "Opening Stripe...",
+        "errors": {
+          "unauthorized": "Your session expired. Please sign in again.",
+          "forbidden": "Only sellers can perform this action.",
+          "country_required": "Select a country first.",
+          "country_unsupported": "This country is not supported in this rollout.",
+          "country_locked": "Current country is missing or locked. Contact support.",
+          "country_same": "Choose a country different from your current one.",
+          "balance_not_zero": "Stripe balance must be zero (available and pending) before changing country.",
+          "missing_connected_account": "No Stripe Connect account found.",
+          "confirmation_phrase_mismatch": "Confirmation phrase does not match.",
+          "database": "Unable to continue right now.",
+          "unknown": "Unexpected error. Please retry."
+        }
+      },
+      "country_change_finalize": {
+        "pending": "Finalizing your new Stripe country setup...",
+        "success": "Country change completed. Your new Stripe account is now linked.",
+        "error": "Country change could not be finalized. Please refresh or contact support."
+      },
+      "business_profile": {
+        "title": "Business details for Stripe prefill",
+        "description": "These values prefill Stripe onboarding business sections (website, description, industry code).",
+        "website_label": "Business website",
+        "business_description_label": "Business description",
+        "business_description_placeholder": "Describe what you sell on the marketplace.",
+        "industry_mcc_label": "Industry code (MCC)",
+        "save": "Save business details",
+        "saving": "Saving...",
+        "saved": "Business details saved.",
+        "errors": {
+          "validation": "Please check your website URL, description, and industry code.",
+          "unauthorized": "Your session expired. Please sign in again.",
+          "forbidden": "Only sellers can update business details.",
+          "database": "Unable to save business details right now.",
+          "unknown": "Unexpected error. Please retry."
+        }
+      },
+      "products_page": {
+        "title": "Products",
+        "subtitle": "Manage your products and listings"
+      },
+      "orders_page": {
+        "title": "Orders",
+        "subtitle": "Track your sales and transactions",
+        "columns": {
+          "buyer": "Buyer",
+          "product": "Product",
+          "amount": "Amount",
+          "payout": "Your payout",
+          "status": "Status",
+          "date": "Date"
+        },
+        "status_completed": "Completed",
+        "status_pending": "Pending",
+        "status_refunded": "Refunded",
+        "status_failed": "Failed",
+        "empty": "No orders yet",
+        "empty_hint": "Orders will appear here once customers purchase your products."
+      },
+      "order_incidents": {
+        "title": "Open order incidents",
+        "issue_types": {
+          "purchase_info_missing": "Purchase info missing",
+          "content_missing": "Content missing",
+          "license_issue": "License issue",
+          "other": "Other"
+        },
+        "statuses": {
+          "open": "Open",
+          "in_progress": "In progress",
+          "resolved": "Resolved",
+          "rejected": "Rejected"
+        },
+        "resolutions": {
+          "refunded": "Refunded",
+          "partial_refund": "Partial refund",
+          "rejected": "Rejected",
+          "escalated": "Escalated"
+        },
+        "meta": {
+          "purchase": "Purchase",
+          "buyer": "Buyer",
+          "amount": "Amount",
+          "sla": "SLA"
+        },
+        "respond": {
+          "message_placeholder": "Answer the buyer and explain next steps...",
+          "refund_placeholder": "Proposed refund amount",
+          "cta": "Send response"
+        },
+        "timeline": {
+          "title": "Recent actions",
+          "actor_roles": {
+            "buyer": "Buyer",
+            "vendor": "Vendor",
+            "admin": "Admin",
+            "system": "System"
+          },
+          "actions": {
+            "incident_opened": "opened the incident",
+            "status_updated": "updated the status",
+            "resend_purchase_confirmation": "resent purchase info",
+            "send_access_notification": "sent access notification",
+            "vendor_response": "responded",
+            "vendor_refund_proposed": "proposed a refund",
+            "refund_processed": "processed a Stripe refund",
+            "sla_auto_escalated": "was auto-escalated by SLA"
+          }
+        },
+        "messages": {
+          "loading": "Loading incidents...",
+          "no_incidents": "No open incidents assigned to your orders.",
+          "load_failed": "Unable to load incidents right now.",
+          "respond_success": "Response sent.",
+          "respond_failed": "Unable to send your response."
+        },
+        "evidence_alt": "Evidence screenshot"
+      },
+      "analytics_page": {
+        "title": "Analytics",
+        "subtitle": "Track your performance and growth"
+      },
+      "payouts_page": {
+        "title": "Revenue",
+        "subtitle": "Track your earnings and payouts",
+        "total_revenue": "Total revenue",
+        "total_payout": "Your total earnings",
+        "platform_fees": "Platform fees",
+        "all_time": "All time",
+        "columns": {
+          "product": "Product",
+          "sales": "Sales",
+          "revenue": "Revenue",
+          "payout": "Your earnings"
+        },
+        "empty": "No revenue yet",
+        "empty_hint": "Revenue data will appear here once you start making sales.",
+        "breakdown_title": "Revenue by product"
+      },
+      "affiliates_page": {
+        "title": "Affiliates",
+        "subtitle": "Manage your affiliate partners"
+      },
+      "licenses_page": {
+        "title": "Licenses",
+        "subtitle": "Manage license keys and integrations",
+        "webhook_title": "Webhook integration",
+        "webhook_description": "Configure a webhook endpoint to receive license activation events.",
+        "webhook_url_label": "Webhook URL",
+        "webhook_url_placeholder": "https://your-app.com/api/license-webhook",
+        "api_secret_label": "API secret",
+        "webhook_secret_label": "Webhook secret",
+        "webhook_enabled": "Webhook enabled",
+        "webhook_disabled": "Webhook disabled",
+        "save_webhook": "Save webhook settings",
+        "saving_webhook": "Saving...",
+        "webhook_saved": "Webhook settings saved.",
+        "webhook_errors": {
+          "validation": "Please fill in all required fields when enabling the webhook.",
+          "unauthorized": "Your session expired. Please sign in again.",
+          "forbidden": "Only sellers can update webhook settings.",
+          "database": "Unable to save webhook settings right now.",
+          "unknown": "Unexpected error. Please retry."
+        }
+      },
+      "settings_page": {
+        "title": "Vendor Settings",
+        "subtitle": "Manage your vendor account and business details",
+        "general_settings_link": "General account settings",
+        "general_settings_description": "Manage your profile, email, password, and billing."
+      },
+      "bundles_page": {
+        "title": "Bundles",
+        "subtitle": "Create and manage your bundle offers"
+      }
+    },
+    "buyer": {
+      "title": "My dashboard",
+      "subtitle": "Your purchases and downloads",
+      "stats": {
+        "purchases": "Purchases",
+        "downloads": "Downloads",
+        "spent": "Spent"
+      },
+      "date": {
+        "today": "Today",
+        "one_day_ago": "1 day ago",
+        "days_ago": "{count} days ago",
+        "one_week_ago": "1 week ago",
+        "weeks_ago": "{count} weeks ago"
+      },
+      "unknown_product": "Unknown product",
+      "completed": "Completed",
+      "refunded": "Refunded",
+      "recent_purchases": "Recent purchases",
+      "view_all": "View all",
+      "download": "Download",
+      "review": "Review",
+      "no_recent_purchases": "No purchases found yet",
+      "no_recent_purchases_hint": "Your recent orders will appear here once you complete checkout.",
+      "license_keys": "My license keys",
+      "license_desc": "License keys generated from your purchases. Keep them safe.",
+      "no_license_keys": "No license keys available",
+      "no_license_keys_hint": "Keys are generated automatically for eligible digital purchases.",
+      "status": "Status",
+      "uses": "Uses",
+      "become_vendor": {
+        "eyebrow": "Start selling",
+        "title": "Open your shop on KODE01",
+        "description": "Create your shop in about 2 minutes, then connect Stripe (~5 min) to start receiving payments.",
+        "cta": "Set up my shop",
+        "modal_title": "Set up your shop",
+        "modal_description": "Choose a name and country for your shop. You can rename your shop later in settings.",
+        "country_warning": "This country cannot be changed once your Stripe account is created.",
+        "shop_name_label": "Shop name",
+        "shop_name_placeholder": "My Awesome Shop",
+        "country_label": "Shop country",
+        "country_placeholder": "Select a country",
+        "activate": "Continue",
+        "activating": "Creating...",
+        "cancel": "Cancel",
+        "redirecting": "Setting up your shop...",
+        "welcome_title": "Your shop is ready!",
+        "welcome_description": "Here are your next steps to start selling on KODE01.",
+        "welcome_step_stripe": "Connect your Stripe account",
+        "welcome_step_stripe_desc": "Required to receive payments. Takes about 5 minutes.",
+        "welcome_step_product": "Add your first product",
+        "welcome_step_product_desc": "Upload a digital product or resource to your shop.",
+        "welcome_step_sale": "Get your first sale",
+        "welcome_step_sale_desc": "Share your shop link and start earning.",
+        "welcome_cta": "Go to my dashboard",
+        "errors": {
+          "validation": "Please enter a valid shop name (at least 2 characters).",
+          "unauthorized": "Your session expired. Please sign in again.",
+          "already_seller": "You already have a seller account.",
+          "country_unsupported": "Selected country is not supported yet.",
+          "database": "Unable to create your shop right now. Please retry.",
+          "unknown": "Unexpected error. Please retry.",
+          "shop_name": "Please enter a valid shop name (2-120 characters).",
+          "shop_name_restricted": "This shop name is not allowed (contains reserved or forbidden terms).",
+          "country": "Please select a valid country."
+        }
+      },
+      "ads": {
+        "title": "My Campaigns",
+        "subtitle": "Track your advertising performance",
+        "create_campaign": "New Campaign",
+        "guide_button": "Guide",
+        "campaigns_title": "My Campaigns",
+        "stats_impressions": "Impressions",
+        "stats_clicks": "Clicks",
+        "no_campaigns": "You don't have any ad campaigns yet.",
+        "checkout_status": {
+          "success": "Payment completed. Your campaign will be reviewed within 48 hours and approved if it follows our guidelines.",
+          "cancel": "Payment was canceled. You can retry when ready.",
+          "campaign_ref": "Campaign ID: {id}"
+        },
+        "launcher": {
+          "title": "Create a campaign",
+          "subtitle": "Choose your slots, complete your ad details, then continue to payment.",
+          "review_notice": "Review time: up to 48h if your ad follows our rules.",
+          "days": "days",
+          "plan_label": "Duration",
+          "plan_hint": "Duration sets your campaign period. Final price depends on selected placements below.",
+          "news_offer_label": "News placement",
+          "total_label": "Estimated total",
+          "steps": {
+            "offers": "Choose offer",
+            "details": "Campaign details"
+          },
+          "offers": {
+            "split": {
+              "title": "Split News Spot",
+              "description": "Shared News placement at 50% multiplier."
+            },
+            "full": {
+              "title": "Full News Banner",
+              "description": "Premium News placement with full multiplier."
+            },
+            "newsletter": {
+              "title": "Newsletter Footer",
+              "description": "Add placement in the weekly recap email."
+            }
+          },
+          "form": {
+            "campaign_name": "Campaign name",
+            "campaign_name_placeholder": "Spring product launch",
+            "title": "Ad title",
+            "title_placeholder": "Boost your next launch",
+            "cta": "CTA text",
+            "cta_placeholder": "Learn more",
+            "destination_kind": "Destination type",
+            "destination_external": "External URL",
+            "destination_internal": "Internal page",
+            "destination_url": "Destination URL",
+            "destination_url_placeholder": "https://example.com/product or /pricing",
+            "image_url": "Image URL",
+            "image_url_placeholder": "https://example.com/banner.jpg",
+            "assets_title": "Creative assets",
+            "assets_subtitle": "Upload one image per selected slot. Accepted formats: {formats}. Max file size: {maxSizeMb} MB.",
+            "slot_news": "News",
+            "slot_newsletter": "Newsletter",
+            "image_dimensions_hint": "Recommended image size: {width}x{height}px",
+            "image_file": "Image file",
+            "file_selected": "{name} selected ({width}x{height}px)",
+            "pages_count": "Number of pages",
+            "pages_hint_news": "How many news pages should show this creative.",
+            "pages_hint_newsletter": "How many newsletter sends should include this creative.",
+            "uploading": "Uploading image...",
+            "upload_hint": "File will be uploaded securely before checkout."
+          },
+          "back": "Back",
+          "close": "Close",
+          "continue": "Continue",
+          "submit": "Create and pay",
+          "submitting": "Creating..."
+        },
+        "errors": {
+          "catalog_unavailable": "Advertising catalog is unavailable. Please retry in a moment.",
+          "plan_required": "Select a duration before continuing.",
+          "offer_required": "Select at least one offer before continuing.",
+          "campaign_name_required": "Campaign name is required.",
+          "title_required": "Ad title is required.",
+          "cta_required": "CTA text is required.",
+          "image_required": "Image URL is required.",
+          "image_required_slot": "{slot}: an image is required.",
+          "destination_required": "Destination URL is required.",
+          "image_https": "Image URL must use HTTPS.",
+          "image_format": "{slot}: accepted formats are {formats}.",
+          "image_size": "{slot}: maximum file size is {maxSizeMb} MB.",
+          "image_read_failed": "Unable to read this image file.",
+          "destination_internal": "Internal destination must start with '/'.",
+          "destination_https": "External destination must use HTTPS.",
+          "pages_required": "{slot}: number of pages is required.",
+          "pages_invalid": "{slot}: number of pages must be between 1 and 500.",
+          "upload_failed": "Unable to upload image file.",
+          "create_failed": "Unable to create campaign.",
+          "checkout_failed": "Unable to start checkout.",
+          "unexpected": "Unexpected error. Please retry."
+        }
+      },
+      "order_incidents": {
+        "title": "Order incidents",
+        "subtitle": "Track your order issue requests",
+        "report_cta": "Report issue",
+        "report_title": "Report an order issue",
+        "report_description": "Describe what went wrong with this purchase.",
+        "issue_type": "Issue type",
+        "evidence_label": "Evidence screenshots",
+        "evidence_hint": "Upload up to 8 screenshots (PNG/JPG/WebP/GIF).",
+        "report_submit": "Submit incident",
+        "report_submitting": "Submitting...",
+        "no_incidents": "No order incidents yet.",
+        "created_at": "Created",
+        "updated_at": "Updated",
+        "closed_at": "Closed",
+        "sla_deadline_at": "SLA deadline",
+        "refund_amount": "Refund amount (minor units)",
+        "evidence_alt": "Evidence",
+        "issue_types": {
+          "purchase_info_missing": "Purchase info missing",
+          "content_missing": "Content missing",
+          "license_issue": "License issue",
+          "other": "Other"
+        },
+        "statuses": {
+          "open": "Open",
+          "in_progress": "In progress",
+          "resolved": "Resolved",
+          "rejected": "Rejected"
+        },
+        "decisions": {
+          "confirmed": "Confirmed",
+          "not_confirmed": "Not confirmed"
+        },
+        "resolutions": {
+          "refunded": "Refunded",
+          "partial_refund": "Partial refund",
+          "rejected": "Rejected",
+          "escalated": "Escalated"
+        },
+        "messages": {
+          "created_success": "Incident created.",
+          "created_failed": "Unable to create incident right now.",
+          "upload_failed": "Unable to upload evidence screenshot."
+        },
+        "cancel": "Cancel"
+      }
+    },
+    "reviews": {
+      "title": "My reviews",
+      "subtitle": "Manage your verified-buyer reviews",
+      "empty_title": "No eligible purchases yet",
+      "empty_subtitle": "Complete a purchase to leave your first review.",
+      "select_product": "Select a product",
+      "no_selection": "Select a product to write or edit your review.",
+      "status_completed": "Completed",
+      "status_refunded": "Refunded",
+      "purchased_on": "Purchased {date} ({status})",
+      "product_unavailable": "This product is currently unavailable for reviews.",
+      "product_unavailable_hint": "If the product is unpublished, your existing review remains stored but cannot be edited right now."
+    }
+  },
+  "recommendations": {
+    "eyebrow": "Recommendations",
+    "title": "Paid products you may want next",
+    "subtitle_product": "Selected from product relevance and marketplace signals.",
+    "price_from": "From {price}"
+  },
+  "pricing": {
+    "title": "Simple pricing for creators",
+    "subtitle": "Start selling for free.",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "price": "$0",
+        "period": "/month",
+        "description": "Start building your presence and selling your creations with no monthly fees.",
+        "features": [
+          "15% transaction fee",
+          "Listing in the KODE01 marketplace",
+          "Custom vendor shop",
+          "Save your favorite products and AI news",
+          "Save your favorite AI news",
+          "Community support"
+        ],
+        "cta": "Start for free",
+        "cta_member": "My Dashboard"
+      }
+    },
+    "ads": {
+      "title": "Advertising",
+      "description": "Boost your visibility across the marketplace",
+      "plans": {
+        "newsletter": {
+          "name": "Sponsored Newsletter",
+          "price": "$150",
+          "period": "/edition",
+          "features": [
+            "Banner in our weekly recap",
+            "Dedicated shoutout",
+            "Direct link to your product",
+            "Analytics report"
+          ]
+        },
+        "marketplace": {
+          "name": "Featured Placement",
+          "price": "$49",
+          "period": "/week",
+          "features": [
+            "Top of category listing",
+            "Homepage featured section",
+            "Highlighted card design",
+            "2.5x higher view rate"
+          ]
+        }
+      }
+    }
+  },
+  "settings": {
+    "eyebrow": "Account settings",
+    "title": "Account Management",
+    "description": "Manage your subscription, recommendation tracking, and privacy settings.",
+    "billing_title": "Billing management",
+    "billing_description": "Manage your subscription, update payment methods, and view invoices.",
+    "manage_billing_button": "Manage billing",
+    "manage_billing_loading": "Opening portal...",
+    "billing_status_loading": "Checking payment methods...",
+    "billing_status_error": "Unable to verify payment methods right now.",
+    "billing_status_count": "{count, plural, =0 {No payment method linked yet} =1 {1 payment method linked} other {# payment methods linked}}",
+    "billing_status_default_card": "Default card: {brand} **** {last4}",
+    "tracking_title": "Delete recommendation tracking data",
+    "tracking_description": "This removes your stored recommendation interaction history linked to your account.",
+    "tracking_note": "After deletion, personalization starts again from future interactions.",
+    "delete_button": "Delete my tracking data",
+    "delete_success": "Your recommendation tracking data has been deleted.",
+    "delete_error": "Unable to delete data right now. Please try again.",
+    "export_title": "Export your data",
+    "export_description": "Download a copy of all personal data we hold about you, in JSON format.",
+    "export_button": "Export my data",
+    "export_error": "Unable to export data right now. Please try again.",
+    "delete_account_title": "Delete your account",
+    "delete_account_description": "Permanently delete your account and all associated data. This action is irreversible.",
+    "delete_account_button": "Delete my account",
+    "delete_account_warning_title": "This action is permanent and cannot be undone",
+    "delete_account_warning_text": "All your data, products, purchases, and account information will be permanently deleted. Type your email address below to confirm.",
+    "delete_account_confirm_label": "Type your email to confirm",
+    "delete_account_confirm_button": "Permanently delete my account",
+    "delete_account_error": "Unable to delete your account right now. Please try again.",
+    "cancel": "Cancel"
+  },
+  "marketing": {
+    "form": {
+      "basicInfo": "Basic Information",
+      "campaignName": "Campaign Name",
+      "selectTemplate": "Select Template",
+      "bilingualContent": "Bilingual Content",
+      "english": "English",
+      "french": "French",
+      "title": "Title",
+      "body": "Body Text",
+      "ctaText": "CTA Button Text",
+      "ctaUrl": "CTA URL",
+      "imageUrl": "Image URL",
+      "backgroundImageUrl": "Background Image URL",
+      "media": "Media",
+      "scheduling": "Scheduling",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "targetingRules": "Targeting Rules",
+      "targetPages": "Target Pages",
+      "excludePages": "Exclude Pages",
+      "userRoles": "User Roles",
+      "locales": "Languages",
+      "deviceTypes": "Device Types",
+      "triggerConfiguration": "Trigger Configuration",
+      "triggerType": "Trigger Type",
+      "delayMs": "Delay (milliseconds)",
+      "delayHelpPageLoad": "Delay before showing the campaign after page load (0 = immediate)",
+      "delayHelpTimeDelay": "Time to wait on the page before showing (in milliseconds)",
+      "scrollDepthPercent": "Scroll Depth (%)",
+      "scrollDepthHelp": "Show when user scrolls down X% of the page",
+      "showOncePerSession": "Show Once Per Session",
+      "showOnceHelp": "If enabled, campaign shows only once per browser session",
+      "cooldownHours": "Cooldown Hours",
+      "cooldownHoursHelp": "After user dismisses, don't show again for X hours",
+      "status": "Status",
+      "priority": "Priority",
+      "error": "Error",
+      "add": "Add",
+      "cancel": "Cancel",
+      "createCampaign": "Create Campaign",
+      "updateCampaign": "Update Campaign",
+      "saving": "Saving...",
+      "noTemplate": "No Template",
+      "customDesign": "Create your own design"
+    },
+    "templates": {
+      "noTemplate": "No Template",
+      "customDesign": "Create your own design"
+    },
+    "trigger_types": {
+      "page_load": "Page Load",
+      "scroll_depth": "Scroll Depth",
+      "time_delay": "Time Delay",
+      "exit_intent": "Exit Intent",
+      "manual": "Manual"
+    }
+  },
+  "Dashboard": {},
+  "cli_faq": {
+    "meta_title": "What is a CLI? – Command Line Interface Explained",
+    "meta_description": "Learn what a CLI (Command Line Interface) is, how it works, and why it matters for developers and technical workflows. Frequently asked questions about CLI tools, security, and more.",
+    "og_title": "What is a CLI? – Command Line Interface Explained",
+    "og_description": "Your complete guide to CLI: what it is, how it works, and why it's a powerful tool for modern development.",
+    "title": "What is a CLI?",
+    "intro": "A CLI, or Command Line Interface, is a text-based way to interact with a computer, application, or system by typing commands instead of using buttons or menus. It allows users to perform tasks directly through a terminal, often with more speed, precision, and control than a graphical interface. In practice, the CLI is widely used to navigate files, run programs, automate actions, and manage technical environments.",
+    "faq_heading": "Frequently Asked Questions – CLI",
+    "q1": {
+      "question": "What is CLI?",
+      "answer": "CLI stands for Command Line Interface. It is a text-based interface that allows users to interact with a computer, application, or system by entering commands in a terminal instead of using a graphical interface. The CLI is widely used in technical environments because it offers speed, precision, and direct control over tools and systems."
+    },
+    "q2": {
+      "question": "How does CLI work?",
+      "answer": "A CLI works by receiving typed commands through a terminal or command prompt. The system reads the command, interprets it, and then performs the requested action. Commands can include additional options or arguments to control exactly how the task should be executed. This makes the CLI highly flexible for both simple and advanced operations."
+    },
+    "q3": {
+      "question": "What can you do with a CLI?",
+      "answer": "A CLI can be used for many different technical tasks. Common examples include: Browsing files and directories; Creating, moving, or deleting files; Installing and updating software; Running scripts and automation tasks; Managing servers and cloud environments; Using developer tools such as Git; Launching local applications or services; Checking logs and system activity. Because of this versatility, the CLI is an essential tool in many development and IT workflows."
+    },
+    "q4": {
+      "question": "Who uses CLI?",
+      "answer": "CLI is commonly used by developers, system administrators, DevOps teams, cybersecurity professionals, and other technical users. It is especially useful for people who need to move quickly, automate repetitive work, or manage systems with a high level of control."
+    },
+    "q5": {
+      "question": "How do I start using a CLI?",
+      "answer": "To use a CLI, you first open a terminal application on your device. On macOS and Linux, the terminal is usually built in. On Windows, common options include Command Prompt, PowerShell, or Windows Terminal. Once the terminal is open, you can begin entering commands to interact with your system or software tools."
+    },
+    "q6": {
+      "question": "Is CLI hard to learn?",
+      "answer": "The CLI may seem intimidating at first because it does not include buttons or menus, but the basics are often easier to learn than expected. Most beginners start with a small number of common commands and gradually build confidence. With practice, the CLI becomes a fast and efficient way to complete everyday technical tasks."
+    },
+    "q7": {
+      "question": "Is CLI secure?",
+      "answer": "The CLI can be secure, but it also gives direct access to powerful system functions, so it must be used carefully. A single command can make important changes to files, settings, or servers. Good practices include reviewing commands before running them, avoiding untrusted scripts, limiting permissions, and protecting credentials or environment variables."
+    },
+    "q8": {
+      "question": "What is the difference between CLI and GUI?",
+      "answer": "A GUI, or Graphical User Interface, uses windows, icons, buttons, and menus. A CLI uses typed commands in a terminal. A GUI is often easier for beginners and visual tasks, while a CLI is usually preferred for speed, automation, and precise technical work. Both interfaces can be useful depending on the context."
+    },
+    "q9": {
+      "question": "Why do developers use CLI?",
+      "answer": "Developers often use the CLI because it allows them to work faster and with more control. Instead of clicking through multiple screens, they can run commands directly, automate repetitive processes, and integrate tools more easily into their workflow. This is especially useful in coding, testing, deployment, and server management."
+    },
+    "q10": {
+      "question": "Can AI tools use CLI?",
+      "answer": "Yes. AI tools and coding agents can work through a CLI environment to carry out technical tasks more directly. For example, an AI connected to a terminal can inspect files, run commands, execute tests, analyze logs, and interact with development environments. This makes the CLI especially important in modern AI-assisted development workflows."
+    },
+    "cta_title": "Master the CLI",
+    "cta_text": "Discover tools and techniques to boost your productivity with the command line.",
+    "cta_button": "Explore Tools"
+  },
+  "how_it_works": {
+    "meta_title": "How It Works – KODE01 Marketplace",
+    "meta_description": "Learn how KODE01 works for buyers and sellers. Browse premium digital assets, purchase securely, or sell your own creations on our marketplace.",
+    "og_title": "How It Works – KODE01 Marketplace",
+    "og_description": "Discover how to buy and sell premium digital assets on KODE01. A simple, secure marketplace for creators and builders.",
+    "hero": {
+      "title": "How It Works",
+      "subtitle": "Whether you're looking for premium digital assets or ready to sell your own creations, KODE01 makes it simple. Here's how the marketplace works for buyers and sellers."
+    },
+    "buyers": {
+      "title": "For Buyers",
+      "subtitle": "Find and download high-quality digital assets in three simple steps.",
+      "step1": {
+        "title": "Browse & Discover",
+        "description": "Explore our curated collection of templates, UI kits, AI tools, MCP servers, and other premium digital assets. Use filters, categories, and search to find exactly what you need."
+      },
+      "step2": {
+        "title": "Purchase Securely",
+        "description": "Add items to your cart and check out with confidence. All payments are processed securely through Stripe, supporting major credit cards and other payment methods."
+      },
+      "step3": {
+        "title": "Download & Use",
+        "description": "Instantly access your purchased assets from your dashboard. Download files, follow setup instructions, and start building right away. All assets include documentation to get you started."
+      }
+    },
+    "sellers": {
+      "title": "For Sellers",
+      "subtitle": "Turn your digital creations into revenue with our creator-friendly platform.",
+      "step1": {
+        "title": "Create Your Account",
+        "description": "Sign up as a seller on KODE01. Set up your creator profile, add your brand identity, and get ready to showcase your work to a global audience of builders and developers."
+      },
+      "step2": {
+        "title": "Publish Your Products",
+        "description": "Upload your digital assets — templates, UI kits, tools, or any creative resource. Add descriptions, set your pricing, and organize your products with tags and categories."
+      },
+      "step3": {
+        "title": "Earn Revenue",
+        "description": "Start earning as soon as your first sale comes in. Track your performance from your seller dashboard, manage your catalog, and grow your audience on the platform."
+      }
+    },
+    "faq": {
+      "heading": "Frequently Asked Questions",
+      "q1": {
+        "question": "Is KODE01 free to use?",
+        "answer": "Yes, creating an account and browsing the marketplace is completely free. You only pay when you purchase a product. Sellers can list their products and only pay a commission on successful sales."
+      },
+      "q2": {
+        "question": "What types of products are available?",
+        "answer": "KODE01 offers a wide range of premium digital assets including website templates, UI kits, design systems, AI tools, MCP servers, CLI tools, code snippets, and other developer resources. All products are curated for quality."
+      },
+      "q3": {
+        "question": "How do I purchase a product?",
+        "answer": "Simply browse the marketplace, add items to your cart, and proceed to checkout. Payments are processed securely through Stripe. Once your payment is confirmed, you can instantly download your purchased assets from your dashboard."
+      },
+      "q4": {
+        "question": "What payment methods are accepted?",
+        "answer": "We accept all major credit and debit cards (Visa, Mastercard, American Express) through our secure Stripe integration. Additional payment methods may be available depending on your region."
+      },
+      "q5": {
+        "question": "Can I get a refund?",
+        "answer": "Since digital products are delivered instantly upon purchase, refunds are handled on a case-by-case basis. If you experience a technical issue with a product, please contact our support team and we will work to resolve the situation."
+      },
+      "q6": {
+        "question": "How do I become a seller?",
+        "answer": "Getting started as a seller is straightforward. Create your KODE01 account, navigate to your seller dashboard, complete your profile, and start uploading your products. Our platform handles payments, delivery, and customer management for you."
+      },
+      "q7": {
+        "question": "What commission does KODE01 take?",
+        "answer": "KODE01 applies a competitive commission on each sale to cover platform costs, payment processing, and infrastructure. For the latest pricing details, visit our Pricing page."
+      },
+      "q8": {
+        "question": "How do I get support?",
+        "answer": "You can reach our support team through the Contact page. We also offer a help center with guides and tutorials to help you get the most out of KODE01, whether you're a buyer or a seller."
+      }
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "text": "Browse thousands of premium digital assets or start selling your own creations today.",
+      "button": "Explore the Marketplace"
+    }
+  },
+  "follow": {
+    "follow": "Follow",
+    "following": "Following",
+    "unfollow": "Unfollow",
+    "followed": "Creator followed!",
+    "unfollowed": "Creator unfollowed",
+    "login_required": "You must be logged in to follow creators.",
+    "toggle_error": "Failed to update follow status."
+  },
+  "seo": {
+    "layout": {
+      "default_title": "KODE01 Marketplace",
+      "description": "Premium digital marketplace for creators. Templates, UI Kits, AI tools, and high-quality digital assets.",
+      "og_description": "Premium digital marketplace for creators"
+    },
+    "home": {
+      "title": "KODE01 – Premium Digital Marketplace for Creators",
+      "description": "Discover premium templates, UI kits, AI tools, and digital assets. Buy and sell high-quality products built for developers and creators.",
+      "og_title": "KODE01 – Premium Digital Marketplace for Creators",
+      "og_description": "Discover premium templates, UI kits, AI tools, and digital assets on KODE01."
+    },
+    "about": {
+      "title": "About Us – Our Mission | KODE01",
+      "description": "KODE01 is a premium digital marketplace based in Canada's National Capital Region (Gatineau-Ottawa). We provide high-quality templates, UI kits, and AI tools for digital creators and builders worldwide."
+    },
+    "pricing": {
+      "title": "Pricing – Sell for Free",
+      "description": "Simple, transparent pricing for digital creators. Start selling templates, AI tools, and digital assets for free on KODE01."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "description": "Get in touch with the KODE01 team. Customer support, creator inquiries, and community access."
+    },
+    "blog": {
+      "title": "Blog – Guides & Updates for Creators",
+      "description": "Read guides, tutorials, and strategic updates from the KODE01 team. Insights for digital creators and AI builders."
+    },
+    "creators": {
+      "title": "Creators – Top Digital Product Sellers",
+      "description": "Discover talented creators selling premium templates, AI tools, and digital assets on KODE01."
+    },
+    "bundles": {
+      "title": "Bundles – Curated Packs for Creators",
+      "description": "Save with curated bundles of premium digital products. Templates, workflows, and toolkits designed for creative professionals."
+    },
+    "legal": {
+      "title": "Legal Policies",
+      "description": "Review KODE01 legal policies: privacy, terms of service, cookies, GDPR/CCPA compliance, and Canadian privacy laws."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Learn how KODE01 collects, uses, and protects your personal data. Our privacy policy covers data handling, cookies, and your rights."
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "Read the KODE01 terms of service. Rules, responsibilities, and conditions for using our digital marketplace platform."
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "description": "Understand how KODE01 uses cookies to improve your experience. Manage preferences and view our cookie register."
+    },
+    "gdpr_ccpa": {
+      "title": "GDPR & CCPA Data Rights",
+      "description": "Your data rights under GDPR and CCPA. Learn how KODE01 complies with European and California privacy regulations."
+    },
+    "canada_privacy": {
+      "title": "Canada Privacy – Law 25 & PIPEDA",
+      "description": "How KODE01 complies with Canadian privacy laws including Quebec's Law 25 and PIPEDA. Your rights as a Canadian user."
+    },
+    "business": {
+      "name": "KODE01",
+      "description": "Premium Digital Marketplace for Creators & Builders",
+      "location": "Gatineau-Ottawa, Canada",
+      "region": "National Capital Region",
+      "url": "https://kode01.com",
+      "founding_location": "Gatineau, Quebec"
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "eyebrow": "Welcome to KODE01",
+      "title": "Welcome to KODE01.",
+      "subtitle": "The premium marketplace for AI tools and digital assets.",
+      "buyer_label": "Discover & Buy",
+      "buyer_desc": "Browse AI tools, templates and digital products built by top creators.",
+      "seller_label": "Build & Sell",
+      "seller_desc": "Publish your AI tools, workflows and digital products. Earn from day one."
+    },
+    "orientation_buyer": {
+      "title": "Here's what awaits you.",
+      "feature_market": "Marketplace — Vetted digital products from top creators.",
+      "feature_bundles": "Bundles — Curated collections at a fraction of the price.",
+      "cta": "Let's explore"
+    },
+    "orientation_seller": {
+      "title": "Your shop is almost ready.",
+      "feature_products": "Products — Publish digital tools in minutes with instant delivery.",
+      "feature_stripe": "Payouts — Connect Stripe once, get paid globally.",
+      "feature_analytics": "Analytics — Track views, conversions and revenue in real-time.",
+      "cta": "Activate seller mode"
+    },
+    "back": "Back",
+    "quick_start": {
+      "title": "Get started",
+      "market_title": "Browse Marketplace",
+      "market_desc": "Digital products from top creators",
+      "bundles_title": "Discover Bundles",
+      "bundles_desc": "Curated collections, better prices"
+    },
+    "checklist": {
+      "dismiss_sr": "Dismiss setup checklist"
+    },
+    "stripe_return_toast": "Stripe returned you to KODE01. We refreshed your account status.",
+    "stripe_return_error_toast": "Stripe onboarding could not be resumed. Please try opening Stripe again."
+  },
+  "search": {
+    "meta_description": "Search products and news from one page.",
+    "subtitle": "Find products and news in one place.",
+    "placeholder": "Search products and news...",
+    "empty_prompt": "Start typing to search products and news."
+  }
+}

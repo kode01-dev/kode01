@@ -1,0 +1,76 @@
+{
+  "version": "v1",
+  "updated_at": "2026-04-25",
+  "notes": [
+    "Contract for critical endpoints. Enforced via middleware, route validation, and Supabase RLS.",
+    "This file is intentionally machine-readable for audits and automated drift checks."
+  ],
+  "endpoints": [
+    {
+      "path_prefix": "/api/admin",
+      "auth_required": true,
+      "role_required": "admin",
+      "mfa_required": true,
+      "csrf_required": true,
+      "rate_limit": "GLOBAL_API + endpoint policy"
+    },
+    {
+      "path_prefix": "/api/vendor/order-incidents",
+      "auth_required": true,
+      "role_required": "seller",
+      "mfa_required": false,
+      "csrf_required": true,
+      "rate_limit": "GLOBAL_API + endpoint policy",
+      "compensating_controls": "Seller MFA is optional at launch; route auth, seller role checks, ownership checks, CSRF, RLS, audit logging, and rate limits remain required."
+    },
+    {
+      "path_prefix": "/api/vendor/products/*/license",
+      "auth_required": true,
+      "role_required": "seller",
+      "mfa_required": false,
+      "csrf_required": true,
+      "rate_limit": "GLOBAL_API + endpoint policy",
+      "compensating_controls": "Seller MFA is optional at launch; route auth, seller role checks, ownership checks, CSRF, RLS, audit logging, and rate limits remain required."
+    },
+    {
+      "path_prefix": "/api/stripe/connect",
+      "auth_required": true,
+      "role_required": "seller",
+      "mfa_required": false,
+      "csrf_required": true,
+      "rate_limit": "STRIPE_CHECKOUT",
+      "compensating_controls": "Seller MFA is optional at launch; Stripe Connect actions remain protected by session auth, seller role checks, CSRF, Stripe state validation, audit logging, and rate limits."
+    },
+    {
+      "path_prefix": "/api/stripe/checkout",
+      "auth_required": true,
+      "role_required": "buyer|seller|admin",
+      "mfa_required": false,
+      "csrf_required": true,
+      "rate_limit": "STRIPE_CHECKOUT"
+    },
+    {
+      "path_prefix": "/api/cart/checkout",
+      "auth_required": true,
+      "role_required": "buyer|seller|admin",
+      "mfa_required": false,
+      "csrf_required": true,
+      "rate_limit": "STRIPE_CHECKOUT"
+    },
+    {
+      "path_prefix": "/api/download/:product_id",
+      "auth_required": true,
+      "role_required": "buyer",
+      "ownership_check_required": true,
+      "signed_url_required": true,
+      "rate_limit": "GLOBAL_API + endpoint policy"
+    },
+    {
+      "path_prefix": "/api/webhooks/stripe-connect-thin",
+      "auth_required": false,
+      "signature_required": true,
+      "rate_limit": "WEBHOOK_REPLAY"
+    }
+  ]
+}
+

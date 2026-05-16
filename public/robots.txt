@@ -1,0 +1,34 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /buyer
+Disallow: /client
+Disallow: /vendor
+Disallow: /settings
+Disallow: /auth
+Disallow: /api
+Disallow: /en/admin
+Disallow: /en/dashboard
+Disallow: /en/buyer
+Disallow: /en/client
+Disallow: /en/vendor
+Disallow: /en/settings
+Disallow: /en/auth
+Disallow: /en/api
+Disallow: /fr/admin
+Disallow: /fr/dashboard
+Disallow: /fr/buyer
+Disallow: /fr/client
+Disallow: /fr/vendor
+Disallow: /fr/settings
+Disallow: /fr/auth
+Disallow: /fr/api
+
+# Host
+Host: https://kode01.com
+
+# Sitemaps
+Sitemap: https://kode01.com/sitemap.xml
+Sitemap: https://kode01.com/server-sitemap.xml

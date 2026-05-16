@@ -1,0 +1,5 @@
+Usage: python -m modal deploy [OPTIONS] APP_REF
+Try 'python -m modal deploy -h' for help.
++- Error ---------------------------------------------------------------------+
+| No such option: --profile                                                   |
++-----------------------------------------------------------------------------+
