@@ -17,16 +17,23 @@ type PasswordHistoryRow = {
   password_hash: string;
 };
 
+type PasswordHistoryIdRow = {
+  id: string;
+};
+
 const rateLimitCalls: RateLimitInput[] = [];
 const resetPasswordCalls: Array<{ email: string; options: { redirectTo?: string } }> = [];
 const updateUserCalls: Array<{ password?: string }> = [];
 const insertedPasswordHistory: Array<{ user_id: string; password_hash: string }> = [];
 const auditEvents: AuditEvent[] = [];
+const trimRangeCalls: Array<{ from: number; to: number }> = [];
+const deletedPasswordHistoryIdBatches: string[][] = [];
 
 let rateLimitAllowed = true;
 let resetPasswordError: { message: string } | null = null;
 let currentUser: { id: string; email?: string } | null = { id: 'user-1', email: 'User@Example.com' };
 let passwordHistoryRows: PasswordHistoryRow[] = [];
+let trimStalePasswordHistoryRows: PasswordHistoryIdRow[] = [];
 
 mock.module('next/headers', {
   namedExports: {
@@ -123,7 +130,10 @@ mock.module('@/lib/supabase/admin', {
           eq: () => ({
             order: () => ({
               limit: async () => ({ data: passwordHistoryRows, error: null }),
-              range: async () => ({ data: [], error: null }),
+              range: async (from: number, to: number) => {
+                trimRangeCalls.push({ from, to });
+                return { data: trimStalePasswordHistoryRows.slice(0, to - from + 1), error: null };
+              },
             }),
           }),
         }),
@@ -132,7 +142,10 @@ mock.module('@/lib/supabase/admin', {
           return { error: null };
         },
         delete: () => ({
-          in: async () => ({ error: null }),
+          in: async (_column: string, ids: string[]) => {
+            deletedPasswordHistoryIdBatches.push(ids);
+            return { error: null };
+          },
         }),
       }),
     }),
@@ -149,10 +162,13 @@ function resetState() {
   updateUserCalls.length = 0;
   insertedPasswordHistory.length = 0;
   auditEvents.length = 0;
+  trimRangeCalls.length = 0;
+  deletedPasswordHistoryIdBatches.length = 0;
   rateLimitAllowed = true;
   resetPasswordError = null;
   currentUser = { id: 'user-1', email: 'User@Example.com' };
   passwordHistoryRows = [];
+  trimStalePasswordHistoryRows = [];
 }
 
 test('requestPasswordResetAction sends a neutral reset email response with a localized recovery redirect', async () => {
@@ -243,4 +259,29 @@ test('completePasswordResetAction rejects recently reused passwords', async () =
   assert.match(result.error, /last 5 passwords/);
   assert.equal(updateUserCalls.length, 0);
   assert.equal(auditEvents.at(-1)?.eventType, 'auth.password.history.rejected');
+});
+
+test('completePasswordResetAction trims stale password history with one read and chunked deletes', async () => {
+  resetState();
+  trimStalePasswordHistoryRows = Array.from({ length: 450 }, (_, index) => ({
+    id: `stale-history-${index}`,
+  }));
+  const { completePasswordResetAction } = await loadAuthActions('complete-trims-history');
+
+  const result = await completePasswordResetAction({
+    password: 'Valid123!',
+    confirmPassword: 'Valid123!',
+  });
+
+  assert.deepEqual(result, { success: true });
+  assert.equal(updateUserCalls.length, 1);
+  assert.equal(insertedPasswordHistory.length, 1);
+  assert.deepEqual(trimRangeCalls, [{ from: 5, to: 4004 }]);
+  assert.deepEqual(deletedPasswordHistoryIdBatches.map((ids) => ids.length), [200, 200, 50]);
+
+  const deletedIds = deletedPasswordHistoryIdBatches.flat();
+  assert.equal(deletedIds.length, 450);
+  assert.equal(new Set(deletedIds).size, 450);
+  assert.equal(deletedIds[0], 'stale-history-0');
+  assert.equal(deletedIds.at(-1), 'stale-history-449');
 });

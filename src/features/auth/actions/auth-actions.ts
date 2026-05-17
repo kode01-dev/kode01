@@ -40,10 +40,18 @@ const AUTH_BOT_BLOCKED_ERROR = 'BOT_BLOCKED';
 const PASSWORD_RESET_SESSION_MISSING_ERROR = 'PASSWORD_RESET_SESSION_MISSING';
 const PASSWORD_HISTORY_LIMIT = 5;
 const PASSWORD_HISTORY_BCRYPT_ROUNDS = 12;
+const PASSWORD_HISTORY_TRIM_BATCH_SIZE = 200;
+const PASSWORD_HISTORY_TRIM_MAX_BATCHES = 20;
+const PASSWORD_HISTORY_TRIM_MAX_STALE_ROWS =
+    PASSWORD_HISTORY_TRIM_BATCH_SIZE * PASSWORD_HISTORY_TRIM_MAX_BATCHES;
 
 type PasswordHistoryRow = {
     id: string;
     password_hash: string;
+};
+
+type PasswordHistoryIdRow = {
+    id: string;
 };
 
 async function findReusedPasswordHistoryRow(
@@ -140,39 +148,42 @@ async function getRecentPasswordHistory(userId: string): Promise<PasswordHistory
 
 async function trimPasswordHistory(userId: string): Promise<void> {
     const adminSupabase = createAdminClient();
-    const batchSize = 200;
 
-    for (let iteration = 0; iteration < 20; iteration += 1) {
-        const { data, error } = await adminSupabase
-            .from('auth_password_history')
-            .select('id')
-            .eq('user_id', userId)
-            .order('changed_at', { ascending: false })
-            .range(PASSWORD_HISTORY_LIMIT, PASSWORD_HISTORY_LIMIT + batchSize - 1);
+    const { data, error } = await adminSupabase
+        .from('auth_password_history')
+        .select('id')
+        .eq('user_id', userId)
+        .order('changed_at', { ascending: false })
+        .range(
+            PASSWORD_HISTORY_LIMIT,
+            PASSWORD_HISTORY_LIMIT + PASSWORD_HISTORY_TRIM_MAX_STALE_ROWS - 1,
+        );
 
-        if (error) {
-            throw new Error(`Failed to read stale password history rows: ${error.message}`);
-        }
+    if (error) {
+        throw new Error(`Failed to read stale password history rows: ${error.message}`);
+    }
 
-        const staleIds = (data ?? [])
-            .map((row) => row.id)
-            .filter((value): value is string => typeof value === 'string' && value.length > 0);
+    const staleIds = ((data ?? []) as PasswordHistoryIdRow[])
+        .map((row) => row.id)
+        .filter((value): value is string => typeof value === 'string' && value.length > 0);
 
-        if (staleIds.length === 0) return;
+    if (staleIds.length === 0) return;
 
+    for (let index = 0; index < staleIds.length; index += PASSWORD_HISTORY_TRIM_BATCH_SIZE) {
+        const staleIdBatch = staleIds.slice(index, index + PASSWORD_HISTORY_TRIM_BATCH_SIZE);
         const { error: deleteError } = await adminSupabase
             .from('auth_password_history')
             .delete()
-            .in('id', staleIds);
+            .in('id', staleIdBatch);
 
         if (deleteError) {
             throw new Error(`Failed to trim password history: ${deleteError.message}`);
         }
-
-        if (staleIds.length < batchSize) return;
     }
 
-    throw new Error('Password history trim exceeded safe iteration limit');
+    if (staleIds.length >= PASSWORD_HISTORY_TRIM_MAX_STALE_ROWS) {
+        throw new Error('Password history trim exceeded safe iteration limit');
+    }
 }
 
 async function recordPasswordHistory(userId: string, password: string): Promise<void> {
