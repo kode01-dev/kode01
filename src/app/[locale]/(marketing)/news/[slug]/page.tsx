@@ -14,6 +14,7 @@ import { ReactNode } from 'react';
 import { applySeoMetadata } from '@/lib/seo';
 import { SeoAppJsonLd } from '@/components/seo/SeoAppJsonLd';
 import { RecapArticleSources } from '@/features/ai-recap/components/RecapArticleSources';
+import { stripTrailingGeneratedSourceCredit } from '@/features/ai-recap/lib/markdown-source-cleanup';
 
 type ArticleBlock =
     | { type: 'heading'; level: number; text: string }
@@ -430,7 +431,6 @@ export default async function NewsDetailPage({
     const content = post.content_json;
     const isFrench = locale.toLowerCase().startsWith('fr');
     const summaryTitle = isFrench ? 'Ce qu’il faut retenir en 30 secondes' : 'What to know in 30 seconds';
-    const summarySourceLabel = isFrench ? 'Source principale' : 'Primary source';
     const quickHitsTitle = isFrench ? 'En bref' : 'Quick hits';
     const articleFallback = isFrench
         ? 'Article en cours de generation. Revenez dans quelques minutes.'
@@ -446,10 +446,10 @@ export default async function NewsDetailPage({
                 ...content.quickHits.map((item) => `${item.topic}: ${item.summary}`),
             ].filter((value): value is string => Boolean(value)).slice(0, 3)
             : [];
-    const summaryPrimarySourceUrl = summaryLocale?.primary_source_url || content?.bigNews?.source_url || null;
     const translationStatus = inferStatusFromContentMetadata(locale, null, post.locale);
     const displayTranslationStatus =
         translationStatus === 'not_translated' ? 'translated' : translationStatus;
+    const articleMarkdown = stripTrailingGeneratedSourceCredit(post.content_markdown ?? '');
     const baseUrl = getAppBaseUrl();
     const jsonLd = {
         '@context': 'https://schema.org',
@@ -528,24 +528,11 @@ export default async function NewsDetailPage({
                                             <li key={`summary-${index}`}>{item}</li>
                                         ))}
                                     </ul>
-                                    {summaryPrimarySourceUrl && (
-                                        <p className="mt-3 sm:mt-4 text-[10px] sm:text-xs font-medium text-kode01-noir/50 break-words overflow-hidden">
-                                            {summarySourceLabel}:{' '}
-                                            <a
-                                                href={summaryPrimarySourceUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-kode01-pink hover:underline break-all"
-                                            >
-                                                {summaryPrimarySourceUrl}
-                                            </a>
-                                        </p>
-                                    )}
                                 </section>
                             )}
 
-                            {post.content_markdown?.trim().length > 0 ? (
-                                renderArticleMarkdown(post.content_markdown, post.title)
+                            {articleMarkdown.trim().length > 0 ? (
+                                renderArticleMarkdown(articleMarkdown, post.title)
                             ) : (
                                 <p className="mt-8 text-sm text-kode01-noir/65">{articleFallback}</p>
                             )}

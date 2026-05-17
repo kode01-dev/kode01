@@ -4,6 +4,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { RecapArticleSources } from '@/features/ai-recap/components/RecapArticleSources';
 import { getRecapArticleSources } from '@/features/ai-recap/lib/article-sources';
+import { stripTrailingGeneratedSourceCredit } from '@/features/ai-recap/lib/markdown-source-cleanup';
 import type { RecapContent } from '@/features/ai-recap/types';
 
 function makeContent(overrides: Partial<RecapContent> = {}): RecapContent {
@@ -132,4 +133,25 @@ test('RecapArticleSources renders all expected sources for French and English su
   assert.match(enMarkup, /https:\/\/render-source\.test\/en/);
   assert.match(enMarkup, /https:\/\/shared-source\.test\/story/);
   assert.doesNotMatch(enMarkup, /https:\/\/render-source\.test\/fr/);
+});
+
+test('stripTrailingGeneratedSourceCredit removes only generated source credits at the end', () => {
+  const markdown = [
+    '# Recap IA',
+    '',
+    'Le contenu principal reste visible.',
+    '',
+    '*Sources : OpenAI — Artificial Intelligence News / Deloitte*',
+    '',
+  ].join('\n');
+
+  assert.equal(
+    stripTrailingGeneratedSourceCredit(markdown),
+    '# Recap IA\n\nLe contenu principal reste visible.',
+  );
+
+  assert.equal(
+    stripTrailingGeneratedSourceCredit('Sources : ce passage fait partie du corps.\n\nSuite de l article.'),
+    'Sources : ce passage fait partie du corps.\n\nSuite de l article.',
+  );
 });

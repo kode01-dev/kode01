@@ -1145,6 +1145,7 @@ def _generate_article(
             "Do not invent facts.",
             "French and English must both be complete.",
             "Use markdown for article_markdown.",
+            "Do not include a Sources, References, source-credit, or URL list section in article_markdown; sources are rendered separately.",
         ],
     }
     user = json.dumps(request_payload, ensure_ascii=False)
