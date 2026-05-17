@@ -20,9 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     const { locale } = await params;
     return applySeoMetadata({
         title: 'KODE01',
-        description: locale === 'fr'
-            ? 'KODE01 rassemble veille IA, outils, ressources et produits numériques pour aider les builders et créateurs à suivre les nouveautés et passer plus vite à l’action.'
-            : 'KODE01 brings together AI updates, tools, resources, and digital products so builders and creators can follow what is new and move faster.',
+        description: 'KODE01',
     }, '/', { locale });
 }
 

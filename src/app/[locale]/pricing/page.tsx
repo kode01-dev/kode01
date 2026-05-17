@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
-import { Check, Zap, Megaphone, Star, Lock } from 'lucide-react';
+import { Check, ChevronDown, Zap, Megaphone, Star, Lock } from 'lucide-react';
 
 import { BaseHeader } from '@/components/layout/BaseHeader';
 import { BaseFooter } from '@/components/layout/BaseFooter';
@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getActivePlacements, getActivePricingPlans } from '@/features/ads/server/repository';
 import { applySeoMetadata } from '@/lib/seo';
 import { SeoAppJsonLd } from '@/components/seo/SeoAppJsonLd';
+import type { FaqItem } from '@/features/faq/faq-model';
 
 type PricingPlan = {
     code: string;
@@ -40,6 +41,8 @@ type MarketplacePlanCard = {
     popular: boolean;
     disableForMembers: boolean;
 };
+
+const PRICING_FAQ_KEYS = ['fees', 'commission', 'advertising', 'sponsoredBlog', 'payments'] as const;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
@@ -252,6 +255,16 @@ async function PricingPageContent({ locale }: { locale: string }) {
             'Auto-publish at next 09:00 Toronto slot',
             'Appears in normal blog feed with sponsored badge',
         ];
+    const pricingFaqLinksByKey: Partial<Record<(typeof PRICING_FAQ_KEYS)[number], FaqItem['links']>> = {
+        fees: [{ href: `/${locale}/market`, label: tPricing('faq.links.market') }],
+        advertising: [{ href: `/${locale}/contact`, label: tPricing('faq.links.contact') }],
+        sponsoredBlog: [{ href: `/${locale}/contact`, label: tPricing('faq.links.contact') }],
+    };
+    const pricingFaqItems: FaqItem[] = PRICING_FAQ_KEYS.map((key) => ({
+        question: tPricing(`faq.${key}.question`),
+        answer: tPricing(`faq.${key}.answer`),
+        links: pricingFaqLinksByKey[key],
+    }));
 
     return (
         <div className="max-w-[1440px] mx-auto px-6 md:px-12">
@@ -346,10 +359,45 @@ async function PricingPageContent({ locale }: { locale: string }) {
                 <div className="mt-20 text-center">
                     <p className="text-kode01-noir/60 font-medium">
                         {isFr
-                            ? 'Tous les forfaits incluent le traitement securisé des paiements, le tableau de bord vendeur et le support client.'
+                            ? 'Tous les forfaits incluent le traitement sécurisé des paiements, le tableau de bord vendeur et le support client.'
                             : 'All plans include secure payment processing, seller dashboard, and customer support.'}
                     </p>
                 </div>
+                <section className="mt-20 max-w-3xl mx-auto" aria-labelledby="pricing-faq-heading">
+                    <h2 id="pricing-faq-heading" className="text-2xl md:text-3xl font-serif font-black text-kode01-noir tracking-tight">
+                        {tPricing('faq.heading')}
+                    </h2>
+                    <div className="mt-6 space-y-3">
+                        {pricingFaqItems.map((item) => (
+                            <details
+                                key={item.question}
+                                className="group rounded-2xl border border-kode01-noir/10 bg-white/70 px-5 py-4 shadow-sm"
+                            >
+                                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left [&::-webkit-details-marker]:hidden">
+                                    <h3 className="text-base md:text-lg font-serif font-black text-kode01-noir">
+                                        {item.question}
+                                    </h3>
+                                    <ChevronDown
+                                        size={20}
+                                        className="shrink-0 text-kode01-noir/50 transition-transform group-open:rotate-180"
+                                        aria-hidden="true"
+                                    />
+                                </summary>
+                                <p className="mt-4 text-kode01-noir/65 text-base leading-relaxed">
+                                    {item.answer}
+                                    {item.links?.map((link) => (
+                                        <span key={link.href}>
+                                            {' '}
+                                            <Link href={link.href} className="font-bold text-kode01-noir underline decoration-kode01-pink/60 underline-offset-4 hover:text-kode01-pink">
+                                                {link.label}
+                                            </Link>
+                                        </span>
+                                    ))}
+                                </p>
+                            </details>
+                        ))}
+                    </div>
+                </section>
             </div>
 
             {/* Advertising Section */}

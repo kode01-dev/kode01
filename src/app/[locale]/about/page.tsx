@@ -9,7 +9,7 @@ import {
     AboutMission, 
     AboutValues, 
     AboutAudience, 
-    AboutLocation 
+    AboutCta 
 } from '@/features/about/components/AboutComponents';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -89,13 +89,13 @@ export default async function AboutPage() {
         <div className="min-h-screen bg-kode01-cream flex flex-col">
             <SeoAppJsonLd pathname="/about" fallbackData={jsonLd} />
             <BaseHeader />
-            <main className="flex-1 pt-48 pb-32">
-                <div className="max-w-6xl mx-auto px-6">
+            <main className="flex-1" style={{ paddingTop: 'clamp(140px, 20vw, 240px)', paddingBottom: '80px' }}>
+                <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 clamp(20px, 4vw, 48px)' }}>
                     <AboutHero />
                     <AboutMission />
                     <AboutValues />
                     <AboutAudience />
-                    <AboutLocation />
+                    <AboutCta />
                 </div>
             </main>
             <BaseFooter />

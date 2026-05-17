@@ -5,6 +5,7 @@ import { BaseFooter } from '@/components/layout/BaseFooter';
 import { getAppBaseUrl } from '@/lib/env/server';
 import { applySeoMetadata } from '@/lib/seo';
 import { SeoAppJsonLd } from '@/components/seo/SeoAppJsonLd';
+import { faqItemsToSchema, type FaqItem } from '@/features/faq/faq-model';
 import {
   HowItWorksHero,
   BuyerSteps,
@@ -59,9 +60,18 @@ export default async function HowItWorksPage({
   const t = await getTranslations({ locale, namespace: 'how_it_works' });
   const baseUrl = getAppBaseUrl();
 
-  const faqItems = FAQ_KEYS.map((key) => ({
+  const faqLinksByKey: Partial<Record<(typeof FAQ_KEYS)[number], FaqItem['links']>> = {
+    q2: [{ href: '/market', label: t('faq.links.market') }],
+    q3: [{ href: '/market', label: t('faq.links.market') }],
+    q5: [{ href: '/contact', label: t('faq.links.contact') }],
+    q7: [{ href: '/pricing', label: t('faq.links.pricing') }],
+    q8: [{ href: '/contact', label: t('faq.links.contact') }],
+  };
+
+  const faqItems: FaqItem[] = FAQ_KEYS.map((key) => ({
     question: t(`faq.${key}.question`),
     answer: t(`faq.${key}.answer`),
+    links: faqLinksByKey[key],
   }));
 
   const howToSchema = {
@@ -91,18 +101,7 @@ export default async function HowItWorksPage({
     ],
   };
 
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqItems.map((item) => ({
-      '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: item.answer,
-      },
-    })),
-  };
+  const faqSchema = faqItemsToSchema(faqItems);
 
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
@@ -129,14 +128,14 @@ export default async function HowItWorksPage({
 
   return (
     <div className="min-h-screen bg-kode01-cream flex flex-col">
-      <SeoAppJsonLd pathname="/how-it-works" fallbackData={jsonLd} />
+      <SeoAppJsonLd pathname="/how-it-works" fallbackData={jsonLd} schemaOverrideMode="prefer-fallback" />
       <BaseHeader />
       <main className="flex-1 pt-48 pb-32">
         <div className="max-w-6xl mx-auto px-6">
           <HowItWorksHero />
           <BuyerSteps />
           <SellerSteps />
-          <HowItWorksFaq />
+          <HowItWorksFaq heading={t('faq.heading')} items={faqItems} />
           <HowItWorksCta />
         </div>
       </main>

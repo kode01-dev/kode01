@@ -37,6 +37,7 @@ export const HeroSection = ({ content, initialStats }: HeroSectionProps) => {
     const customTitle = getLocalizedSectionValue(content, 'title', locale);
     const customSubtitle = getLocalizedSectionValue(content, 'subtitle', locale);
     const customCta = getLocalizedSectionValue(content, 'cta_label', locale);
+    const heroSubtitle = customSubtitle ?? t('subtitle');
 
     useEffect(() => {
         if (initialStats) return;
@@ -78,13 +79,21 @@ export const HeroSection = ({ content, initialStats }: HeroSectionProps) => {
                     position: relative;
                 }
                 .hero-center {
-                    max-width: 720px;
+                    max-width: 960px;
                     margin: 0 auto;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     text-align: center;
                     gap: 28px;
+                }
+                .hero-title-line {
+                    display: block;
+                }
+                @media (min-width: 1024px) {
+                    .hero-title-line {
+                        white-space: nowrap;
+                    }
                 }
                 .hero-search-btn-text { display: inline; }
                 .hero-search-btn-icon { display: none; }
@@ -100,8 +109,8 @@ export const HeroSection = ({ content, initialStats }: HeroSectionProps) => {
                 <h1
                     style={{
                         fontFamily: 'var(--font-fraunces), serif',
-                        fontSize: 'clamp(2.8rem, 7vw, 5rem)',
-                        lineHeight: 1,
+                        fontSize: 'clamp(2.2rem, 6vw, 4.8rem)',
+                        lineHeight: 1.1,
                         fontWeight: 900,
                         letterSpacing: '-0.04em',
                         color: '#1A1A1A',
@@ -109,22 +118,23 @@ export const HeroSection = ({ content, initialStats }: HeroSectionProps) => {
                 >
                     {customTitle ?? (
                         <>
-                            {t('heading_line1')}
-                            <br />
-                            {t('heading_line2')}
+                            <span className="hero-title-line">{t('heading_line1')}</span>
+                            <span className="hero-title-line">{t('heading_line2')}</span>
                         </>
                     )}
                 </h1>
-                <p
-                    style={{
-                        fontSize: 'clamp(1rem, 1.8vw, 1.15rem)',
-                        color: '#888888',
-                        maxWidth: '560px',
-                        lineHeight: 1.6,
-                    }}
-                >
-                    {customSubtitle ?? t('subtitle')}
-                </p>
+                {heroSubtitle ? (
+                    <p
+                        style={{
+                            fontSize: 'clamp(1rem, 1.8vw, 1.15rem)',
+                            color: '#888888',
+                            maxWidth: '560px',
+                            lineHeight: 1.6,
+                        }}
+                    >
+                        {heroSubtitle}
+                    </p>
+                ) : null}
 
                 <form onSubmit={handleSearch} style={{ width: '100%', maxWidth: '560px' }}>
                     <div

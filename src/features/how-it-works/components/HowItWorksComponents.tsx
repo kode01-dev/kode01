@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Search, ShieldCheck, Download, UserPlus, Upload, Wallet, LucideIcon } from 'lucide-react';
 import { Link } from '@/i18n/routing';
+import type { FaqItem } from '@/features/faq/faq-model';
 
 const StepCard = ({ number, icon: Icon, title, description }: { number: number; icon: LucideIcon; title: string; description: string }) => (
   <div className="p-8 bg-white rounded-3xl border border-kode01-noir/5 shadow-sm hover:shadow-md transition-shadow relative">
@@ -106,26 +107,30 @@ export const SellerSteps = () => {
   );
 };
 
-const FAQ_KEYS = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8'] as const;
-
-export const HowItWorksFaq = () => {
-  const t = useTranslations('how_it_works.faq');
-
+export const HowItWorksFaq = ({ heading, items }: { heading: string; items: readonly FaqItem[] }) => {
   return (
     <article className="bg-white rounded-[32px] p-8 md:p-16 shadow-sm border border-kode01-noir/5 mb-12">
       <h2 className="text-2xl md:text-3xl font-serif font-black text-kode01-noir mb-12 tracking-tight">
-        {t('heading')}
+        {heading}
       </h2>
       <div className="space-y-10">
-        {FAQ_KEYS.map((key, index) => (
-          <section key={key} id={`faq-${index + 1}`}>
+        {items.map((item, index) => (
+          <section key={item.question} id={`faq-${index + 1}`}>
             <h3 className="text-xl md:text-2xl font-serif font-black text-kode01-noir mb-4">
-              {t(`${key}.question`)}
+              {item.question}
             </h3>
             <p className="text-kode01-noir/60 text-lg leading-relaxed">
-              {t(`${key}.answer`)}
+              {item.answer}
+              {item.links?.map((link) => (
+                <span key={link.href}>
+                  {' '}
+                  <Link href={link.href} className="font-bold text-kode01-noir underline decoration-kode01-pink/60 underline-offset-4 hover:text-kode01-pink">
+                    {link.label}
+                  </Link>
+                </span>
+              ))}
             </p>
-            {index < FAQ_KEYS.length - 1 && (
+            {index < items.length - 1 && (
               <div className="mt-10 border-t border-kode01-noir/5" />
             )}
           </section>

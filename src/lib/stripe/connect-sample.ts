@@ -3,6 +3,7 @@ import 'server-only';
 import Stripe from 'stripe';
 import { normalizeEnvValue } from '@/lib/env/normalize';
 import { getServerEnv } from '@/lib/env/server';
+import { STRIPE_API_VERSION_CONFIG } from '@/lib/stripe/api-version';
 import { normalizeConnectCountryCode } from '@/lib/stripe/connect-countries';
 import {
   normalizeVendorBusinessDescription,
@@ -14,7 +15,12 @@ const STRIPE_SECRET_PLACEHOLDER_PATTERN = /^sk_(?:test|live)_x+$/i;
 const STRIPE_THIN_WEBHOOK_SECRET_PLACEHOLDER_PATTERN = /^whsec_x+$/i;
 const DEFAULT_CONNECTED_ACCOUNT_COUNTRY = 'ca';
 
-export const CONNECT_ACCOUNT_RETRIEVE_INCLUDE: Stripe.V2.Core.AccountRetrieveParams.Include[] = [
+type ConnectAccountRetrieveParams = NonNullable<
+  Parameters<Stripe['v2']['core']['accounts']['retrieve']>[1]
+>;
+type ConnectAccountRetrieveInclude = NonNullable<ConnectAccountRetrieveParams['include']>[number];
+
+export const CONNECT_ACCOUNT_RETRIEVE_INCLUDE: ConnectAccountRetrieveInclude[] = [
   'configuration.recipient',
   'configuration.merchant',
   'requirements',
@@ -51,14 +57,14 @@ function getStripeConnectSampleSecretKey(): string {
 
 /**
  * Builds a Stripe client for the Connect sample integration.
- * We intentionally do not force an API version here because the SDK auto-uses
- * the latest preview/stable behavior configured by Stripe.
+ * Keep the SDK upgrade separate from Stripe API behavior changes.
  */
 export function getStripeClientForConnectSample(): Stripe {
   const secretKey = getStripeConnectSampleSecretKey();
 
   if (!cachedStripeClient) {
     cachedStripeClient = new Stripe(secretKey, {
+      apiVersion: STRIPE_API_VERSION_CONFIG,
       appInfo: {
         name: 'kode01 Stripe Connect Sample',
         url: 'https://kode01.co',

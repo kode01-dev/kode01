@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Outfit, Fraunces, DM_Sans } from "next/font/google";
-import Script from 'next/script';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import "../globals.css";
 import { NextIntlClientProvider } from 'next-intl';
@@ -18,12 +17,10 @@ export function generateStaticParams() {
     return routing.locales.map((locale) => ({ locale }));
 }
 import CookieConsentComponent from '@/features/cookies/CookieConsent';
-import GoogleConsentModeBootstrap from '@/features/cookies/GoogleConsentModeBootstrap';
 import GoogleAnalytics from '@/features/cookies/GoogleAnalytics';
 import Honeypot from '@/components/security/Honeypot';
 
 const isProduction = process.env.NODE_ENV === 'production';
-const HYDRATION_EXTENSION_ATTRS = ['data-jetski-tab-id', 'fdprocessedid'] as const;
 
 const inter = Inter({ subsets: ["latin"], display: 'swap' });
 const outfit = Outfit({
@@ -185,43 +182,6 @@ export default async function LocaleLayout(
                 suppressHydrationWarning
                 className={`${inter.className} ${outfit.variable} ${fraunces.variable} ${dmSans.variable}`}
             >
-                <Script id="hydrate-attr-sanitizer" strategy="beforeInteractive">
-                    {`(() => {
-  const attrs = ${JSON.stringify(HYDRATION_EXTENSION_ATTRS)};
-  const html = document.documentElement;
-  const body = document.body;
-
-  const clean = () => {
-    for (const attr of attrs) {
-      if (html?.hasAttribute(attr)) html.removeAttribute(attr);
-      if (body?.hasAttribute(attr)) body.removeAttribute(attr);
-
-      const nodes = document.querySelectorAll('[' + attr + ']');
-      for (const node of nodes) {
-        node.removeAttribute(attr);
-      }
-    }
-  };
-
-  clean();
-
-  const observer = new MutationObserver(() => clean());
-  observer.observe(html, {
-    attributes: true,
-    attributeFilter: attrs,
-    subtree: true,
-  });
-
-  window.addEventListener(
-    'DOMContentLoaded',
-    () => {
-      setTimeout(() => observer.disconnect(), 3000);
-    },
-    { once: true }
-  );
-})();`}
-                </Script>
-                <GoogleConsentModeBootstrap />
                 <GoogleAnalytics />
                 <NextIntlClientProvider messages={messages}>
                     <Providers lockscreenInitialState={lockscreenInitialState}>

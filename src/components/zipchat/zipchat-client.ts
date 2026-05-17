@@ -19,10 +19,26 @@ type ZipchatWindow = Window & {
 export const ZIPCHAT_SCRIPT_ID = 'zipchat-widget';
 export const ZIPCHAT_SCRIPT_SRC = 'https://app.zipchat.ai/widget/zipchat.js?id=wD35np9xnKUAM802YRtS';
 export const OPEN_ZIPCHAT_SUPPORT_EVENT = 'kode01:zipchat-open-support';
+const ZIPCHAT_SHADOW_HOST_ID = 'zipchat-shadow-host';
+const ZIPCHAT_NATIVE_BUBBLE_SELECTOR = '[data-zipchat="bubble"], #widget-chat-button';
 
 export function getZipchatApi(): ZipchatApi | undefined {
   if (typeof window === 'undefined') return undefined;
   return (window as ZipchatWindow).Zipchat;
+}
+
+function getNativeZipchatBubble(): HTMLElement | null {
+  if (typeof document === 'undefined') return null;
+
+  const host = document.getElementById(ZIPCHAT_SHADOW_HOST_ID);
+  const shadowBubble = host?.shadowRoot?.querySelector<HTMLElement>(ZIPCHAT_NATIVE_BUBBLE_SELECTOR);
+  if (shadowBubble) return shadowBubble;
+
+  return document.querySelector<HTMLElement>(ZIPCHAT_NATIVE_BUBBLE_SELECTOR);
+}
+
+export function isZipchatWidgetReady(): boolean {
+  return Boolean(getZipchatApi() || getNativeZipchatBubble());
 }
 
 export function requestZipchatSupport(): void {
@@ -44,6 +60,12 @@ export function tryOpenZipchat(): boolean {
 
   if (zipchat?.toggle) {
     zipchat.toggle();
+    return true;
+  }
+
+  const nativeBubble = getNativeZipchatBubble();
+  if (nativeBubble) {
+    nativeBubble.click();
     return true;
   }
 

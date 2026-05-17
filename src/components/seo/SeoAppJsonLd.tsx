@@ -4,7 +4,10 @@ import { serializeJsonForScriptTag } from '@/lib/security/serialize-json-for-scr
 type SeoAppJsonLdProps = {
   pathname: string;
   fallbackData?: unknown;
+  schemaOverrideMode?: SchemaOverrideMode;
 };
+
+export type SchemaOverrideMode = 'prefer-seo' | 'prefer-fallback';
 
 function resolveSeoSchema(schemaJson: unknown): unknown {
   if (!schemaJson || typeof schemaJson !== 'object' || Array.isArray(schemaJson)) {
@@ -30,13 +33,32 @@ function hasRenderableJsonLd(value: unknown): boolean {
   return false;
 }
 
+function firstRenderableJsonLd(...values: unknown[]): unknown {
+  return values.find((value) => hasRenderableJsonLd(value)) ?? null;
+}
+
+export function resolveSeoAppJsonLd({
+  seoSchema,
+  fallbackData,
+  schemaOverrideMode = 'prefer-seo',
+}: {
+  seoSchema?: unknown;
+  fallbackData?: unknown;
+  schemaOverrideMode?: SchemaOverrideMode;
+}): unknown {
+  return schemaOverrideMode === 'prefer-fallback'
+    ? firstRenderableJsonLd(fallbackData, seoSchema)
+    : firstRenderableJsonLd(seoSchema, fallbackData);
+}
+
 export async function SeoAppJsonLd({
   pathname,
   fallbackData,
+  schemaOverrideMode = 'prefer-seo',
 }: SeoAppJsonLdProps): Promise<React.JSX.Element | null> {
   const seo = await getSeoOverrides(pathname);
   const seoSchema = resolveSeoSchema(seo.schemaJson);
-  const jsonLd = seoSchema ?? fallbackData ?? null;
+  const jsonLd = resolveSeoAppJsonLd({ seoSchema, fallbackData, schemaOverrideMode });
 
   if (!hasRenderableJsonLd(jsonLd)) {
     return null;

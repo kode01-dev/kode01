@@ -163,9 +163,10 @@
         "description": "Accélérez votre vision. Suivez les nouveautés IA, découvrez les bons outils et trouvez des workflows, ressources IA et systèmes numériques pour avancer sans repartir de zéro."
       }
     },
-    "location": {
-      "title": "Région de la Capitale Nationale",
-      "description": "Basés au cœur de la Région de la Capitale Nationale (Gatineau-Ottawa), nous fusionnons l'énergie créative de deux provinces pour bâtir une communauté numérique mondiale."
+    "cta": {
+      "title": "Prêt à explorer ?",
+      "subtitle": "Découvrez les nouveautés IA, outils et produits numériques sélectionnés pour les builders et créateurs.",
+      "button": "Explorer la plateforme"
     }
   },
   "cart": {
@@ -441,7 +442,7 @@
   "cookie_consent": {
     "consent_modal": {
       "title": "Nous utilisons des cookies 🍪",
-      "description": "Nous utilisons des cookies strictement necessaires pour faire fonctionner et securiser la plateforme. Google Analytics, la publicite et Zipchat proactif restent desactives tant que vous ne consentez pas. Le support manuel reste accessible et le chat se charge lorsque vous ouvrez le support.",
+      "description": "Nous utilisons des cookies strictement necessaires pour faire fonctionner et securiser la plateforme. Google Analytics, la publicite et Zipchat proactif restent desactives tant que vous ne consentez pas. La bulle de support Zipchat peut se charger pour fournir l'assistance demandee.",
       "accept_all": "Tout accepter",
       "accept_necessary": "Refuser les optionnels",
       "show_preferences": "Gérer les préférences"
@@ -454,7 +455,7 @@
       "close_icon_label": "Fermer la fenêtre",
       "sections": {
         "necessary_title": "Toujours actifs",
-        "necessary_description": "Ces cookies sont strictement necessaires au fonctionnement du site et incluent l'authentification, la securite et la preuve de consentement. Ils ne peuvent pas etre desactives. Le support manuel reste accessible; le chat Zipchat se charge lorsque vous ouvrez le support.",
+        "necessary_description": "Ces cookies sont strictement necessaires au fonctionnement du site et incluent l'authentification, la securite, la preuve de consentement et la bulle de support Zipchat. Ils ne peuvent pas etre desactives. Zipchat proactif reste reserve a la categorie marketing.",
         "analytics_title": "Analytiques optionnels",
         "analytics_description": "Ces cookies activent la mesure Google Analytics 4 et certains signaux d'utilisation internes. GA4 est bloque avant consentement, et le retrait du consentement desactive la collecte et supprime les cookies analytiques Google que nous pouvons controler.",
         "visitor_notice_title": "Visiteurs non connectés",
@@ -483,10 +484,10 @@
     "hero": {
       "heading_line1": "Restez à jour sur l'IA.",
       "heading_line2": "Découvrez les outils qui comptent.",
-      "subtitle": "KODE01 rassemble veille IA, outils, ressources et produits numériques pour aider les builders et créateurs à suivre les nouveautés, comprendre les tendances et passer plus vite à l'action.",
+      "subtitle": "",
       "search_placeholder": "Rechercher outils, produits et actualités...",
       "start_selling": "Commencer à Vendre",
-      "explore_assets": "Explorer la plateforme",
+      "explore_assets": "Explorer",
       "proof_assets": "{count}+ ressources IA et produits",
       "proof_creators": "{count}+ créateurs",
       "proof_sales": "{count}+ ventes",
@@ -833,10 +834,10 @@
       "what_title": "Que sont les témoins (cookies) ?",
       "what_text": "Les cookies sont de petits fichiers texte stockes sur votre appareil lorsque vous visitez un site web. Ils aident a assurer le bon fonctionnement et la securite de la plateforme, a ameliorer l'experience utilisateur et, selon votre consentement, a mesurer l'usage et ameliorer le service.",
       "how_title": "Comment kode01 utilise les cookies ?",
-      "how_text": "Nous utilisons des cookies internes et des cookies tiers. Les cookies internes sont necessaires au fonctionnement de base, a la securite et a la preuve de consentement. Google Analytics 4, les tags publicitaires et Zipchat proactif sont bloques par defaut et ne s'executent que si vous acceptez la categorie optionnelle correspondante. Le support manuel reste accessible et le chat se charge lorsque vous ouvrez le support.",
+      "how_text": "Nous utilisons des cookies internes et des cookies tiers. Les cookies internes sont necessaires au fonctionnement de base, a la securite, a la preuve de consentement et au support demande via la bulle Zipchat. Google Analytics 4, les tags publicitaires et Zipchat proactif sont bloques par defaut et ne s'executent que si vous acceptez la categorie optionnelle correspondante.",
       "types_title": "Types de témoins utilisés",
       "types_list": [
-        "<strong>Cookies essentiels :</strong> Strictement necessaires pour fournir les services de base (authentification, securite et preuve de consentement). Le support manuel est disponible au clic sans charger Zipchat au demarrage.",
+        "<strong>Cookies essentiels :</strong> Strictement necessaires pour fournir les services de base (authentification, securite, preuve de consentement et bulle de support Zipchat pour le clavardage demande).",
         "<strong>Cookies de performance et d'analyse :</strong> Nous aident a comprendre l'utilisation de la plateforme et a ameliorer ses fonctionnalites via la mesure GA4 des pages et des signaux internes. Pour les visiteurs non connectes, ils peuvent activer une personnalisation anonyme des recommandations.",
         "<strong>Cookies de fonctionnalite :</strong> Ameliorent l'experience et conservent certaines preferences.",
         "<strong>Cookies marketing :</strong> Utilises pour afficher des publicites, mesurer leur performance (ex. Google AdSense) et activer Zipchat proactif pour les popups, recommandations, recuperation panier et propositions d'assistance ou de vente."
@@ -930,7 +931,7 @@
         {
           "name": "zipchat_support",
           "category": "Support demande",
-          "purpose": "Charge Zipchat uniquement lorsque vous ouvrez le support afin de fournir le clavardage demande.",
+          "purpose": "Charge la bulle de support Zipchat afin de fournir le clavardage demande.",
           "duration": "Selon fournisseur",
           "provider": "Zipchat"
         },
@@ -3000,6 +3001,33 @@
         "cta_member": "Mon tableau de bord"
       }
     },
+    "faq": {
+      "heading": "Questions sur les tarifs",
+      "links": {
+        "market": "Parcourir les produits",
+        "contact": "Nous contacter"
+      },
+      "fees": {
+        "question": "KODE01 facture-t-il des frais mensuels ?",
+        "answer": "Non. Le forfait vendeur gratuit n'a pas de frais mensuels, ce qui permet aux créateurs de publier des produits sans abonnement."
+      },
+      "commission": {
+        "question": "Quelle commission KODE01 prélève-t-elle ?",
+        "answer": "KODE01 prélève 15 % de frais par transaction sur les ventes réussies. Ces frais couvrent l'hébergement du marketplace, les paiements, la livraison et les opérations de la plateforme."
+      },
+      "advertising": {
+        "question": "Combien coûtent les placements publicitaires ?",
+        "answer": "Les prix publicitaires dépendent du placement et de la durée. La page affiche les fourchettes hebdomadaires et mensuelles actuelles, et le montant final est confirmé lors de la création de campagne."
+      },
+      "sponsoredBlog": {
+        "question": "Comment fonctionne la publication de blog commandité ?",
+        "answer": "La publication de blog commandité coûte 79 $ par article. Chaque soumission passe par une validation admin, peut couvrir l'anglais et le français, puis apparaît avec un badge commandité après approbation."
+      },
+      "payments": {
+        "question": "Comment les paiements sont-ils traités ?",
+        "answer": "Les paiements sont traités de manière sécurisée via Stripe. Les vendeurs connectent Stripe pour recevoir leurs versements, et les acheteurs peuvent payer avec les cartes et moyens régionaux pris en charge."
+      }
+    },
     "ads": {
       "title": "Publicité",
       "description": "Booster votre visibilité sur la marketplace",
@@ -3178,11 +3206,11 @@
   },
   "editorial": {
     "blog": {
-      "title": "Blogue Editorial",
+      "title": "Blogue",
       "subtitle": "Guides, analyses et mises a jour de l'equipe.",
       "draft": "Brouillon",
       "empty_title": "Aucun article pour le moment",
-      "empty_subtitle": "Vos articles editoriaux publies apparaitront ici.",
+      "empty_subtitle": "Vos articles publies apparaitront ici.",
       "back_to_blog": "Retour au blogue",
       "other_languages": "Autres langues",
       "no_excerpt": "Aucun extrait disponible.",
@@ -3210,9 +3238,13 @@
     "title": "Qu'est-ce qu'une CLI ?",
     "intro": "Une CLI, ou interface en ligne de commande (Command Line Interface), est un moyen textuel d'interagir avec un ordinateur, une application ou un système en tapant des commandes au lieu d'utiliser des boutons ou des menus. Elle permet aux utilisateurs d'effectuer des tâches directement via un terminal, souvent avec plus de rapidité, de précision et de contrôle qu'une interface graphique. En pratique, la CLI est largement utilisée pour naviguer dans les fichiers, exécuter des programmes, automatiser des actions et gérer des environnements techniques.",
     "faq_heading": "Foire Aux Questions – CLI",
+    "links": {
+      "market": "Explorer les outils CLI",
+      "ai_tools": "Voir les outils IA"
+    },
     "q1": {
       "question": "Qu'est-ce qu'une CLI ?",
-      "answer": "CLI signifie Command Line Interface. Il s'agit d'une interface textuelle qui permet aux utilisateurs d'interagir avec un ordinateur, une application ou un système en saisissant des commandes dans un terminal au lieu d'utiliser une interface graphique. La CLI est largement utilisée dans les environnements techniques car elle offre rapidité, précision et contrôle direct sur les outils et systèmes."
+      "answer": "Une CLI est une interface en ligne de commande, ou Command Line Interface. Elle permet d'interagir avec un ordinateur, une application ou un système en saisissant des commandes dans un terminal plutôt qu'en utilisant une interface graphique. Les équipes techniques l'utilisent pour sa rapidité, sa précision et son contrôle direct."
     },
     "q2": {
       "question": "Comment fonctionne une CLI ?",
@@ -3297,17 +3329,22 @@
     },
     "faq": {
       "heading": "Foire aux questions",
+      "links": {
+        "market": "Parcourir le marketplace",
+        "pricing": "Voir les tarifs",
+        "contact": "Contacter le support"
+      },
       "q1": {
         "question": "KODE01 est-il gratuit ?",
-        "answer": "Oui, la création d'un compte, la lecture des actualités IA et la navigation sur la plateforme sont gratuites. Vous ne payez que lorsque vous achetez un produit. Les vendeurs peuvent lister leurs produits et ne paient une commission que sur les ventes réalisées."
+        "answer": "Oui. La création d'un compte, la lecture des actualités IA et la navigation sur la plateforme sont gratuites. Les acheteurs ne paient que lorsqu'ils achètent un produit. Les vendeurs peuvent publier gratuitement et ne paient une commission que sur les ventes réalisées."
       },
       "q2": {
         "question": "Quels types de produits sont disponibles ?",
-        "answer": "KODE01 offre une large gamme d'assets numériques premium incluant des templates de sites web, des kits UI, des systèmes de design, des outils IA, des serveurs MCP, des outils CLI, des extraits de code et d'autres ressources pour développeurs. Tous les produits sont sélectionnés pour leur qualité."
+        "answer": "KODE01 propose des produits numériques pour builders et créateurs : templates de sites web, kits UI, systèmes de design, outils IA, serveurs MCP, outils CLI, extraits de code et ressources pour développeurs. Tous les produits sont sélectionnés pour leur qualité."
       },
       "q3": {
         "question": "Comment acheter un produit ?",
-        "answer": "Parcourez simplement la marketplace, ajoutez des articles à votre panier et passez à la caisse. Les paiements sont traités de manière sécurisée via Stripe. Une fois votre paiement confirmé, vous pouvez télécharger instantanément vos assets achetés depuis votre tableau de bord."
+        "answer": "Vous pouvez acheter un produit en parcourant le marketplace, en ajoutant des articles au panier, puis en finalisant la commande. Les paiements sont traités de manière sécurisée via Stripe. Une fois le paiement confirmé, vos assets sont disponibles dans votre tableau de bord."
       },
       "q4": {
         "question": "Quels modes de paiement sont acceptés ?",
@@ -3315,7 +3352,7 @@
       },
       "q5": {
         "question": "Puis-je obtenir un remboursement ?",
-        "answer": "Étant donné que les produits numériques sont livrés instantanément après l'achat, les remboursements sont traités au cas par cas. Si vous rencontrez un problème technique avec un produit, veuillez contacter notre équipe de support et nous travaillerons à résoudre la situation."
+        "answer": "Les remboursements sont traités au cas par cas, car les produits numériques sont livrés instantanément après l'achat. Si un produit présente un problème technique ou n'est pas accessible, contactez le support et nous examinerons la situation."
       },
       "q6": {
         "question": "Comment devenir vendeur ?",
@@ -3323,11 +3360,11 @@
       },
       "q7": {
         "question": "Quelle commission KODE01 prélève-t-elle ?",
-        "answer": "KODE01 applique une commission compétitive sur chaque vente pour couvrir les coûts de la plateforme, le traitement des paiements et l'infrastructure. Pour les détails tarifaires les plus récents, visitez notre page Tarifs."
+        "answer": "KODE01 prélève 15 % de frais par transaction sur les ventes réussies. Il n'y a pas de frais mensuels vendeur sur le forfait gratuit; les détails à jour sont indiqués sur la page Tarifs."
       },
       "q8": {
         "question": "Comment obtenir de l'aide ?",
-        "answer": "Vous pouvez joindre notre équipe de support via la page Contact. Nous offrons également un centre d'aide avec des guides et des tutoriels pour vous aider à tirer le meilleur parti de KODE01, que vous soyez acheteur ou vendeur."
+        "answer": "Vous pouvez obtenir de l'aide via la page Contact. Envoyez votre question, votre problème de compte ou votre demande créateur, et l'équipe KODE01 l'orientera vers le bon flux de support."
       }
     },
     "cta": {
@@ -3359,7 +3396,7 @@
     },
     "about": {
       "title": "À propos – Notre mission | KODE01",
-      "description": "KODE01 est une plateforme de veille et de ressources IA basée dans la Région de la Capitale Nationale (Gatineau-Ottawa). Nous aidons builders et créateurs à suivre les nouveautés, découvrir les bons outils et accéder à des actifs numériques utiles."
+      "description": "KODE01 est une plateforme de veille et de ressources IA. Nous aidons builders et créateurs à suivre les nouveautés, découvrir les bons outils et accéder à des actifs numériques utiles."
     },
     "pricing": {
       "title": "Tarifs – Vendez gratuitement",
@@ -3409,7 +3446,7 @@
       "name": "KODE01",
       "description": "Plateforme IA pour veille, outils et ressources numériques",
       "location": "Gatineau-Ottawa, Canada",
-      "region": "Région de la Capitale Nationale",
+      "region": "Québec",
       "url": "https://kode01.com",
       "founding_location": "Gatineau, Québec"
     }

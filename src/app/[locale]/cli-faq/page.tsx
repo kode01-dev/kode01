@@ -6,6 +6,7 @@ import { BaseFooter } from '@/components/layout/BaseFooter';
 import { getAppBaseUrl } from '@/lib/env/server';
 import { applySeoMetadata } from '@/lib/seo';
 import { SeoAppJsonLd } from '@/components/seo/SeoAppJsonLd';
+import { faqItemsToSchema, type FaqItem } from '@/features/faq/faq-model';
 
 const FAQ_KEYS = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10'] as const;
 
@@ -54,27 +55,22 @@ export default async function CliFaqPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'cli_faq' });
 
-  const faqItems = FAQ_KEYS.map((key) => ({
+  const faqLinksByKey: Partial<Record<(typeof FAQ_KEYS)[number], FaqItem['links']>> = {
+    q3: [{ href: '/market', label: t('links.market') }],
+    q10: [{ href: '/market', label: t('links.ai_tools') }],
+  };
+
+  const faqItems: FaqItem[] = FAQ_KEYS.map((key) => ({
     question: t(`${key}.question`),
     answer: t(`${key}.answer`),
+    links: faqLinksByKey[key],
   }));
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqItems.map((item) => ({
-      '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: item.answer,
-      },
-    })),
-  };
+  const jsonLd = faqItemsToSchema(faqItems);
 
   return (
     <div className="min-h-screen bg-kode01-cream flex flex-col">
-      <SeoAppJsonLd pathname="/cli-faq" fallbackData={jsonLd} />
+      <SeoAppJsonLd pathname="/cli-faq" fallbackData={jsonLd} schemaOverrideMode="prefer-fallback" />
       <BaseHeader />
       <main className="flex-1 pt-48 pb-24">
         <div className="max-w-4xl mx-auto px-6">
@@ -100,6 +96,14 @@ export default async function CliFaqPage({
                   </h3>
                   <p className="text-kode01-noir/60 text-lg leading-relaxed">
                     {item.answer}
+                    {item.links?.map((link) => (
+                      <span key={link.href}>
+                        {' '}
+                        <Link href={link.href} className="font-bold text-kode01-noir underline decoration-kode01-pink/60 underline-offset-4 hover:text-kode01-pink">
+                          {link.label}
+                        </Link>
+                      </span>
+                    ))}
                   </p>
                   {index < faqItems.length - 1 && (
                     <div className="mt-10 border-t border-kode01-noir/5" />
@@ -116,7 +120,7 @@ export default async function CliFaqPage({
             </h3>
             <p className="text-kode01-noir/60 mb-6">{t('cta_text')}</p>
             <Link
-              href="/explore"
+              href="/market"
               className="inline-block bg-kode01-pink text-kode01-noir font-black uppercase tracking-widest px-8 py-4 hover:bg-kode01-noir hover:text-white transition-colors no-underline"
             >
               {t('cta_button')}

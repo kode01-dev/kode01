@@ -146,7 +146,7 @@ test('withdrawal sync denies Google consent and clears optional browser storage'
 
 test('analytics implementation uses strict consent, env config, and manual pageviews', () => {
   const googleAnalytics = readProjectFile('src/features/cookies/GoogleAnalytics.tsx');
-  const bootstrap = readProjectFile('src/features/cookies/GoogleConsentModeBootstrap.tsx');
+  const instrumentationClient = readProjectFile('src/instrumentation-client.ts');
   const envExample = readProjectFile('.env.example');
 
   assert.match(envExample, /NEXT_PUBLIC_GA_MEASUREMENT_ID=G-W23SGGLGD3/);
@@ -154,10 +154,11 @@ test('analytics implementation uses strict consent, env config, and manual pagev
   assert.match(googleAnalytics, /getGoogleAnalyticsMeasurementId/);
   assert.match(googleAnalytics, /send_page_view:\s*false/);
   assert.match(googleAnalytics, /'event', 'page_view'/);
-  assert.match(bootstrap, /strategy="beforeInteractive"/);
-  assert.match(bootstrap, /analytics_storage:\s*'denied'/);
-  assert.match(bootstrap, /ad_user_data:\s*'denied'/);
-  assert.match(COOKIE_CONSENT_VERSION, /zipchat-dual-mode-v1/);
+  assert.match(instrumentationClient, /bootstrapGoogleConsentMode\(\)/);
+  assert.match(instrumentationClient, /window\.gtag\('consent', 'default', DEFAULT_GOOGLE_CONSENT_STATE\)/);
+  assert.match(instrumentationClient, /analytics_storage:\s*'denied'/);
+  assert.match(instrumentationClient, /ad_user_data:\s*'denied'/);
+  assert.match(COOKIE_CONSENT_VERSION, /zipchat-native-bubble-v1/);
 });
 
 test('grant sync updates Google consent without clearing Google cookies', () => {

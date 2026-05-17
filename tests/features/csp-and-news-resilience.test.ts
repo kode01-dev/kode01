@@ -28,11 +28,17 @@ test('Zipchat is controlled by consent-aware controller instead of global layout
   const layout = readProjectFile('src/app/[locale]/layout.tsx');
   const providers = readProjectFile('src/components/Providers.tsx');
   const controller = readProjectFile('src/components/zipchat/ZipchatController.tsx');
+  const client = readProjectFile('src/components/zipchat/zipchat-client.ts');
 
   assert.doesNotMatch(layout, /app\.zipchat\.ai\/widget\/zipchat\.js/);
   assert.match(providers, /<ZipchatController \/>/);
   assert.match(controller, /hasMarketingConsentInBrowser/);
   assert.match(controller, /OPEN_ZIPCHAT_SUPPORT_EVENT/);
+  assert.match(controller, /loadZipchat\(nextMode, false\)/);
+  assert.match(controller, /isZipchatWidgetReady/);
+  assert.match(client, /zipchat-shadow-host/);
+  assert.match(client, /data-zipchat="bubble"/);
+  assert.doesNotMatch(controller, /zipchat-manual-control/);
 });
 
 test('news index degrades instead of throwing on data load failure', () => {

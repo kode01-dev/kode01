@@ -163,9 +163,10 @@
         "description": "Accelerate your vision. Follow AI updates, discover the right tools, and find workflows, AI resources, and digital systems without starting from scratch."
       }
     },
-    "location": {
-      "title": "National Capital Region",
-      "description": "Operating from the heart of Canada's National Capital Region (Gatineau-Ottawa), we bridge the creative energy of two provinces to build a global digital community."
+    "cta": {
+      "title": "Ready to explore?",
+      "subtitle": "Discover AI updates, tools, and digital products curated for builders and creators.",
+      "button": "Explore the Platform"
     }
   },
   "cart": {
@@ -449,7 +450,7 @@
   "cookie_consent": {
     "consent_modal": {
       "title": "We use cookies 🍪",
-      "description": "We use strictly necessary cookies to run and secure the platform. Google Analytics, advertising, and proactive Zipchat stay off until you consent. Manual support remains available, and chat loads when you open support.",
+      "description": "We use strictly necessary cookies to run and secure the platform. Google Analytics, advertising, and proactive Zipchat stay off until you consent. The Zipchat support bubble may load to provide requested support.",
       "accept_all": "Accept all",
       "accept_necessary": "Reject optional",
       "show_preferences": "Manage preferences"
@@ -462,7 +463,7 @@
       "close_icon_label": "Close modal",
       "sections": {
         "necessary_title": "Always active",
-        "necessary_description": "These cookies are strictly necessary for the website to work and include authentication, security, and consent evidence. They cannot be disabled. Manual support remains available; Zipchat chat loads when you open support.",
+        "necessary_description": "These cookies are strictly necessary for the website to work and include authentication, security, consent evidence, and the Zipchat support bubble. They cannot be disabled. Proactive Zipchat remains reserved for the marketing category.",
         "analytics_title": "Optional analytics",
         "analytics_description": "These cookies allow Google Analytics 4 page measurement and first-party usage signals. GA4 is blocked until consent, and withdrawing consent disables collection and clears Google analytics cookies we can control.",
         "visitor_notice_title": "Visitors not signed in",
@@ -508,10 +509,10 @@
     "hero": {
       "heading_line1": "Stay current on AI.",
       "heading_line2": "Discover the tools that matter.",
-      "subtitle": "KODE01 brings together AI updates, tools, resources, and digital products so builders and creators can follow what's new, understand the trends, and move faster.",
+      "subtitle": "",
       "search_placeholder": "Search tools, products, and news...",
       "start_selling": "Start Selling",
-      "explore_assets": "Explore the Platform",
+      "explore_assets": "Explore",
       "proof_assets": "{count}+ AI resources and products",
       "proof_creators": "{count}+ creators",
       "proof_sales": "{count}+ sales",
@@ -606,7 +607,7 @@
       "newsletter_cta_error": "Unable to subscribe right now. Please try again."
     },
     "blog": {
-      "title": "From the Editorial Blog",
+      "title": "From the Blog",
       "subtitle": "Guides, updates, and strategic notes from the team.",
       "view_all": "Read the blog",
       "featured": "Featured",
@@ -669,11 +670,11 @@
   },
   "editorial": {
     "blog": {
-      "title": "Editorial Blog",
+      "title": "Blog",
       "subtitle": "Guides, updates, and strategic notes from the team.",
       "draft": "Draft",
       "empty_title": "No articles yet",
-      "empty_subtitle": "Your published editorial articles will appear here.",
+      "empty_subtitle": "Your published articles will appear here.",
       "back_to_blog": "Back to blog",
       "other_languages": "Other language versions",
       "no_excerpt": "No excerpt available.",
@@ -934,10 +935,10 @@
       "what_title": "What are cookies?",
       "what_text": "Cookies are small text files stored on your device when you visit a website. They help keep the platform secure and functional, improve user experience, and support measurement and product improvement when consent is provided.",
       "how_title": "How does kode01 use cookies?",
-      "how_text": "We use first-party and third-party cookies. First-party cookies are required for core platform functions, security, and consent evidence. Google Analytics 4, advertising tags, and proactive Zipchat are blocked by default and run only when you accept the matching optional category. Manual support remains available, and chat loads when you open support.",
+      "how_text": "We use first-party and third-party cookies. First-party cookies are required for core platform functions, security, consent evidence, and requested support through the Zipchat bubble. Google Analytics 4, advertising tags, and proactive Zipchat are blocked by default and run only when you accept the matching optional category.",
       "types_title": "Types of Cookies we use",
       "types_list": [
-        "<strong>Essential cookies:</strong> Strictly necessary to provide core platform services (authentication, security, and consent logging). Manual support is available on click without loading Zipchat at startup.",
+        "<strong>Essential cookies:</strong> Strictly necessary to provide core platform services (authentication, security, consent logging, and the Zipchat support bubble for requested chat).",
         "<strong>Performance and analytics cookies:</strong> Help us understand platform usage and improve features through GA4 page measurement and first-party usage signals. For visitors not signed in, these may enable anonymous recommendation personalization.",
         "<strong>Functionality cookies:</strong> Improve experience and convenience, including preference storage.",
         "<strong>Marketing cookies:</strong> Used to deliver ads, measure performance (for example Google AdSense), and enable proactive Zipchat for popups, recommendations, cart recovery, and sales or support prompts."
@@ -1031,7 +1032,7 @@
         {
           "name": "zipchat_support",
           "category": "Requested support",
-          "purpose": "Loads Zipchat only when you open support to provide the requested chat service.",
+          "purpose": "Loads the Zipchat support bubble to provide the requested chat service.",
           "duration": "Provider-defined",
           "provider": "Zipchat"
         },
@@ -3100,6 +3101,33 @@
         "cta_member": "My Dashboard"
       }
     },
+    "faq": {
+      "heading": "Pricing questions",
+      "links": {
+        "market": "Browse products",
+        "contact": "Contact us"
+      },
+      "fees": {
+        "question": "Does KODE01 charge a monthly fee?",
+        "answer": "No. The free seller plan has no monthly fee, so creators can publish products without a subscription."
+      },
+      "commission": {
+        "question": "What commission does KODE01 take?",
+        "answer": "KODE01 charges a 15% transaction fee on successful product sales. The fee supports marketplace hosting, payments, delivery, and platform operations."
+      },
+      "advertising": {
+        "question": "How much do advertising placements cost?",
+        "answer": "Advertising prices depend on the placement and duration. The page shows current weekly and monthly ranges, and the final amount is confirmed when you create a campaign."
+      },
+      "sponsoredBlog": {
+        "question": "How does sponsored blog publishing work?",
+        "answer": "Sponsored blog publishing costs $79 per article. Each submission requires admin review, can support English and French, and appears with a sponsored badge after approval."
+      },
+      "payments": {
+        "question": "How are payments processed?",
+        "answer": "Payments are processed securely through Stripe. Sellers connect Stripe to receive payouts, and buyers can pay with supported card and regional payment methods."
+      }
+    },
     "ads": {
       "title": "Advertising",
       "description": "Boost your visibility across the marketplace",
@@ -3234,9 +3262,13 @@
     "title": "What is a CLI?",
     "intro": "A CLI, or Command Line Interface, is a text-based way to interact with a computer, application, or system by typing commands instead of using buttons or menus. It allows users to perform tasks directly through a terminal, often with more speed, precision, and control than a graphical interface. In practice, the CLI is widely used to navigate files, run programs, automate actions, and manage technical environments.",
     "faq_heading": "Frequently Asked Questions – CLI",
+    "links": {
+      "market": "Browse CLI tools",
+      "ai_tools": "Explore AI tools"
+    },
     "q1": {
-      "question": "What is CLI?",
-      "answer": "CLI stands for Command Line Interface. It is a text-based interface that allows users to interact with a computer, application, or system by entering commands in a terminal instead of using a graphical interface. The CLI is widely used in technical environments because it offers speed, precision, and direct control over tools and systems."
+      "question": "What is a CLI?",
+      "answer": "A CLI is a Command Line Interface. It lets users interact with a computer, application, or system by entering commands in a terminal instead of using a graphical interface. Developers and technical teams use CLIs because they offer speed, precision, and direct control over tools and systems."
     },
     "q2": {
       "question": "How does CLI work?",
@@ -3321,17 +3353,22 @@
     },
     "faq": {
       "heading": "Frequently Asked Questions",
+      "links": {
+        "market": "Browse the marketplace",
+        "pricing": "View pricing",
+        "contact": "Contact support"
+      },
       "q1": {
         "question": "Is KODE01 free to use?",
-        "answer": "Yes, creating an account, reading AI updates, and browsing the platform are free. You only pay when you purchase a product. Sellers can list their products and only pay a commission on successful sales."
+        "answer": "Yes. Creating an account, reading AI updates, and browsing the platform are free. Buyers only pay when they purchase a product. Sellers can list products for free and pay a commission only on successful sales."
       },
       "q2": {
         "question": "What types of products are available?",
-        "answer": "KODE01 offers a wide range of premium digital assets including website templates, UI kits, design systems, AI tools, MCP servers, CLI tools, code snippets, and other developer resources. All products are curated for quality."
+        "answer": "KODE01 offers digital products for builders and creators, including website templates, UI kits, design systems, AI tools, MCP servers, CLI tools, code snippets, and developer resources. All products are curated for quality."
       },
       "q3": {
         "question": "How do I purchase a product?",
-        "answer": "Simply browse the marketplace, add items to your cart, and proceed to checkout. Payments are processed securely through Stripe. Once your payment is confirmed, you can instantly download your purchased assets from your dashboard."
+        "answer": "You can purchase a product by browsing the marketplace, adding items to your cart, and completing checkout. Payments are processed securely through Stripe. Once payment is confirmed, your purchased assets are available from your dashboard."
       },
       "q4": {
         "question": "What payment methods are accepted?",
@@ -3339,7 +3376,7 @@
       },
       "q5": {
         "question": "Can I get a refund?",
-        "answer": "Since digital products are delivered instantly upon purchase, refunds are handled on a case-by-case basis. If you experience a technical issue with a product, please contact our support team and we will work to resolve the situation."
+        "answer": "Refunds are handled case by case because digital products are delivered instantly after purchase. If a product has a technical issue or cannot be accessed, contact support and we will review the situation."
       },
       "q6": {
         "question": "How do I become a seller?",
@@ -3347,11 +3384,11 @@
       },
       "q7": {
         "question": "What commission does KODE01 take?",
-        "answer": "KODE01 applies a competitive commission on each sale to cover platform costs, payment processing, and infrastructure. For the latest pricing details, visit our Pricing page."
+        "answer": "KODE01 charges a 15% transaction fee on successful sales. There is no monthly seller fee on the free plan; current pricing details are listed on the Pricing page."
       },
       "q8": {
         "question": "How do I get support?",
-        "answer": "You can reach our support team through the Contact page. We also offer a help center with guides and tutorials to help you get the most out of KODE01, whether you're a buyer or a seller."
+        "answer": "You can get support through the Contact page. Send your question, account issue, or creator request there and the KODE01 team will route it to the right support flow."
       }
     },
     "cta": {
@@ -3383,7 +3420,7 @@
     },
     "about": {
       "title": "About Us – Our Mission | KODE01",
-      "description": "KODE01 is an AI intelligence and resource platform based in Canada's National Capital Region (Gatineau-Ottawa). We help builders and creators track what is new, discover useful tools, and access practical digital assets."
+      "description": "KODE01 is an AI intelligence and resource platform. We help builders and creators track what is new, discover useful tools, and access practical digital assets."
     },
     "pricing": {
       "title": "Pricing – Sell for Free",
@@ -3433,7 +3470,7 @@
       "name": "KODE01",
       "description": "AI platform for updates, tools, and digital resources",
       "location": "Gatineau-Ottawa, Canada",
-      "region": "National Capital Region",
+      "region": "Quebec",
       "url": "https://kode01.com",
       "founding_location": "Gatineau, Quebec"
     }

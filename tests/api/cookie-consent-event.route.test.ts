@@ -90,7 +90,7 @@ test('consent-event logs normalized consent choices', async () => {
     acceptedCategories: ['marketing', 'analytics', 'necessary'],
     rejectedCategories: [],
     source: 'banner',
-    consentVersion: '2026-05-17-zipchat-dual-mode-v1',
+    consentVersion: '2026-05-17-zipchat-native-bubble-v1',
     locale: 'en',
   }));
 
@@ -125,7 +125,7 @@ test('consent-event withdrawal clears anonymous recommendation cookies', async (
     acceptedCategories: ['necessary'],
     rejectedCategories: ['analytics', 'marketing'],
     source: 'preferences',
-    consentVersion: '2026-05-17-zipchat-dual-mode-v1',
+    consentVersion: '2026-05-17-zipchat-native-bubble-v1',
     locale: 'fr',
   }));
 
