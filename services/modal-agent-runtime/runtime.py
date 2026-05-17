@@ -44,6 +44,10 @@ RECAP_EXECUTION_TARGET_VALUES = {"edge_proxy", "modal_native", "dual_shadow"}
 
 app = modal.App(APP_NAME)
 print(f"DEBUG: App {APP_NAME} starting up...")
+AGENT_RUNTIME_SECRETS = [
+    modal.Secret.from_name("kode01-agent-runtime-secrets"),
+    modal.Secret.from_name("kode01-agent-runtime-supabase-cutover"),
+]
 image = (
     modal.Image.debian_slim(python_version="3.12")
     .pip_install_from_requirements("services/modal-agent-runtime/requirements.txt")
@@ -646,7 +650,7 @@ def enqueue_payload(payload: dict[str, Any]) -> dict[str, Any]:
     image=image, 
     timeout=3600, 
     max_containers=int(os.environ.get("RECAP_MAX_CONCURRENT_JOBS", "2")),
-    secrets=[modal.Secret.from_name("kode01-agent-runtime-secrets")]
+    secrets=AGENT_RUNTIME_SECRETS,
 )
 def process_job(job_id: str, payload: dict[str, Any]) -> None:
     print(f"process_job started job_id={job_id} flow={payload.get('flow')} mode={payload.get('mode')}")
@@ -857,7 +861,7 @@ def enqueue_scheduler_job(payload: dict[str, Any]) -> None:
     image=image,
     schedule=modal.Cron("*/15 * * * *"),
     timeout=3600,
-    secrets=[modal.Secret.from_name("kode01-agent-runtime-secrets")]
+    secrets=AGENT_RUNTIME_SECRETS,
 )
 def schedule_recap_ticker() -> None:
     now_ms = int(time.time() * 1000)
@@ -875,7 +879,7 @@ def schedule_recap_ticker() -> None:
         print(f"schedule_recap_ticker skipped weekly-ai-recap ({recap_reason})")
 
 
-@app.function(image=image, timeout=900, min_containers=0, secrets=[modal.Secret.from_name("kode01-agent-runtime-secrets")])
+@app.function(image=image, timeout=900, min_containers=0, secrets=AGENT_RUNTIME_SECRETS)
 @modal.asgi_app()
 def api():
     return web_app

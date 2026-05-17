@@ -7,6 +7,10 @@ from typing import Any
 # Or redefine it here for a self-contained test
 APP_NAME = "recap-manual-test"
 app = modal.App(APP_NAME)
+AGENT_RUNTIME_SECRETS = [
+    modal.Secret.from_name("kode01-agent-runtime-secrets"),
+    modal.Secret.from_name("kode01-agent-runtime-supabase-cutover"),
+]
 
 image = (
     modal.Image.debian_slim(python_version="3.12")
@@ -16,7 +20,7 @@ image = (
 
 @app.function(
     image=image,
-    secrets=[modal.Secret.from_name("kode01-agent-runtime-secrets")],
+    secrets=AGENT_RUNTIME_SECRETS,
     timeout=1800
 )
 
