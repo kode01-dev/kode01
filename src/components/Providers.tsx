@@ -7,7 +7,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { AbandonedCartBanner } from '@/components/cart/AbandonedCartBanner';
 import { MarketingProvider } from '@/features/marketing/components/MarketingProvider';
 import { OnboardingProvider } from '@/features/onboarding/components/OnboardingProvider';
-import { ZipchatIdentifyBridge } from '@/components/zipchat/ZipchatIdentifyBridge';
+import { ZipchatController } from '@/components/zipchat/ZipchatController';
 import { SiteLockscreenGate } from '@/features/site-lockscreen/components/SiteLockscreenGate';
 import type { LockscreenConfig } from '@/features/site-lockscreen/types';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -55,7 +55,7 @@ export default function Providers({ children, lockscreenInitialState }: Provider
                                     <OnboardingProvider />
                                     <AbandonedCartBanner />
                                     <MarketingProvider />
-                                    <ZipchatIdentifyBridge />
+                                    <ZipchatController />
                                     <Toaster
                                         position="bottom-right"
                                         toastOptions={{

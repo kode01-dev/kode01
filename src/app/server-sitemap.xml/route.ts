@@ -7,7 +7,7 @@ export async function GET() {
 
     const { data: recapPosts } = await supabase
         .from('ai_recap_posts')
-        .select('slug, published_at, created_at')
+        .select('locale, slug, published_at, created_at')
         .eq('is_published', true)
 
     const { data: editorialPosts } = await supabase
@@ -33,13 +33,12 @@ export async function GET() {
 
     if (recapPosts) {
         recapPosts.forEach(item => {
-            locales.forEach(locale => {
-                fields.push({
-                    loc: `${siteUrl}/${locale}/news/${item.slug}`,
-                    lastmod: new Date(item.published_at || item.created_at || new Date()).toISOString(),
-                    changefreq: 'weekly',
-                    priority: 0.7,
-                })
+            if (!item.locale || !item.slug) return
+            fields.push({
+                loc: `${siteUrl}/${item.locale}/news/${item.slug}`,
+                lastmod: new Date(item.published_at || item.created_at || new Date()).toISOString(),
+                changefreq: 'weekly',
+                priority: 0.7,
             })
         })
     }

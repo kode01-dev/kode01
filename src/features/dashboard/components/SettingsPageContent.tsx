@@ -17,6 +17,7 @@ import { PortalButton } from '@/features/billing/components/PortalButton';
 import { DeleteTrackingDataButton } from '@/app/[locale]/settings/DeleteTrackingDataButton';
 import { ExportDataButton } from '@/app/[locale]/settings/ExportDataButton';
 import { DeleteAccountButton } from '@/app/[locale]/settings/DeleteAccountButton';
+import { RecommendationPersonalizationToggle } from '@/app/[locale]/settings/RecommendationPersonalizationToggle';
 import { AdminMfaPanel } from '@/features/admin/mfa/components/AdminMfaPanel';
 
 interface SettingsPageContentProps {
@@ -383,6 +384,7 @@ export function SettingsPageContent({
                         </div>
                     </CardHeader>
                     <CardContent>
+                        <RecommendationPersonalizationToggle />
                         <DeleteTrackingDataButton />
                     </CardContent>
                 </Card>

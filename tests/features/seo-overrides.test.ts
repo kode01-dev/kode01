@@ -116,6 +116,8 @@ test('robots and sitemap config allow public crawl while excluding private surfa
   const sitemapConfig = readProjectFile('next-sitemap.config.js');
 
   assert.match(robots, /^Allow: \/$/m);
+  assert.match(robots, /^Allow: \/api\/blog\/rss$/m);
+  assert.match(robots, /^Allow: \/api\/news\/rss$/m);
   assert.doesNotMatch(robots, /^Disallow: \/$/m);
   assert.match(robots, /^Disallow: \/admin$/m);
   assert.match(robots, /^Disallow: \/api$/m);
@@ -125,4 +127,14 @@ test('robots and sitemap config allow public crawl while excluding private surfa
   assert.match(sitemapConfig, /BLOCKED_SEGMENTS = \['admin', 'dashboard', 'buyer', 'client', 'vendor', 'settings', 'auth', 'api'\]/);
   assert.match(sitemapConfig, /PUBLIC_ASSET_EXCLUSIONS = \['\/icon\.png'\]/);
   assert.doesNotMatch(sitemapConfig, /'\/products'/);
+});
+
+test('blog and news pages expose RSS autodiscovery metadata', () => {
+  const blogPage = readProjectFile('src/app/[locale]/blog/page.tsx');
+  const newsPage = readProjectFile('src/app/[locale]/(marketing)/news/page.tsx');
+
+  assert.match(blogPage, /'application\/rss\+xml'/);
+  assert.match(blogPage, /\/blog\/rss\.xml/);
+  assert.match(newsPage, /'application\/rss\+xml'/);
+  assert.match(newsPage, /\/news\/rss\.xml/);
 });

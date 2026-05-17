@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getAppBaseUrl } from '@/lib/env/server';
 import {
+  requireStripeConnectSampleSeller,
+  stripeConnectSampleAccessResponse,
+} from '@/lib/stripe/connect-sample-access';
+import {
   buildStripeConnectAccountUpdateParams,
   CONNECT_ACCOUNT_ONBOARDING_CONFIGURATIONS,
   getStripeClientForConnectSample,
 } from '@/lib/stripe/connect-sample';
-import { createClient } from '@/lib/supabase/server';
 
 type CreateAccountLinkRequest = {
   locale?: string;
@@ -22,28 +25,12 @@ function normalizeLocale(input: string | undefined): string {
  */
 export async function POST(req: Request) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const access = await requireStripeConnectSampleSeller();
+    if (!access.ok) return stripeConnectSampleAccessResponse(access);
+    const { profile } = access;
 
     const body = (await req.json().catch(() => ({}))) as CreateAccountLinkRequest;
     const locale = normalizeLocale(body.locale);
-
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('stripe_account_id')
-      .eq('id', user.id)
-      .single();
-
-    if (profileError) {
-      return NextResponse.json({ error: 'Failed to load profile' }, { status: 500 });
-    }
 
     if (!profile?.stripe_account_id) {
       return NextResponse.json(

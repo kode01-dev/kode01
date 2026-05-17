@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { isSellerRole } from '@/lib/auth/roles';
+import { isOptionalSellerVaultPath } from '@/lib/vendor/vault-path';
 
 const updateProductSchema = z.object({
   title: z.string().min(3).max(200).optional(),
@@ -70,6 +71,13 @@ export async function PATCH(
     const nextVaultPath = parsed.data.file_path_vault !== undefined
       ? parsed.data.file_path_vault
       : existing.file_path_vault;
+
+    if (!isOptionalSellerVaultPath(nextVaultPath, user.id)) {
+      return NextResponse.json(
+        { error: 'Invalid private file path for this seller.' },
+        { status: 400 },
+      );
+    }
 
     if (nextStatus === 'published') {
       const canPublish = Boolean(profile.stripe_account_id)

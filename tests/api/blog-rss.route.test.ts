@@ -34,6 +34,11 @@ async function loadGetHandler(scenario: string) {
   return routeModule.GET ?? routeModule.default?.GET;
 }
 
+async function loadAliasGetHandler(scenario: string) {
+  const routeModule = await import(`../../src/app/[locale]/blog/rss.xml/route.ts?scenario=${scenario}-${Date.now()}-${Math.random()}`);
+  return routeModule.GET ?? routeModule.default?.GET;
+}
+
 function makePost(overrides: Partial<MockPost> = {}): MockPost {
   return {
     slug: 'first-post',
@@ -52,7 +57,7 @@ test('returns RSS XML feed for locale with expected headers and structure', asyn
     capturedArgs = args;
     return {
       data: [
-        makePost({ slug: 'nouveau-b', title: 'B', published_at: '2026-03-20T12:00:00.000Z' }),
+        makePost({ slug: 'nouveau-b', title: 'B & <AI>', excerpt: 'Summary & details', published_at: '2026-03-20T12:00:00.000Z' }),
         makePost({ slug: 'nouveau-a', title: 'A', published_at: '2026-03-19T12:00:00.000Z' }),
       ],
       total: 2,
@@ -66,6 +71,13 @@ test('returns RSS XML feed for locale with expected headers and structure', asyn
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/rss+xml; charset=utf-8');
+  assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
+  assert.equal(response.headers.get('last-modified'), 'Fri, 20 Mar 2026 12:00:00 GMT');
+  assert.match(response.headers.get('etag') ?? '', /^"rss-[a-f0-9]{64}"$/);
+  assert.equal(
+    response.headers.get('link'),
+    '<https://example.com/api/blog/rss?locale=fr>; rel="self"; type="application/rss+xml"',
+  );
   assert.deepEqual(capturedArgs, {
     locale: 'fr',
     page: 1,
@@ -76,16 +88,64 @@ test('returns RSS XML feed for locale with expected headers and structure', asyn
   assert.match(body, /<channel>/);
   assert.match(body, /<item>/);
   assert.match(body, /<atom:link href="https:\/\/example.com\/api\/blog\/rss\?locale=fr" rel="self" type="application\/rss\+xml" \/>/);
+  assert.match(body, /<title>B &amp; &lt;AI&gt;<\/title>/);
+  assert.match(body, /<description>Summary &amp; details<\/description>/);
   assert.match(body, /<link>https:\/\/example.com\/fr\/blog\/nouveau-b<\/link>/);
   assert.match(body, /<guid isPermaLink="true">https:\/\/example.com\/fr\/blog\/nouveau-b<\/guid>/);
   assert.match(body, /<language>fr<\/language>/);
-  assert.match(body, /<enclosure url="https:\/\/cdn.example.com\/default.jpg" type="image\/jpeg" length="0" \/>/);
-  assert.match(body, /<media:content url="https:\/\/cdn.example.com\/default.jpg" medium="image" \/>/);
+  assert.equal(body.includes('<enclosure '), false);
+  assert.equal(body.includes('length="0"'), false);
+  assert.match(body, /<media:content url="https:\/\/cdn.example.com\/default.jpg" medium="image" type="image\/jpeg" \/>/);
   assert.equal(body.includes('?utm_'), false);
 
   const firstIndex = body.indexOf('/fr/blog/nouveau-b');
   const secondIndex = body.indexOf('/fr/blog/nouveau-a');
   assert.equal(firstIndex < secondIndex, true);
+});
+
+test('supports localized blog RSS .xml alias with self link', async () => {
+  getPublishedEditorialPostsImpl = async () => ({
+    data: [makePost({ slug: 'alias-post' })],
+    total: 1,
+  });
+  getAppBaseUrlImpl = () => 'https://example.com';
+
+  const GET = await loadAliasGetHandler('rss-alias');
+  const response = await GET(new Request('http://localhost/fr/blog/rss.xml'), {
+    params: Promise.resolve({ locale: 'fr' }),
+  });
+  const body = await response.text();
+
+  assert.equal(response.status, 200);
+  assert.equal(
+    response.headers.get('link'),
+    '<https://example.com/fr/blog/rss.xml>; rel="self"; type="application/rss+xml"',
+  );
+  assert.match(body, /<atom:link href="https:\/\/example.com\/fr\/blog\/rss.xml" rel="self" type="application\/rss\+xml" \/>/);
+});
+
+test('returns 304 for matching blog RSS conditional request headers', async () => {
+  getPublishedEditorialPostsImpl = async () => ({
+    data: [makePost({ published_at: '2026-03-20T12:00:00.000Z' })],
+    total: 1,
+  });
+  getAppBaseUrlImpl = () => 'https://example.com';
+
+  const GET = await loadGetHandler('rss-conditional');
+  const first = await GET(new Request('http://localhost/api/blog/rss?locale=en'));
+  const etag = first.headers.get('etag');
+  assert.ok(etag);
+
+  const byEtag = await GET(new Request('http://localhost/api/blog/rss?locale=en', {
+    headers: { 'If-None-Match': etag },
+  }));
+  assert.equal(byEtag.status, 304);
+  assert.equal(await byEtag.text(), '');
+
+  const byDate = await GET(new Request('http://localhost/api/blog/rss?locale=en', {
+    headers: { 'If-Modified-Since': 'Fri, 20 Mar 2026 12:00:00 GMT' },
+  }));
+  assert.equal(byDate.status, 304);
 });
 
 test('returns 400 when locale query param is invalid', async () => {
@@ -143,4 +203,5 @@ test('does not emit image tags when a post has no cover image', async () => {
   assert.equal(response.status, 200);
   assert.equal(body.includes('<enclosure '), false);
   assert.equal(body.includes('<media:content '), false);
+  assert.equal(body.includes('length="0"'), false);
 });

@@ -2,18 +2,23 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getAuditContextFromRequest, logAuditEvent } from '@/lib/security/audit';
 import { isAdminRole } from '@/lib/auth/roles';
+import { validateServerFetchUrl } from '@/lib/security/server-url-safety';
 
 type ScrapeRoute = 'rss' | 'firecrawl';
 
 const sourceSelect =
   'id, name, url, feed_url, domain, priority, is_active, locale_hint, scrape_route, rss_allow_firecrawl_fallback, created_at, updated_at';
 
-function getDomainFromUrl(url: string) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '');
-  } catch {
-    return '';
-  }
+function getDomainFromValidatedUrl(url: URL) {
+  return url.hostname.toLowerCase().replace(/\.+$/, '').replace(/^www\./, '');
+}
+
+async function validateAdminSourceUrl(rawUrl: string) {
+  const safeUrl = await validateServerFetchUrl(rawUrl);
+  return {
+    url: safeUrl.toString(),
+    domain: getDomainFromValidatedUrl(safeUrl),
+  };
 }
 
 function parseScrapeRoute(value: unknown): ScrapeRoute | null {
@@ -116,26 +121,45 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'feed_url is required when scrape_route is rss' }, { status: 400 });
     }
 
-    const domain = getDomainFromUrl(url);
-    if (!domain) {
+    let safeSourceUrl: Awaited<ReturnType<typeof validateAdminSourceUrl>>;
+    try {
+      safeSourceUrl = await validateAdminSourceUrl(url);
+    } catch (error) {
       await logAuditEvent({
         eventType: 'ai_recap.source.create.failed.validation',
         userId,
         path: auditContext.path,
         ipAddress: auditContext.ipAddress,
         userAgent: auditContext.userAgent,
-        metadata: { reason: 'invalid_url', url },
+        metadata: { reason: 'invalid_url', url, error_message: error instanceof Error ? error.message : String(error) },
       });
       return NextResponse.json({ error: 'Invalid url' }, { status: 400 });
+    }
+
+    let safeFeedUrl: string | null = null;
+    if (feedUrl) {
+      try {
+        safeFeedUrl = (await validateAdminSourceUrl(feedUrl)).url;
+      } catch (error) {
+        await logAuditEvent({
+          eventType: 'ai_recap.source.create.failed.validation',
+          userId,
+          path: auditContext.path,
+          ipAddress: auditContext.ipAddress,
+          userAgent: auditContext.userAgent,
+          metadata: { reason: 'invalid_feed_url', feed_url: feedUrl, error_message: error instanceof Error ? error.message : String(error) },
+        });
+        return NextResponse.json({ error: 'Invalid feed_url' }, { status: 400 });
+      }
     }
 
     const { data, error } = await supabase
       .from('ai_recap_sources')
       .insert({
         name,
-        url,
-        feed_url: feedUrl || null,
-        domain,
+        url: safeSourceUrl.url,
+        feed_url: scrapeRoute === 'rss' ? safeFeedUrl : null,
+        domain: safeSourceUrl.domain,
         priority,
         is_active: isActive,
         locale_hint: localeHint,
@@ -252,24 +276,43 @@ export async function PATCH(req: Request) {
     if (typeof payload?.name === 'string' && payload.name.trim()) {
       updateData.name = payload.name.trim();
     }
-    if (typeof payload?.feed_url === 'string') {
-      updateData.feed_url = payload.feed_url.trim() || null;
-    }
     if (typeof payload?.url === 'string' && payload.url.trim()) {
-      updateData.url = payload.url.trim();
-      const domain = getDomainFromUrl(payload.url);
-      if (!domain) {
+      const rawUrl = payload.url.trim();
+      try {
+        const safeSourceUrl = await validateAdminSourceUrl(rawUrl);
+        updateData.url = safeSourceUrl.url;
+        updateData.domain = safeSourceUrl.domain;
+      } catch (error) {
         await logAuditEvent({
           eventType: 'ai_recap.source.update.failed.validation',
           userId,
           path: auditContext.path,
           ipAddress: auditContext.ipAddress,
           userAgent: auditContext.userAgent,
-          metadata: { source_id: id, reason: 'invalid_url', url: payload.url },
+          metadata: { source_id: id, reason: 'invalid_url', url: rawUrl, error_message: error instanceof Error ? error.message : String(error) },
         });
         return NextResponse.json({ error: 'Invalid url' }, { status: 400 });
       }
-      updateData.domain = domain;
+    }
+    if (typeof payload?.feed_url === 'string') {
+      const rawFeedUrl = payload.feed_url.trim();
+      if (rawFeedUrl) {
+        try {
+          updateData.feed_url = (await validateAdminSourceUrl(rawFeedUrl)).url;
+        } catch (error) {
+          await logAuditEvent({
+            eventType: 'ai_recap.source.update.failed.validation',
+            userId,
+            path: auditContext.path,
+            ipAddress: auditContext.ipAddress,
+            userAgent: auditContext.userAgent,
+            metadata: { source_id: id, reason: 'invalid_feed_url', feed_url: rawFeedUrl, error_message: error instanceof Error ? error.message : String(error) },
+          });
+          return NextResponse.json({ error: 'Invalid feed_url' }, { status: 400 });
+        }
+      } else {
+        updateData.feed_url = null;
+      }
     }
     if (typeof payload?.priority === 'number' && Number.isFinite(payload.priority)) {
       updateData.priority = Math.max(0, Math.floor(payload.priority));
@@ -318,6 +361,24 @@ export async function PATCH(req: Request) {
         metadata: { source_id: id, reason: 'missing_feed_url_for_rss', scrape_route: finalScrapeRoute },
       });
       return NextResponse.json({ error: 'feed_url is required when scrape_route is rss' }, { status: 400 });
+    }
+
+    if (finalScrapeRoute === 'rss') {
+      try {
+        updateData.feed_url = (await validateAdminSourceUrl(finalFeedUrl)).url;
+      } catch (error) {
+        await logAuditEvent({
+          eventType: 'ai_recap.source.update.failed.validation',
+          userId,
+          path: auditContext.path,
+          ipAddress: auditContext.ipAddress,
+          userAgent: auditContext.userAgent,
+          metadata: { source_id: id, reason: 'invalid_feed_url', feed_url: finalFeedUrl, error_message: error instanceof Error ? error.message : String(error) },
+        });
+        return NextResponse.json({ error: 'Invalid feed_url' }, { status: 400 });
+      }
+    } else {
+      updateData.feed_url = null;
     }
 
     updateData.rss_allow_firecrawl_fallback = finalScrapeRoute === 'rss' ? finalRssFallback : false;

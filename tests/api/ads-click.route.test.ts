@@ -27,8 +27,13 @@ async function loadGetHandler(scenario: string) {
   return routeModule.GET ?? routeModule.default?.GET;
 }
 
-function makeRequest(query: string) {
-  return new Request(`http://localhost/api/ads/click?${query}`);
+function makeRequest(query: string, init?: RequestInit) {
+  return new Request(`http://localhost/api/ads/click?${query}`, init);
+}
+
+function marketingConsentHeader() {
+  const ccCookie = encodeURIComponent(JSON.stringify({ categories: ['necessary', 'marketing'] }));
+  return { cookie: `cc_cookie=${ccCookie}` };
 }
 
 const VALID_CAMPAIGN_ID = '11111111-1111-4111-8111-111111111111';
@@ -49,6 +54,7 @@ test('redirect uses server-resolved target and ignores user-supplied target para
   const response = await GET(
     makeRequest(
       `campaignId=${VALID_CAMPAIGN_ID}&creativeId=${VALID_CREATIVE_ID}&placement=news&target=//evil.example`,
+      { headers: marketingConsentHeader() },
     ),
   );
 
@@ -56,6 +62,25 @@ test('redirect uses server-resolved target and ignores user-supplied target para
   const location = response.headers.get('location') ?? '';
   assert.equal(location.endsWith('/safe-destination?ok=1') || location === '/safe-destination?ok=1', true);
   assert.equal(trackedTarget, '/safe-destination?ok=1');
+});
+
+test('redirects but skips web click tracking without marketing consent', async () => {
+  let recordCalled = false;
+  recordAdEventImpl = async () => {
+    recordCalled = true;
+  };
+  resolveCreativeClickTargetImpl = async () => ({
+    destinationUrl: '/safe-destination',
+    destinationKind: 'internal',
+  });
+
+  const GET = await loadGetHandler('ads-click-no-marketing-consent');
+  const response = await GET(
+    makeRequest(`campaignId=${VALID_CAMPAIGN_ID}&creativeId=${VALID_CREATIVE_ID}&placement=news`),
+  );
+
+  assert.equal(response.status, 302);
+  assert.equal(recordCalled, false);
 });
 
 test('returns 400 when resolved target is invalid', async () => {

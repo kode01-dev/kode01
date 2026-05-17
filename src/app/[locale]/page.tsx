@@ -21,8 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     return applySeoMetadata({
         title: 'KODE01',
         description: locale === 'fr'
-            ? 'KODE01 aide les créateurs à vendre des produits numériques, des ressources IA et des bundles sans complexité technique.'
-            : 'KODE01 helps creators sell digital products, AI resources, and bundles without technical complexity.',
+            ? 'KODE01 rassemble veille IA, outils, ressources et produits numériques pour aider les builders et créateurs à suivre les nouveautés et passer plus vite à l’action.'
+            : 'KODE01 brings together AI updates, tools, resources, and digital products so builders and creators can follow what is new and move faster.',
     }, '/', { locale });
 }
 

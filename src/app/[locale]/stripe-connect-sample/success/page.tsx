@@ -1,8 +1,14 @@
+import { notFound } from 'next/navigation';
+import { requireStripeConnectSampleSeller } from '@/lib/stripe/connect-sample-access';
+
 export default async function StripeConnectSampleSuccessPage({
   searchParams,
 }: {
   searchParams: Promise<{ session_id?: string }>;
 }) {
+  const access = await requireStripeConnectSampleSeller();
+  if (!access.ok) notFound();
+
   const { session_id: sessionId } = await searchParams;
 
   return (

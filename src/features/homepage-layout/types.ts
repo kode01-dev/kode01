@@ -5,6 +5,7 @@ export type HomepageSectionType =
   | 'products_latest'
   | 'top_deals'
   | 'news_latest'
+  | 'blog_latest'
   | 'stats'
   | 'cta';
 

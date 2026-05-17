@@ -1,4 +1,4 @@
-import { getSupabasePublicEnv } from '@/lib/supabase/env';
+import { normalizeSupabaseApiKey } from '@/lib/supabase/api-key';
 import {
   HYBRID_FAIL_CLOSED_ACTIONS,
   RATE_LIMIT_SCHEMAS,
@@ -45,6 +45,17 @@ type InMemoryFallbackCounter = {
 };
 
 const inMemoryFallbackCounters = new Map<string, InMemoryFallbackCounter>();
+
+function getRateLimitRpcConfig(): { supabaseUrl: string; serviceRoleKey: string } {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const serviceRoleKey = normalizeSupabaseApiKey(process.env.SUPABASE_SERVICE_ROLE_KEY ?? '');
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Rate limiter requires NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+  }
+
+  return { supabaseUrl, serviceRoleKey };
+}
 
 function parseFailureMode(value: string | undefined): RateLimitFailureMode {
   const normalized = value?.trim().toLowerCase();
@@ -175,13 +186,13 @@ function normalizeDetailedRow(payload: unknown): CheckRateLimitDetailedRow | nul
 }
 
 async function callRateLimitRpc(payload: CheckRateLimitRpcPayload): Promise<CheckRateLimitDetailedRow> {
-  const { supabaseUrl, supabaseAnonKey } = getSupabasePublicEnv();
+  const { supabaseUrl, serviceRoleKey } = getRateLimitRpcConfig();
   const response = await fetch(`${supabaseUrl}/rest/v1/rpc/check_rate_limit_detailed`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      apikey: supabaseAnonKey,
-      Authorization: `Bearer ${supabaseAnonKey}`,
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
     },
     body: JSON.stringify(payload),
     cache: 'no-store',

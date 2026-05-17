@@ -2,6 +2,10 @@
 
 import { useEffect } from 'react';
 import { AdPlacementSlug } from '@/features/ads/types';
+import {
+  COOKIE_CONSENT_CHANGED_EVENT,
+  hasMarketingConsentInBrowser,
+} from '@/features/cookies/lib/consent';
 
 type SponsoredAdImpressionTrackerProps = {
   campaignId: string;
@@ -19,25 +23,36 @@ export function SponsoredAdImpressionTracker({
   pagePath,
 }: SponsoredAdImpressionTrackerProps) {
   useEffect(() => {
-    const fingerprint = typeof window !== 'undefined'
-      ? `${window.location.pathname}:${campaignId}:${creativeId}:${Date.now()}`
-      : undefined;
+    let sent = false;
 
-    void fetch('/api/ads/events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        campaignId,
-        creativeId,
-        placement,
-        eventType: 'impression',
-        channel: 'web',
-        locale,
-        pagePath,
-        fingerprint,
-      }),
-      keepalive: true,
-    }).catch(() => undefined);
+    const sendImpression = () => {
+      if (sent || !hasMarketingConsentInBrowser()) return;
+      sent = true;
+
+      const fingerprint = typeof window !== 'undefined'
+        ? `${window.location.pathname}:${campaignId}:${creativeId}:${Date.now()}`
+        : undefined;
+
+      void fetch('/api/ads/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaignId,
+          creativeId,
+          placement,
+          eventType: 'impression',
+          channel: 'web',
+          locale,
+          pagePath,
+          fingerprint,
+        }),
+        keepalive: true,
+      }).catch(() => undefined);
+    };
+
+    sendImpression();
+    window.addEventListener(COOKIE_CONSENT_CHANGED_EVENT, sendImpression);
+    return () => window.removeEventListener(COOKIE_CONSENT_CHANGED_EVENT, sendImpression);
   }, [campaignId, creativeId, locale, pagePath, placement]);
 
   return null;

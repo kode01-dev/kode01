@@ -75,6 +75,15 @@ export const HOMEPAGE_SECTION_CATALOG: HomepageSectionCatalogItem[] = [
     defaultSettings: { limit: 3 },
   },
   {
+    type: 'blog_latest',
+    label: 'Latest Blog',
+    description: 'Latest editorial blog posts',
+    templates: ['cards', 'compact'],
+    defaultTemplate: 'cards',
+    defaultContent: EMPTY_CONTENT,
+    defaultSettings: { limit: 3 },
+  },
+  {
     type: 'stats',
     label: 'Stats',
     description: 'Website statistics',
@@ -137,6 +146,7 @@ export const DEFAULT_HOMEPAGE_SECTIONS: HomepageSectionConfig[] = [
   { id: 'stats-1', type: 'stats', enabled: true, order: 5, template: 'band', content: { ...EMPTY_CONTENT }, settings: {} },
   { id: 'cta-1', type: 'cta', enabled: true, order: 6, template: 'banner', content: { ...EMPTY_CONTENT }, settings: {} },
   { id: 'news-latest-1', type: 'news_latest', enabled: true, order: 7, template: 'cards', content: { ...EMPTY_CONTENT }, settings: { limit: 3 } },
+  { id: 'blog-latest-1', type: 'blog_latest', enabled: true, order: 8, template: 'cards', content: { ...EMPTY_CONTENT }, settings: { limit: 3 } },
 ];
 
 export function getCatalogItem(type: HomepageSectionType): HomepageSectionCatalogItem {

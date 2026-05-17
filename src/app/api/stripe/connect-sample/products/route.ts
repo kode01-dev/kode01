@@ -1,7 +1,10 @@
 import Stripe from 'stripe';
 import { NextResponse } from 'next/server';
+import {
+  requireStripeConnectSampleSeller,
+  stripeConnectSampleAccessResponse,
+} from '@/lib/stripe/connect-sample-access';
 import { getStripeClientForConnectSample } from '@/lib/stripe/connect-sample';
-import { createClient } from '@/lib/supabase/server';
 
 type CreateProductRequest = {
   name?: string;
@@ -38,6 +41,9 @@ function isPriceObject(
  */
 export async function GET() {
   try {
+    const access = await requireStripeConnectSampleSeller();
+    if (!access.ok) return stripeConnectSampleAccessResponse(access);
+
     const stripeClient = getStripeClientForConnectSample();
 
     const [products, accounts] = await Promise.all([
@@ -93,15 +99,9 @@ export async function GET() {
  */
 export async function POST(req: Request) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const access = await requireStripeConnectSampleSeller();
+    if (!access.ok) return stripeConnectSampleAccessResponse(access);
+    const { user, profile } = access;
 
     const payload = (await req.json().catch(() => ({}))) as CreateProductRequest;
     const name = payload.name?.trim();
@@ -115,16 +115,6 @@ export async function POST(req: Request) {
 
     if (!Number.isInteger(priceInCents) || (priceInCents ?? 0) <= 0) {
       return NextResponse.json({ error: 'priceInCents must be a positive integer' }, { status: 400 });
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('stripe_account_id')
-      .eq('id', user.id)
-      .single();
-
-    if (profileError) {
-      return NextResponse.json({ error: 'Failed to load profile' }, { status: 500 });
     }
 
     if (!profile?.stripe_account_id) {

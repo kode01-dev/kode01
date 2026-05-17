@@ -54,6 +54,7 @@ export default function GdprCcpaContent() {
                 <div className="not-prose space-y-8">
                     <section className="rounded-2xl border border-kode01-noir/10 bg-kode01-cream/60 p-6 md:p-8">
                         <p className="text-xs font-bold tracking-[0.14em] uppercase text-kode01-noir/55 mb-3">{t('title')}</p>
+                        <p className="mb-3 text-xs font-semibold text-kode01-noir/55">{t('last_updated')}</p>
                         <p className="text-base md:text-lg leading-relaxed text-kode01-noir/85">{t('intro')}</p>
                     </section>
 

@@ -140,7 +140,7 @@ export async function validateWebhookEndpointUrl(
     return { ok: false, reason: 'invalid_url' };
   }
 
-  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+  if (parsed.protocol !== 'https:') {
     return { ok: false, reason: 'invalid_protocol' };
   }
 

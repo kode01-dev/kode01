@@ -15,6 +15,7 @@ const CtaSection = dynamic(() => import('./sections/CtaSection').then(mod => mod
 const FeaturesSection = dynamic(() => import('./sections/FeaturesSection').then(mod => mod.FeaturesSection));
 const MarqueeSection = dynamic(() => import('./sections/MarqueeSection').then(mod => mod.MarqueeSection));
 const NewsPreviewSection = dynamic(() => import('./sections/NewsPreviewSection').then(mod => mod.NewsPreviewSection));
+const BlogPreviewSection = dynamic(() => import('./sections/BlogPreviewSection').then(mod => mod.BlogPreviewSection));
 const ProductsSection = dynamic(() => import('./sections/ProductsSection').then(mod => mod.ProductsSection));
 const StatsBarSection = dynamic(() => import('./sections/StatsBarSection').then(mod => mod.StatsBarSection));
 const TopDealsSection = dynamic(() => import('./sections/TopDealsSection').then(mod => mod.TopDealsSection));
@@ -31,6 +32,7 @@ export const renderHomepageLazySectionFallback = (section: HomepageSectionConfig
         case 'top_deals':
             return <MarketingGridSkeleton withHero={false} withFilters={false} showResultsHeader={false} cardVariant="product" cards={resolveSectionLimit(section.settings, 4, 12)} className="mb-24" />;
         case 'news_latest':
+        case 'blog_latest':
             return <MarketingGridSkeleton withHero={false} withFilters={false} showResultsHeader={false} cardVariant="news" cards={resolveSectionLimit(section.settings, 3, 12)} className="mb-24" />;
         case 'stats':
             return (
@@ -73,6 +75,8 @@ export const renderHomepageSection = ({ section, onOpenShop, onBrowse, initialDa
             return <TopDealsSection template={section.template} content={section.content} settings={section.settings} initialTopDeals={initialData?.topDeals} />;
         case 'news_latest':
             return <NewsPreviewSection template={section.template} content={section.content} settings={section.settings} />;
+        case 'blog_latest':
+            return <BlogPreviewSection template={section.template} content={section.content} settings={section.settings} />;
         case 'stats':
             return <StatsBarSection template={section.template} initialStats={initialData?.stats} />;
         case 'cta':

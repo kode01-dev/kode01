@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import {
   ANONYMOUS_RECO_PROFILE_COOKIE_NAME,
   LEGACY_ANONYMOUS_RECO_PROFILE_COOKIE_NAME,
@@ -24,7 +25,8 @@ export async function DELETE() {
       return NextResponse.json({ error: 'Failed to delete recommendation data' }, { status: 500 });
     }
 
-    const { error: auditError } = await supabase.rpc('log_audit_event', {
+    const admin = createAdminClient();
+    const { error: auditError } = await admin.rpc('log_audit_event', {
       p_event_type: 'recommendation_data_deleted',
       p_user_id: user.id,
       p_metadata: {

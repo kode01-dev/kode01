@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { isSellerRole } from '@/lib/auth/roles';
+import { isOptionalSellerVaultPath } from '@/lib/vendor/vault-path';
 import { z } from 'zod';
 
 const createProductSchema = z.object({
@@ -55,6 +56,13 @@ export async function POST(request: NextRequest) {
     const coverImageUrl = data.cover_image_url ?? data.cover_url ?? null;
     const filePathVault = data.file_path_vault ?? null;
     const isPwyw = data.is_pwyw || data.enable_pwyw;
+
+    if (!isOptionalSellerVaultPath(filePathVault, user.id)) {
+      return NextResponse.json(
+        { error: 'Invalid private file path for this seller.' },
+        { status: 400 },
+      );
+    }
 
     // Only allow publishing if Stripe is fully set up
     if (data.status === 'published') {

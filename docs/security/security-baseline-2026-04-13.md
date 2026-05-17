@@ -14,11 +14,13 @@
   - `X-Content-Type-Options=nosniff`
   - CSP enforced policy + stricter CSP `Report-Only` policy for migration off `unsafe-inline`
 - CSRF enforcement for mutating API/server actions (excluding webhook/cron exemptions).
+- CSRF webhook/cron exemptions are exact-path allowlist entries; new prefixed routes are not exempt until explicitly reviewed.
 - Global and endpoint rate limiting with security logging.
 - Bot blocking middleware and security event logging.
 - Admin MFA gating for admin pages and APIs.
-- Seller MFA is optional/planned at launch; seller financial-sensitive APIs keep session auth, role checks, ownership checks, CSRF, rate limiting, RLS, and audit logging as compensating controls.
+- Seller/vendor MFA is not required at launch; seller financial-sensitive APIs keep session auth, role checks, ownership checks, CSRF, rate limiting, RLS, and audit logging as compensating controls.
 - Stripe webhook signature verification and replay idempotency lock.
+- Product downloads require buyer ownership, endpoint rate limiting, signed URLs, and fail-closed vault path validation before Supabase Storage signing. Legacy rows with invalid vault paths must be corrected by re-upload or database cleanup.
 
 ## Session Policy
 - Explicit cookie policy for Supabase SSR sessions:

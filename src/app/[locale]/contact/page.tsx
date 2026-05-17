@@ -3,7 +3,6 @@ import { getTranslations } from 'next-intl/server';
 import { BaseHeader } from '@/components/layout/BaseHeader';
 import { BaseFooter } from '@/components/layout/BaseFooter';
 import { OpenZipchatCard } from '@/components/zipchat/OpenZipchatCard';
-import { MessageSquare } from 'lucide-react';
 import { applySeoMetadata } from '@/lib/seo';
 import { SeoAppJsonLd } from '@/components/seo/SeoAppJsonLd';
 
@@ -31,19 +30,8 @@ export default async function ContactPage() {
                         Have a question or need help? We&apos;re here for you. Reach out through any of these channels.
                     </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                    <div className="max-w-xl mx-auto text-left">
                         <OpenZipchatCard />
-
-                        <div className="bg-kode01-noir rounded-[32px] p-10 shadow-xl text-white">
-                            <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-6 text-kode01-pink">
-                                <MessageSquare size={28} />
-                            </div>
-                            <h2 className="text-2xl font-serif font-black mb-2">Creator Community</h2>
-                            <p className="text-white/60">Join our network of elite creators to share tips, tricks, and collaborate.</p>
-                            <div className="mt-6">
-                                <span className="bg-kode01-pink text-kode01-noir px-6 py-2 rounded-full font-bold text-sm">Coming Soon</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </main>

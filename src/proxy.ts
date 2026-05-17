@@ -9,6 +9,7 @@ import { isBlockedBotUserAgent } from '@/lib/security/bot-detection';
 import { BOT_FLAG_COOKIE_NAME, getRequestIpAddress } from '@/lib/security/bot-request';
 import { logBotActivityDirect, logSecurityEvent } from '@/lib/security/security-log';
 import { hasTrustedCsrfSource, isMutatingHttpMethod } from '@/lib/security/csrf';
+import { isCsrfExemptApiPath } from '@/lib/security/csrf-exemptions';
 import { getRequestHostFromHeaders } from '@/lib/http/request-host';
 import {
   getTrustedSubdomainOrigins,
@@ -26,7 +27,6 @@ import { isAdminRole } from '@/lib/auth/roles';
 import { securityErrorResponse } from '@/lib/security/api-errors';
 
 const intlProxy = createMiddleware(routing);
-const CSRF_EXEMPT_API_PREFIXES = ['/api/webhooks/', '/api/cron/'] as const;
 const SECURITY_CONTRACT_VERSION = 'v1';
 
 type ProxyRoutingResult =
@@ -178,10 +178,6 @@ function isAdminMfaProtectedApiRoute(normalizedPath: string, method: string): bo
   }
 
   return false;
-}
-
-function isCsrfExemptApiPath(pathname: string): boolean {
-  return CSRF_EXEMPT_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
 function isAdminMfaBypassPath(normalizedPath: string, isAdminHost: boolean): boolean {

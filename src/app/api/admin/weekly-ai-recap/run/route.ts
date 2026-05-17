@@ -9,7 +9,6 @@ import {
 } from '@/lib/agent-runtime/route-control';
 import { invokeEdgeFunction, toNextJsonResponse } from '@/lib/edge/invoke';
 import { getAuditContextFromRequest, logAuditEvent } from '@/lib/security/audit';
-import { isAuthorizedByAnyBearerSecret } from '@/lib/security/bearer';
 import { isAdminRole } from '@/lib/auth/roles';
 
 async function isAdmin() {
@@ -33,14 +32,8 @@ export async function POST(req: Request) {
   const auditContext = getAuditContextFromRequest(req);
   try {
     const adminUserId = await isAdmin();
-    const authHeader = req.headers.get('Authorization');
-    const isCronAuth = isAuthorizedByAnyBearerSecret(authHeader, [
-      process.env.CRON_SECRET,
-      process.env.CRON_SECRET_NEXT,
-    ]);
-    const authMode = adminUserId ? 'admin' : isCronAuth ? 'cron-bypass' : null;
 
-    if (!authMode) {
+    if (!adminUserId) {
       await logAuditEvent({
         eventType: 'ai_recap.run.failed.forbidden',
         path: auditContext.path,
@@ -50,7 +43,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const userId = adminUserId ?? 'cron-bypass';
+    const authMode = 'admin';
+    const userId = adminUserId;
     console.info('Manual AI recap run auth:', { authMode, userId });
 
     const payload = await req.json().catch(() => ({}));

@@ -70,14 +70,14 @@ export const AboutAudience = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
       <div className="bg-kode01-noir text-white p-12 rounded-[40px] flex flex-col justify-between h-full hover:scale-[1.02] transition-transform">
         <div>
-          <span className="text-kode01-pink font-bold tracking-widest uppercase text-sm mb-4 block">For Creators</span>
+          <span className="text-kode01-pink font-bold tracking-widest uppercase text-sm mb-4 block">{t('creators.label')}</span>
           <h3 className="text-3xl font-serif font-black mb-6 leading-tight">{t('creators.title')}</h3>
           <p className="text-white/70 text-lg leading-relaxed">{t('creators.description')}</p>
         </div>
       </div>
       <div className="bg-kode01-cream p-12 rounded-[40px] border border-kode01-noir/10 flex flex-col justify-between h-full hover:scale-[1.02] transition-transform">
         <div>
-          <span className="text-kode01-noir/40 font-bold tracking-widest uppercase text-sm mb-4 block">For Builders</span>
+          <span className="text-kode01-noir/40 font-bold tracking-widest uppercase text-sm mb-4 block">{t('builders.label')}</span>
           <h3 className="text-3xl font-serif font-black text-kode01-noir mb-6 leading-tight">{t('builders.title')}</h3>
           <p className="text-kode01-noir/60 text-lg leading-relaxed">{t('builders.description')}</p>
         </div>

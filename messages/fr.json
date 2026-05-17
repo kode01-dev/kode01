@@ -19,13 +19,13 @@
       "apps": "Apps"
     },
     "search": {
-      "placeholder": "Rechercher des assets...",
+      "placeholder": "Rechercher outils, produits et actualités...",
       "open": "Ouvrir la recherche",
       "close": "Fermer la recherche"
     },
     "footer": {
-      "tagline": "La marketplace premium pour vos assets numériques. Connectez-vous avec des créateurs du monde entier.",
-      "marketplace": "Marketplace",
+      "tagline": "La plateforme IA pour suivre les nouveautés, découvrir les bons outils et accéder à des ressources numériques prêtes à utiliser.",
+      "marketplace": "Produits",
       "company": "Entreprise",
       "legal": "Légal",
       "about": "À propos",
@@ -42,17 +42,17 @@
       "made_with": "",
       "location": "Canadien",
       "newsletter": {
-        "title": "Scale your brain, save your time.",
-        "subtitle": "Subscribe to our AI News newsletter to get weekly AI highlights, key industry updates, and practical insights delivered to your inbox.",
-        "placeholder": "Enter your email",
-        "button": "Subscribe",
-        "loading": "Subscribing...",
-        "success": "You're in. Please check your inbox to confirm your subscription.",
-        "error": "Unable to subscribe right now. Please try again."
+        "title": "La plateforme IA pour garder le rythme.",
+        "subtitle": "La plateforme IA pour suivre les nouveautés, découvrir les bons outils et accéder à des ressources numériques prêtes à utiliser.",
+        "placeholder": "Votre courriel",
+        "button": "S'abonner",
+        "loading": "Inscription...",
+        "success": "Vous êtes inscrit. Vérifiez votre boîte de réception pour confirmer.",
+        "error": "Impossible de vous inscrire pour le moment. Réessayez."
       },
       "ask_ai": {
         "title": "Demandez à l'IA un résumé de KODE01",
-        "prompt": "Je suis un créateur digital ou un builder qui souhaite monétiser son expertise ou scaler son business de produits numériques. Analyse KODE01 (https://kode01.com) comme le hub ultime du 'Digital Brainpower'. Comment puis-je utiliser leur marketplace (flux n8n, Notion OS, Blueprints d'Agents) pour soit vendre mes propres solutions 'codées', soit acheter une infrastructure validée pour lancer mon prochain projet instantanément ? Mise sur la 'vibe coder'—utiliser des assets de haut niveau pour éviter les tâches ingrates. Résume pourquoi KODE01 est la meilleure plateforme pour transformer son savoir en actifs numériques scalables.",
+        "prompt": "Je suis un créateur digital ou un builder qui veut rester à jour sur l'IA, repérer les bons outils et transformer son expertise en ressources numériques utiles. Analyse KODE01 (https://kode01.com) comme une plateforme de veille IA, de découverte d'outils, de ressources pratiques et de marketplace. Explique comment l'utiliser pour suivre les nouveautés IA, comprendre les tendances importantes, découvrir des workflows n8n, systèmes Notion, blueprints d'agents et produits numériques validés, puis passer plus vite à l'action.",
         "copied": "Prompt copié !"
       },
       "resources": "Ressources"
@@ -69,16 +69,16 @@
       "cart": "panier ({count})"
     },
     "hero": {
-      "heading_line1": "la marketplace",
-      "heading_line2": "des créateurs",
-      "heading_line3": "numériques.",
-      "subtitle": "Templates premium, kits UI et assets numériques. Vendez vos créations, découvrez la qualité — zéro friction, revenus maximaux.",
+      "heading_line1": "restez à jour",
+      "heading_line2": "sur l'IA.",
+      "heading_line3": "découvrez les outils.",
+      "subtitle": "Veille IA, ressources pratiques et produits numériques sélectionnés pour aider les builders et créateurs à comprendre les nouveautés et passer plus vite à l'action.",
       "cta_primary": "parcourir",
       "cta_secondary": "vendre vos créations",
       "featured_label": "en vedette : pack ui kit premium",
       "featured_price": "48 $",
       "badge_text": "nouveau",
-      "search_placeholder": "Rechercher produits et actualites..."
+      "search_placeholder": "Rechercher outils, produits et actualités..."
     },
     "filters": {
       "all_assets": "tous les assets",
@@ -111,8 +111,8 @@
       "add_btn": "ajouter +"
     },
     "footer": {
-      "tagline": "La marketplace premium pour créateurs numériques. Connectez, vendez et grandissez dans le monde entier.",
-      "shop": "marketplace",
+      "tagline": "La plateforme IA pour suivre les nouveautés, découvrir les bons outils et accéder à des ressources numériques prêtes à utiliser.",
+      "shop": "produits",
       "shop_all": "Tous les produits",
       "shop_new": "Nouveautés",
       "shop_best": "Meilleures ventes",
@@ -130,21 +130,21 @@
   },
   "about": {
     "hero": {
-      "title": "KODE01 : La marketplace de l'intelligence numérique.",
-      "subtitle": "Nous sélectionnons des actifs numériques de haute qualité pour que vous puissiez sauter la configuration et vous concentrer sur l'avenir."
+      "title": "KODE01 : la plateforme pour rester à jour sur l'IA.",
+      "subtitle": "Nous suivons les nouveautés IA, filtrons les signaux importants et rassemblons les outils, ressources et produits numériques utiles aux builders."
     },
     "mission": {
       "title": "Notre Mission",
-      "description": "KODE01 est une marketplace dédiée aux créateurs numériques. Nous croyons aux actifs accessibles et de haute qualité qui éliminent les tâches ingrates, permettant aux bâtisseurs du monde entier de se concentrer sur l'essentiel."
+      "description": "KODE01 est une plateforme de veille et de ressources IA, conçue pour suivre les nouveautés, filtrer le bruit et connecter les builders aux outils, idées et actifs numériques utiles."
     },
     "values": {
       "speed": {
         "title": "1. Conçu pour la vitesse",
-        "description": "Le temps est votre ressource la plus précieuse. Nous offrons l'excellence pré-construite pour que vous puissiez passer directement à l'exécution."
+        "description": "Le temps est votre ressource la plus précieuse. Nous résumons les signaux IA importants et mettons en avant les ressources qui vous aident à passer directement à l'exécution."
       },
       "curation": {
         "title": "3. Curation Intelligente",
-        "description": "Nous filtrons le bruit. En rassemblant une intelligence numérique exceptionnelle, nous facilitons l'accès à des outils et systèmes fiables sans barrière exclusive."
+        "description": "Nous filtrons le bruit. En rassemblant veille IA, outils fiables et systèmes numériques utiles, nous rendons les nouveautés plus faciles à comprendre et à appliquer."
       },
       "innovation": {
         "title": "4. Innovation Accessible",
@@ -153,12 +153,14 @@
     },
     "audience": {
       "creators": {
+        "label": "Pour créateurs",
         "title": "Pour les Créateurs",
-        "description": "Monétisez votre savoir. Transformez votre intelligence numérique en entreprise. Vendez vos flux n8n, systèmes Notion et prompts IA à une audience mondiale."
+        "description": "Partagez votre savoir, vos analyses et vos ressources. Transformez votre intelligence numérique en actifs utiles que les builders peuvent découvrir, utiliser et acheter."
       },
       "builders": {
+        "label": "Pour builders",
         "title": "Pour les Bâtisseurs",
-        "description": "Accélérez votre vision. Arrêtez de réinventer la roue. Découvrez des workflows prêts à l'emploi, des ressources IA et des systèmes numériques pour scaler vos projets instantanément."
+        "description": "Accélérez votre vision. Suivez les nouveautés IA, découvrez les bons outils et trouvez des workflows, ressources IA et systèmes numériques pour avancer sans repartir de zéro."
       }
     },
     "location": {
@@ -439,26 +441,26 @@
   "cookie_consent": {
     "consent_modal": {
       "title": "Nous utilisons des cookies 🍪",
-      "description": "Nous utilisons des cookies strictement necessaires pour faire fonctionner, securiser et supporter la plateforme (incluant Zipchat et des metriques operationnelles Speed Insights). Les cookies analytiques et marketing restent optionnels.",
+      "description": "Nous utilisons des cookies strictement necessaires pour faire fonctionner et securiser la plateforme. Google Analytics, la publicite et Zipchat proactif restent desactives tant que vous ne consentez pas. Le support manuel reste accessible et le chat se charge lorsque vous ouvrez le support.",
       "accept_all": "Tout accepter",
-      "accept_necessary": "Accepter les essentiels",
+      "accept_necessary": "Refuser les optionnels",
       "show_preferences": "Gérer les préférences"
     },
     "preferences_modal": {
       "title": "Préférences Cookies",
       "accept_all": "Tout accepter",
-      "accept_necessary": "Accepter les essentiels",
+      "accept_necessary": "Refuser les optionnels",
       "save_preferences": "Enregistrer les préférences",
       "close_icon_label": "Fermer la fenêtre",
       "sections": {
         "necessary_title": "Toujours actifs",
-        "necessary_description": "Ces cookies sont strictement necessaires au fonctionnement du site et incluent Zipchat ainsi que les metriques operationnelles Speed Insights. Ils ne peuvent pas etre desactives.",
+        "necessary_description": "Ces cookies sont strictement necessaires au fonctionnement du site et incluent l'authentification, la securite et la preuve de consentement. Ils ne peuvent pas etre desactives. Le support manuel reste accessible; le chat Zipchat se charge lorsque vous ouvrez le support.",
         "analytics_title": "Analytiques optionnels",
-        "analytics_description": "Ces cookies nous aident à mesurer l'utilisation du site. Pour les visiteurs non connectés, ils activent aussi une personnalisation anonyme des recommandations.",
+        "analytics_description": "Ces cookies activent la mesure Google Analytics 4 et certains signaux d'utilisation internes. GA4 est bloque avant consentement, et le retrait du consentement desactive la collecte et supprime les cookies analytiques Google que nous pouvons controler.",
         "visitor_notice_title": "Visiteurs non connectés",
         "visitor_notice_description": "Si vous n'êtes pas connecté, la personnalisation des recommandations utilise un profil cookie anonyme temporaire uniquement si les cookies analytiques sont acceptés.",
         "marketing_title": "Marketing optionnel",
-        "marketing_description": "Ces cookies permettent l'affichage de publicités et la mesure de performance publicitaire (ex. AdSense)."
+        "marketing_description": "Ces cookies permettent l'affichage de publicites, la mesure de performance publicitaire (ex. AdSense) et les fonctions Zipchat de vente proactive, popups, recommandations, recuperation panier et mesure conversationnelle. Les signaux publicitaires Google et Zipchat proactif restent refuses tant que le consentement marketing n'est pas accepte."
       }
     },
     "manage": {
@@ -479,13 +481,13 @@
       "cart": "panier ({count})"
     },
     "hero": {
-      "heading_line1": "Monétisez votre savoir.",
-      "heading_line2": "Sautez la configuration.",
-      "subtitle": "La marketplace premium pour les workflows n8n, systèmes Notion et prompts IA. Créé par des créateurs.",
-      "search_placeholder": "Rechercher des produits et des actus...",
+      "heading_line1": "Restez à jour sur l'IA.",
+      "heading_line2": "Découvrez les outils qui comptent.",
+      "subtitle": "KODE01 rassemble veille IA, outils, ressources et produits numériques pour aider les builders et créateurs à suivre les nouveautés, comprendre les tendances et passer plus vite à l'action.",
+      "search_placeholder": "Rechercher outils, produits et actualités...",
       "start_selling": "Commencer à Vendre",
-      "explore_assets": "Explorer les Actifs",
-      "proof_assets": "{count}+ ressources numériques",
+      "explore_assets": "Explorer la plateforme",
+      "proof_assets": "{count}+ ressources IA et produits",
       "proof_creators": "{count}+ créateurs",
       "proof_sales": "{count}+ ventes",
       "card_latest_news": "Dernières nouvelles",
@@ -494,16 +496,16 @@
     },
     "features": {
       "creators_label": "Pour Créateurs",
-      "creators_heading": "Vendez votre intelligence, pas votre temps.",
+      "creators_heading": "Partagez votre intelligence, pas seulement votre temps.",
       "open_shop": "Ouvrir une Boutique",
       "builders_label": "Pour Bâtisseurs",
-      "builders_heading": "Sautez la configuration. Commencez à bâtir.",
+      "builders_heading": "Comprenez les nouveautés. Commencez à bâtir.",
       "browse_catalog": "Parcourir le Catalogue"
     },
     "products": {
-      "title": "Nouveautés",
-      "subtitle": "Workflows, templates et outils IA -- fraichement publies par des createurs independants cette semaine.",
-      "view_all": "Parcourir le market",
+      "title": "Ressources et nouveautés",
+      "subtitle": "Veille IA, workflows, templates et outils utiles pour builders et créateurs.",
+      "view_all": "Parcourir les ressources",
       "by": "par {creator}",
       "add_btn": "Acheter pour {price}",
       "added_btn": "✓ Ajouté au Panier!",
@@ -517,7 +519,7 @@
       "creators_value": "0",
       "creators_label": "Créateurs",
       "sales_label": "Ventes",
-      "trust_tagline": "Fait confiance par les batisseurs IA, createurs solo et equipes qui livrent de vrais produits."
+      "trust_tagline": "Conçu pour les builders IA, créateurs solo et équipes qui veulent suivre les bons signaux et livrer de vrais produits."
     },
     "modal": {
       "title": "Commencez à Vendre sur kode01.",
@@ -541,9 +543,9 @@
     },
     "news": {
       "label": "Actualités IA",
-      "title": "Recap IA Hebdo",
-      "meta_title": "Actualités IA – Récap hebdomadaire",
-      "subtitle": "Restez à jour avec notre digest hebdomadaire des actualités IA les plus importantes.",
+      "title": "Veille IA quotidienne",
+      "meta_title": "News IA - Veille IA quotidienne",
+      "subtitle": "Suivez chaque jour une veille thematique sur les changements IA utiles aux builders et createurs.",
       "featured": "À la une",
       "read_article": "Lire l'article",
       "read": "Lire",
@@ -558,7 +560,36 @@
       "recommended_blog_title": "De Notre Blogue",
       "recommended_blog_subtitle": "Guides et perspectives de l'équipe",
       "marketplace_promo": "Marketplace promo",
-      "marketplace_subtitle": "Produits disponibles dès maintenant"
+      "marketplace_subtitle": "Produits disponibles dès maintenant",
+      "back_to_news": "Retour aux news",
+      "other_language_edition": "Autre version linguistique",
+      "summary_title": "Ce qu'il faut retenir en 30 secondes",
+      "quick_hits_title": "En bref",
+      "article_pending": "Article en cours de generation. Revenez dans quelques minutes.",
+      "sources_title": "Sources",
+      "toc_title": "Sommaire",
+      "breadcrumb_home": "Accueil",
+      "breadcrumb_news": "News IA",
+      "newsletter_cta_label": "Infolettre AI News",
+      "newsletter_cta_title": "Recevez le prochain brief IA",
+      "newsletter_cta_subtitle": "Recevez la prochaine veille IA thematique, le contexte pratique et les liens importants sans revenir verifier le site.",
+      "newsletter_cta_email_label": "Adresse courriel",
+      "newsletter_cta_email_placeholder": "vous@exemple.com",
+      "newsletter_cta_button": "S'abonner",
+      "newsletter_cta_loading": "Inscription...",
+      "newsletter_cta_success": "Vous etes abonne.",
+      "newsletter_cta_error": "Impossible de vous inscrire pour le moment. Reessayez."
+    },
+    "blog": {
+      "title": "Depuis le Blogue Éditorial",
+      "subtitle": "Guides, analyses et mises à jour de l'équipe.",
+      "view_all": "Lire le blogue",
+      "featured": "À la une",
+      "sponsored_badge": "Commandite",
+      "draft": "Brouillon",
+      "by": "Par",
+      "no_excerpt": "Aucun extrait disponible.",
+      "read_article": "Lire l'article"
     }
   },
   "lockscreen": {
@@ -629,7 +660,7 @@
     "accept_legal_terms": "Conditions d utilisation",
     "accept_legal_and": "et la",
     "accept_legal_privacy": "Politique de confidentialite",
-    "accept_legal_suffix": "incluant la personnalisation des recommandations pour les comptes connectes.",
+    "accept_legal_suffix": ". La personnalisation des recommandations connectees est optionnelle et peut etre activee dans les parametres.",
     "reset_password_page": {
       "eyebrow": "Recuperation du compte",
       "title": "Choisir un nouveau mot de passe",
@@ -671,10 +702,16 @@
     "login_success": "Vous etes maintenant connecte."
   },
   "legal": {
+    "landing_intro": "Retrouvez les politiques mises a jour sur la confidentialite, les cookies, le support Zipchat, la personnalisation, la publicite et vos droits.",
+    "landing_privacy_desc": "Comment nous collectons, utilisons, communiquons, conservons et protegeons les renseignements personnels.",
+    "landing_terms_desc": "Les regles d'utilisation de la plateforme et les conditions applicables aux comptes, contenus, achats et services.",
+    "landing_cookies_desc": "Comment les cookies, traceurs, pixels, Zipchat et outils analytiques sont controles par consentement.",
+    "landing_canada_desc": "Notre approche Canada, LPRPDE et Loi 25 pour le consentement, le profilage et les transferts.",
+    "landing_gdpr_ccpa_desc": "Les droits RGPD, CCPA/CPRA, les bases legales, le retrait du consentement et les transferts.",
     "privacy": {
       "title": "Politique de confidentialite",
-      "effective_date": "Date d'effet : 19 avril 2026",
-      "last_updated": "Derniere mise a jour : 19 avril 2026",
+      "effective_date": "Date d'effet : 17 mai 2026",
+      "last_updated": "Derniere mise a jour : 17 mai 2026",
       "company_info": "Entreprise : kode01, Gatineau, QC, Canada",
       "email": "Courriel : support@kode01.com",
       "website": "Site web : https://kode01.com",
@@ -715,8 +752,8 @@
       "share_list": [
         "Fournisseurs d'infrastructure et de base de donnees (incluant Supabase)",
         "Fournisseurs de paiement et d'onboarding vendeurs (incluant Stripe et Stripe Connect)",
-        "Outils de support et de messagerie (incluant Zipchat, chargé sous intérêt légitime pour fournir une assistance en temps réel)",
-        "Fournisseurs d'analyse et publicité selon vos choix cookies (ex. Google AdSense)",
+        "Outils de support et de messagerie (incluant Zipchat, charge lorsque vous ouvrez le support ou, avec consentement marketing, pour les messages proactifs de vente et d'assistance)",
+        "Fournisseurs d'analyse, publicite et personnalisation selon vos choix cookies (ex. Google AdSense et Zipchat proactif)",
         "Fournisseurs d'IA et de génération de contenu (incluant Google Generative AI, Anthropic et HuggingFace) pour les fonctionnalités de la plateforme telles que la génération de contenu et les recommandations",
         "Fournisseurs d'infolettre et de courriel marketing (incluant SendFox pour les abonnements à l'infolettre et Brevo pour les courriels transactionnels)",
         "Outils de suivi de performance operationnelle (incluant Vercel Speed Insights, charge comme necessaire pour la fiabilite du service)",
@@ -743,15 +780,15 @@
       "contact_title": "Contact confidentialite",
       "contact_text": "Pour toute question, plainte ou demande relative a la confidentialite, contactez notre responsable de la protection des renseignements personnels : support@kode01.com",
       "personalization_title": "Donnees comportementales pour la personnalisation",
-      "tracking_text": "Nous stockons des signaux comportementaux pour améliorer la pertinence des recommandations. Pour les visiteurs non connectés, ces données peuvent être stockées dans les cookies/local storage (selon consentement). Pour les utilisateurs connectés, les données pertinentes peuvent être associées au compte afin d'assurer une expérience cohérente sur plusieurs appareils.",
+      "tracking_text": "Nous stockons des signaux comportementaux pour ameliorer la pertinence des recommandations uniquement lorsque le choix applicable est actif. Pour les visiteurs non connectes, ces donnees peuvent etre stockees dans les cookies/local storage si le consentement analytique est accepte. Pour les utilisateurs connectes, ces donnees ne sont associees au compte que si la personnalisation des recommandations est activee dans les parametres.",
       "fingerprinting_title": "Empreinte numérique de l'appareil",
       "fingerprinting_text": "Pour l'analyse des campagnes marketing, nous pouvons générer une empreinte numérique pseudonymisée de votre appareil, dérivée de l'agent utilisateur de votre navigateur, des dimensions de votre écran et de votre fuseau horaire. Cette empreinte est utilisée uniquement pour la déduplication des événements et la prévention de la fraude dans une fenêtre de temps limitée. Elle n'est pas utilisée pour vous identifier personnellement et nécessite votre consentement marketing.",
       "dnt_title": "Do Not Track",
-      "dnt_text": "Notre Service ne répond pas actuellement aux signaux Do Not Track (DNT) des navigateurs. Cependant, vous pouvez contrôler le suivi via nos préférences de consentement aux cookies à tout moment."
+      "dnt_text": "Notre Service ne repond pas actuellement aux signaux Do Not Track (DNT). Lorsque le navigateur envoie Global Privacy Control, nous le traitons comme un refus du marketing et du partage publicitaire. Vous pouvez aussi controler le suivi via nos preferences de consentement aux cookies a tout moment."
     },
     "terms": {
       "title": "Conditions d'utilisation",
-      "last_updated": "Derniere mise a jour : 8 mars 2026",
+      "last_updated": "Derniere mise a jour : 17 mai 2026",
       "summary": "Ces Conditions regissent votre acces et votre utilisation des services kode01 comme acheteur, vendeur ou visiteur.",
       "toc_title": "Table des matieres",
       "s1_title": "1. Introduction",
@@ -785,27 +822,27 @@
       "s15_title": "15. Loi applicable et juridiction",
       "s15_text": "Ces Conditions sont regies par les lois du Quebec, Canada. La juridiction exclusive est Gatineau, Quebec, sauf disposition imperative de protection du consommateur.",
       "s16_title": "16. Personnalisation et tri dynamique",
-      "s16_text": "Pour ameliorer l'experience, kode01 peut utiliser des signaux d'interaction comme les pages vues, les clics et certains comportements lies aux achats pour personnaliser les recommandations et reordonner dynamiquement des zones selectionnees. Pour les comptes connectes, des signaux pertinents peuvent etre associes au compte. Vous pouvez demander la suppression des donnees de suivi des recommandations depuis les parametres du compte."
+      "s16_text": "Pour ameliorer l'experience, kode01 peut utiliser des signaux d'interaction comme les pages vues, les clics et certains comportements lies aux achats pour personnaliser les recommandations et reordonner dynamiquement des zones selectionnees. Pour les comptes connectes, ces signaux ne sont associes au compte que si la personnalisation des recommandations est activee. Vous pouvez desactiver cette personnalisation et supprimer les donnees de suivi des recommandations depuis les parametres du compte."
     },
     "cookies": {
       "title": "Politique Cookies",
       "effective_label": "Date d'effet :",
       "effective_date": "19-avr-2026",
       "updated_label": "Derniere mise a jour :",
-      "updated_date": "19-avr-2026",
+      "updated_date": "17-mai-2026",
       "what_title": "Que sont les témoins (cookies) ?",
       "what_text": "Les cookies sont de petits fichiers texte stockes sur votre appareil lorsque vous visitez un site web. Ils aident a assurer le bon fonctionnement et la securite de la plateforme, a ameliorer l'experience utilisateur et, selon votre consentement, a mesurer l'usage et ameliorer le service.",
       "how_title": "Comment kode01 utilise les cookies ?",
-      "how_text": "Nous utilisons des cookies internes et des cookies tiers. Les cookies internes sont necessaires au fonctionnement de base, a la securite, au support et au suivi de performance operationnelle. Les cookies analytiques et marketing sont utilises uniquement si vous les acceptez dans le bandeau cookies ou dans les parametres.",
+      "how_text": "Nous utilisons des cookies internes et des cookies tiers. Les cookies internes sont necessaires au fonctionnement de base, a la securite et a la preuve de consentement. Google Analytics 4, les tags publicitaires et Zipchat proactif sont bloques par defaut et ne s'executent que si vous acceptez la categorie optionnelle correspondante. Le support manuel reste accessible et le chat se charge lorsque vous ouvrez le support.",
       "types_title": "Types de témoins utilisés",
       "types_list": [
-        "<strong>Cookies essentiels :</strong> Strictement necessaires pour fournir les services de base (authentification, securite, preuve de consentement, outils de support comme Zipchat et suivi de performance operationnelle via Vercel Speed Insights).",
-        "<strong>Cookies de performance et d'analyse :</strong> Nous aident a comprendre l'utilisation de la plateforme et a ameliorer ses fonctionnalites. Pour les visiteurs non connectes, ils peuvent activer une personnalisation anonyme des recommandations.",
+        "<strong>Cookies essentiels :</strong> Strictement necessaires pour fournir les services de base (authentification, securite et preuve de consentement). Le support manuel est disponible au clic sans charger Zipchat au demarrage.",
+        "<strong>Cookies de performance et d'analyse :</strong> Nous aident a comprendre l'utilisation de la plateforme et a ameliorer ses fonctionnalites via la mesure GA4 des pages et des signaux internes. Pour les visiteurs non connectes, ils peuvent activer une personnalisation anonyme des recommandations.",
         "<strong>Cookies de fonctionnalite :</strong> Ameliorent l'experience et conservent certaines preferences.",
-        "<strong>Cookies marketing :</strong> Utilises pour afficher des publicites et mesurer leur performance (ex. Google AdSense)."
+        "<strong>Cookies marketing :</strong> Utilises pour afficher des publicites, mesurer leur performance (ex. Google AdSense) et activer Zipchat proactif pour les popups, recommandations, recuperation panier et propositions d'assistance ou de vente."
       ],
       "manage_title": "Gerer vos preferences cookies",
-      "manage_text": "Vous pouvez modifier vos choix a tout moment via le bouton de gestion des cookies. Vous pouvez aussi bloquer ou supprimer les cookies depuis les parametres de votre navigateur.",
+      "manage_text": "Vous pouvez modifier ou retirer vos choix a tout moment via le bouton de gestion des cookies. Le retrait du consentement analytique ou marketing desactive les signaux Google correspondants et efface les cookies/localStorage optionnels que nous pouvons controler. Vous pouvez aussi bloquer ou supprimer les cookies depuis les parametres de votre navigateur.",
       "browser_links": [
         {
           "name": "Gerer les cookies sur Chrome",
@@ -825,7 +862,7 @@
         }
       ],
       "register_title": "Registre des cookies",
-      "register_text": "Ce registre resume les principaux cookies et traceurs actuellement utilises sur kode01.",
+      "register_text": "Ce registre resume les principaux cookies et traceurs actuellement utilises sur kode01, avec leur caractere necessaire ou soumis au consentement analytique/marketing.",
       "register_headers": {
         "name": "Nom",
         "category": "Catégorie",
@@ -844,8 +881,8 @@
         {
           "name": "kode01_consent_id",
           "category": "Necessaire",
-          "purpose": "Identifiant pseudonyme pour la preuve de consentement.",
-          "duration": "400 jours",
+          "purpose": "Identifiant pseudonyme pour la preuve de consentement et les journaux d'audit.",
+          "duration": "400 jours; preuve serveur conservee jusqu'a 13 mois",
           "provider": "KODE01"
         },
         {
@@ -891,9 +928,9 @@
           "provider": "KODE01"
         },
         {
-          "name": "zipchat_widget",
-          "category": "Necessaire",
-          "purpose": "Active le widget de support Zipchat et son comportement de session associe.",
+          "name": "zipchat_support",
+          "category": "Support demande",
+          "purpose": "Charge Zipchat uniquement lorsque vous ouvrez le support afin de fournir le clavardage demande.",
           "duration": "Selon fournisseur",
           "provider": "Zipchat"
         },
@@ -926,6 +963,13 @@
           "provider": "KODE01"
         },
         {
+          "name": "_ga, _ga_*, _gid, _gat",
+          "category": "Analytique",
+          "purpose": "Cookies de mesure Google Analytics 4 utilises uniquement apres consentement analytique.",
+          "duration": "Selon fournisseur",
+          "provider": "Google Analytics"
+        },
+        {
           "name": "kode01-marketing-store (localStorage)",
           "category": "Marketing",
           "purpose": "Conserve les etats des campagnes marketing fermees et les delais de reaffichage.",
@@ -933,16 +977,31 @@
           "provider": "KODE01"
         },
         {
+          "name": "_gcl_*",
+          "category": "Marketing",
+          "purpose": "Cookies Google de mesure publicitaire et de conversion utilises uniquement apres consentement marketing.",
+          "duration": "Selon fournisseur",
+          "provider": "Google"
+        },
+        {
           "name": "adsbygoogle",
           "category": "Marketing",
           "purpose": "Afficher des annonces et mesurer la performance publicitaire.",
           "duration": "Selon fournisseur",
           "provider": "Google AdSense"
+        },
+        {
+          "name": "zipchat_widget",
+          "category": "Marketing",
+          "purpose": "Active Zipchat proactif pour les popups, recommandations, recuperation panier, propositions de support/vente et mesure conversationnelle apres consentement marketing.",
+          "duration": "Selon fournisseur",
+          "provider": "Zipchat"
         }
       ]
     },
     "canada": {
       "title": "Conformite vie privee Canada",
+      "last_updated": "Derniere mise a jour : 17 mai 2026",
       "intro": "kode01 s'engage a respecter les exigences de confidentialite applicables au Canada. Cette page explique comment nous nous alignons sur les principaux cadres canadiens et comment exercer vos droits.",
       "frameworks_title": "1. Cadres canadiens de protection de la vie privee",
       "frameworks_list": [
@@ -968,7 +1027,7 @@
         "Contact vie privée : support@kode01.com"
       ],
       "cross_border_title": "5. Traitement transfrontalier",
-      "cross_border_text": "Certains fournisseurs de services peuvent traiter des donnees a l'exterieur du Canada. Nous mettons en place des mesures contractuelles et operationnelles pour proteger les renseignements personnels lors de transferts transfrontaliers.",
+      "cross_border_text": "Certains fournisseurs de services peuvent traiter des donnees a l'exterieur du Canada ou du Quebec. Avant d'utiliser ces fournisseurs, nous devons documenter les garanties contractuelles, les mesures de securite et, lorsque requis, une evaluation des facteurs relatifs a la vie privee. Les technologies de profilage, d'identification ou de localisation, incluant Zipchat proactif et les recommandations personnalisees, sont expliquees dans nos politiques et peuvent etre activees ou desactivees par les controles de consentement ou les parametres du compte.",
       "contact_title": "6. Contact",
       "contact_email": "support@kode01.com",
       "contact_address": "kode01, Gatineau, QC, Canada",
@@ -976,12 +1035,13 @@
     },
     "gdpr_ccpa": {
       "title": "RGPD & CCPA",
+      "last_updated": "Derniere mise a jour : 17 mai 2026",
       "intro": "kode01 s'engage à protéger les données personnelles et à respecter les droits des utilisateurs selon le RGPD, le CCPA/CPRA, la Loi 25 du Québec et la LPRPDE lorsque ces lois s'appliquent. Cette page résume nos pratiques et vos droits.",
       "controller_title": "1. Responsable du traitement",
       "controller_text": "Responsable du traitement : kode01, Gatineau, Québec, Canada. Contact confidentialité : support@kode01.com.",
       "legal_basis_title": "2. Bases légales du traitement (RGPD art. 6)",
       "legal_basis_list": [
-        "Consentement (art. 6(1)(a)) : préférences cookies, cookies analytiques/marketing optionnels, et communications basées sur le consentement.",
+        "Consentement (art. 6(1)(a)) : preferences cookies, cookies analytiques/marketing optionnels, Zipchat proactif, publicite, personnalisation optionnelle et communications basees sur le consentement.",
         "Contrat (art. 6(1)(b)) : création de compte, authentification, paiement, versements vendeurs, et fourniture du service.",
         "Intérêt légitime (art. 6(1)(f)) : sécurité de la plateforme, prévention de fraude, surveillance des abus, journaux de fiabilité et amélioration produit.",
         "Obligation légale (art. 6(1)(c)) : obligations fiscales/comptables, vérifications de conformité et rapports réglementaires."
@@ -1002,7 +1062,7 @@
       "transfers_list": [
         "Stripe / Stripe Connect (États-Unis) : paiements, onboarding et conformité des versements.",
         "Supabase : hébergement, base de données, authentification et stockage.",
-        "Zipchat : messagerie de support client.",
+        "Zipchat : messagerie de support client chargee lorsque vous ouvrez le support; fonctions proactives de vente/support uniquement avec consentement marketing.",
         "Google AdSense (si cookies marketing acceptés) : diffusion et mesure publicitaire.",
         "Brevo : envoi d'emails transactionnels et opérationnels.",
         "Google Generative AI (États-Unis) : fonctionnalités de génération de contenu par IA.",
@@ -1041,12 +1101,13 @@
         "Droit a la non-discrimination lors de l'exercice de vos droits."
       ],
       "ccpa_no_sale_title": "11. Nous ne vendons pas vos renseignements personnels",
-      "ccpa_no_sale_text": "KODE01 ne vend pas vos renseignements personnels contre remuneration. Nous divulguons des donnees seulement a des fournisseurs agissant pour notre compte, incluant Supabase, Stripe/Stripe Connect, Zipchat, et des partenaires publicitaires/analytiques selon vos choix cookies.",
+      "ccpa_no_sale_text": "KODE01 ne vend pas vos renseignements personnels contre remuneration. Certaines divulgations a des partenaires publicitaires, analytiques ou de personnalisation peuvent constituer un partage au sens du CCPA/CPRA. Vous pouvez refuser ce partage via les controles cookies, le signal Global Privacy Control ou en nous contactant. Zipchat proactif, Google AdSense et les partenaires marketing restent desactives sans consentement marketing.",
       "ccpa_exercise_title": "12. Comment exercer vos droits",
       "ccpa_exercise_list": [
         "Envoyez une demande verifiable a support@kode01.com (idealement depuis votre courriel de compte).",
         "Mettez a jour vos informations de profil directement dans les parametres du compte.",
-        "Gerez les consentements analytiques et marketing via les controles cookies."
+        "Gerez les consentements analytiques et marketing via les controles cookies.",
+        "Utilisez le signal Global Privacy Control ou contactez support@kode01.com pour refuser la vente ou le partage lorsque applicable."
       ],
       "ccpa_response_time": "Nous repondons aux demandes verifiables dans le delai prevu par la loi californienne (generalement 45 jours, avec prolongation lorsque permise).",
       "authorized_agent_title": "13. Agents autorises",
@@ -2769,7 +2830,7 @@
             },
             "newsletter": {
               "title": "Pied infolettre",
-              "description": "Ajoute un placement dans le recap hebdomadaire."
+              "description": "Ajoute un placement dans la veille IA quotidienne."
             }
           },
           "form": {
@@ -2896,13 +2957,13 @@
     }
   },
   "global_search": {
-    "meta_title": "Rechercher produits et actualites",
-    "meta_description": "Recherchez produits et actualites depuis une seule page.",
+    "meta_title": "Rechercher outils, produits et actualités",
+    "meta_description": "Recherchez outils IA, produits numériques et actualités depuis une seule page.",
     "title": "Recherche globale kode01",
-    "subtitle": "Trouvez produits et actualites au meme endroit.",
-    "placeholder": "Rechercher produits et actualites...",
+    "subtitle": "Trouvez outils, produits et actualités IA au même endroit.",
+    "placeholder": "Rechercher outils, produits et actualités...",
     "submit": "Rechercher",
-    "empty_prompt": "Commencez a taper pour chercher dans les produits et les actualites.",
+    "empty_prompt": "Commencez à taper pour chercher dans les outils, produits et actualités IA.",
     "no_results": "Aucun resultat pour \"{query}\".",
     "summary": "{count, plural, =0 {0 resultat} =1 {1 resultat} other {# resultats}}",
     "section_products": "Produits",
@@ -2948,7 +3009,7 @@
           "price": "150 $",
           "period": "/édition",
           "features": [
-            "Bannière dans notre récap hebdomadaire",
+            "Bannière dans notre veille IA quotidienne",
             "Mention dédiée",
             "Lien direct vers votre produit",
             "Rapport d'analyse"
@@ -2980,6 +3041,12 @@
     "billing_status_error": "Impossible de verifier les moyens de paiement pour le moment.",
     "billing_status_count": "{count, plural, =0 {Aucun moyen de paiement lie pour le moment} =1 {1 moyen de paiement lie} other {# moyens de paiement lies}}",
     "billing_status_default_card": "Carte par defaut : {brand} **** {last4}",
+    "personalization_title": "Personnalisation des recommandations",
+    "personalization_description": "Autorisez l'utilisation de vos interactions connectees pour personnaliser les recommandations sur plusieurs appareils. Les signaux transactionnels restent traites separement.",
+    "personalization_enabled": "Active",
+    "personalization_disabled": "Desactive",
+    "personalization_success": "Preference de personnalisation mise a jour.",
+    "personalization_error": "Impossible de mettre a jour cette preference pour le moment.",
     "tracking_title": "Supprimer les données de suivi",
     "tracking_description": "Ceci supprime l'historique de vos interactions liées à votre compte pour les recommandations.",
     "tracking_note": "Apres suppression, la personnalisation recommence avec vos futures interactions.",
@@ -3188,20 +3255,20 @@
     "cta_button": "Explorer les outils"
   },
   "how_it_works": {
-    "meta_title": "Comment ça marche – KODE01 Marketplace",
-    "meta_description": "Découvrez comment KODE01 fonctionne pour les acheteurs et les vendeurs. Parcourez des assets numériques premium, achetez en toute sécurité ou vendez vos propres créations sur notre marketplace.",
-    "og_title": "Comment ça marche – KODE01 Marketplace",
-    "og_description": "Découvrez comment acheter et vendre des assets numériques premium sur KODE01. Une marketplace simple et sécurisée pour les créateurs et les développeurs.",
+    "meta_title": "Comment ça marche – KODE01",
+    "meta_description": "Découvrez comment KODE01 rassemble veille IA, découverte d'outils, ressources pratiques et produits numériques pour builders et créateurs.",
+    "og_title": "Comment ça marche – KODE01",
+    "og_description": "Suivez les nouveautés IA, trouvez les bons outils et accédez à des ressources numériques utiles sur KODE01.",
     "hero": {
       "title": "Comment ça marche",
-      "subtitle": "Que vous cherchiez des assets numériques premium ou que vous soyez prêt à vendre vos propres créations, KODE01 rend les choses simples. Voici comment la marketplace fonctionne pour les acheteurs et les vendeurs."
+      "subtitle": "KODE01 rassemble veille IA, découverte d'outils, ressources pratiques et marketplace pour aider les builders et créateurs à comprendre ce qui change et passer à l'action."
     },
     "buyers": {
       "title": "Pour les acheteurs",
-      "subtitle": "Trouvez et téléchargez des assets numériques de haute qualité en trois étapes simples.",
+      "subtitle": "Trouvez les nouveautés, outils et ressources numériques utiles en trois étapes simples.",
       "step1": {
         "title": "Parcourir & Découvrir",
-        "description": "Explorez notre collection de templates, kits UI, outils IA, serveurs MCP et autres assets numériques premium. Utilisez les filtres, les catégories et la recherche pour trouver exactement ce dont vous avez besoin."
+        "description": "Explorez notre veille IA, nos outils, serveurs MCP, templates, kits UI et autres ressources numériques. Utilisez les filtres, les catégories et la recherche pour trouver exactement ce dont vous avez besoin."
       },
       "step2": {
         "title": "Acheter en toute sécurité",
@@ -3214,7 +3281,7 @@
     },
     "sellers": {
       "title": "Pour les vendeurs",
-      "subtitle": "Transformez vos créations numériques en revenus grâce à notre plateforme adaptée aux créateurs.",
+      "subtitle": "Transformez vos connaissances, ressources et créations numériques en revenus grâce à une plateforme adaptée aux créateurs.",
       "step1": {
         "title": "Créer votre compte",
         "description": "Inscrivez-vous en tant que vendeur sur KODE01. Configurez votre profil de créateur, ajoutez votre identité de marque et préparez-vous à présenter votre travail à une audience mondiale de développeurs et de créateurs."
@@ -3232,7 +3299,7 @@
       "heading": "Foire aux questions",
       "q1": {
         "question": "KODE01 est-il gratuit ?",
-        "answer": "Oui, la création d'un compte et la navigation sur la marketplace sont entièrement gratuites. Vous ne payez que lorsque vous achetez un produit. Les vendeurs peuvent lister leurs produits et ne paient une commission que sur les ventes réalisées."
+        "answer": "Oui, la création d'un compte, la lecture des actualités IA et la navigation sur la plateforme sont gratuites. Vous ne payez que lorsque vous achetez un produit. Les vendeurs peuvent lister leurs produits et ne paient une commission que sur les ventes réalisées."
       },
       "q2": {
         "question": "Quels types de produits sont disponibles ?",
@@ -3265,8 +3332,8 @@
     },
     "cta": {
       "title": "Prêt à commencer ?",
-      "text": "Parcourez des milliers d'assets numériques premium ou commencez à vendre vos propres créations dès aujourd'hui.",
-      "button": "Explorer la Marketplace"
+      "text": "Suivez les nouveautés IA, découvrez les bons outils ou commencez à vendre vos propres ressources numériques dès aujourd'hui.",
+      "button": "Explorer la plateforme"
     }
   },
   "follow": {
@@ -3280,19 +3347,19 @@
   },
   "seo": {
     "layout": {
-      "default_title": "KODE01 Marketplace",
-      "description": "Marketplace premium pour créateurs numériques. Templates, kits UI, outils IA et actifs numériques de haute qualité.",
-      "og_description": "Marketplace premium pour créateurs numériques"
+      "default_title": "KODE01 – Plateforme IA pour builders et créateurs",
+      "description": "Plateforme IA pour suivre les nouveautés, découvrir les bons outils et accéder à des ressources numériques prêtes à utiliser.",
+      "og_description": "Plateforme IA pour veille, outils et ressources numériques"
     },
     "home": {
-      "title": "KODE01 – Marketplace premium pour créateurs numériques",
-      "description": "Découvrez des templates premium, kits UI, outils IA et actifs numériques. Achetez et vendez des produits de haute qualité pour développeurs et créateurs.",
-      "og_title": "KODE01 – Marketplace premium pour créateurs numériques",
-      "og_description": "Découvrez des templates premium, kits UI, outils IA et actifs numériques sur KODE01."
+      "title": "KODE01 – Veille IA, outils et ressources pour builders",
+      "description": "Restez à jour sur l'IA. Découvrez les outils, tendances, ressources et produits numériques qui aident builders et créateurs à passer plus vite à l'action.",
+      "og_title": "KODE01 – Veille IA, outils et ressources pour builders",
+      "og_description": "Suivez les nouveautés IA, découvrez les bons outils et accédez à des ressources numériques utiles sur KODE01."
     },
     "about": {
       "title": "À propos – Notre mission | KODE01",
-      "description": "KODE01 est une marketplace numérique premium basée dans la Région de la Capitale Nationale (Gatineau-Ottawa). Nous offrons des templates, kits UI et outils IA de haute qualité pour les créateurs et bâtisseurs."
+      "description": "KODE01 est une plateforme de veille et de ressources IA basée dans la Région de la Capitale Nationale (Gatineau-Ottawa). Nous aidons builders et créateurs à suivre les nouveautés, découvrir les bons outils et accéder à des actifs numériques utiles."
     },
     "pricing": {
       "title": "Tarifs – Vendez gratuitement",
@@ -3340,7 +3407,7 @@
     },
     "business": {
       "name": "KODE01",
-      "description": "Marketplace numérique premium pour créateurs et bâtisseurs",
+      "description": "Plateforme IA pour veille, outils et ressources numériques",
       "location": "Gatineau-Ottawa, Canada",
       "region": "Région de la Capitale Nationale",
       "url": "https://kode01.com",
@@ -3357,7 +3424,7 @@
     "welcome": {
       "eyebrow": "Bienvenue sur KODE01",
       "title": "Bienvenue sur KODE01.",
-      "subtitle": "La marketplace premium pour outils IA et actifs numeriques.",
+      "subtitle": "La plateforme IA pour suivre les nouveautés, découvrir les bons outils et accéder à des ressources numériques.",
       "buyer_label": "Decouvrir & acheter",
       "buyer_desc": "Parcourez les outils IA, templates et produits numeriques crees par les meilleurs createurs.",
       "seller_label": "Creer & vendre",
@@ -3365,7 +3432,7 @@
     },
     "orientation_buyer": {
       "title": "Voici ce qui vous attend.",
-      "feature_market": "Marketplace — Produits numeriques verifies de createurs de premier plan.",
+      "feature_market": "Plateforme — Veille IA, outils utiles et produits numériques vérifiés.",
       "feature_bundles": "Bundles — Collections selectionnees a prix reduit.",
       "cta": "Explorer"
     },
@@ -3379,8 +3446,8 @@
     "back": "Retour",
     "quick_start": {
       "title": "Pour commencer",
-      "market_title": "Parcourir la Marketplace",
-      "market_desc": "Produits numeriques de createurs reconnus",
+      "market_title": "Explorer la plateforme",
+      "market_desc": "Veille IA, outils et produits numériques sélectionnés",
       "bundles_title": "Decouvrir les Bundles",
       "bundles_desc": "Collections selectionnees, meilleurs prix"
     },
@@ -3391,9 +3458,9 @@
     "stripe_return_error_toast": "Impossible de reprendre l'onboarding Stripe. Reessayez d'ouvrir Stripe."
   },
   "search": {
-    "meta_description": "Recherchez produits et actualites depuis une seule page.",
-    "subtitle": "Trouvez produits et actualites au meme endroit.",
-    "placeholder": "Rechercher produits et actualites...",
-    "empty_prompt": "Commencez a taper pour chercher dans les produits et les actualites."
+    "meta_description": "Recherchez outils IA, produits numériques et actualités depuis une seule page.",
+    "subtitle": "Trouvez outils, produits et actualités IA au même endroit.",
+    "placeholder": "Rechercher outils, produits et actualités...",
+    "empty_prompt": "Commencez à taper pour chercher dans les outils, produits et actualités IA."
   }
 }

@@ -1,29 +1,15 @@
 import type { EditorialLocale, EditorialPostListItem } from '@/features/editorial/types';
-
-const RSS_XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>';
+import {
+  RSS_XML_DECLARATION,
+  buildMediaContentTag,
+  escapeXml,
+  inferImageMimeType,
+  toAbsoluteUrl,
+  toRssDate,
+  type RssBuildResult,
+} from '@/lib/rss';
 
 type RssPost = Pick<EditorialPostListItem, 'slug' | 'title' | 'excerpt' | 'published_at' | 'created_at' | 'cover_image_url'>;
-
-function escapeXml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&apos;');
-}
-
-function toRssDate(value: string | null | undefined): string {
-  if (!value) return new Date().toUTCString();
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return new Date().toUTCString();
-  return parsed.toUTCString();
-}
-
-function toAbsoluteUrl(baseUrl: string, url: string): string {
-  if (/^https?:\/\//i.test(url)) return url;
-  return `${baseUrl}${url.startsWith('/') ? url : `/${url}`}`;
-}
 
 function buildChannelMeta(locale: EditorialLocale) {
   if (locale === 'fr') {
@@ -41,12 +27,12 @@ function buildChannelMeta(locale: EditorialLocale) {
   };
 }
 
-export function buildEditorialRssXml(args: {
+export function buildEditorialRssDocument(args: {
   locale: EditorialLocale;
   baseUrl: string;
   feedPath: string;
   posts: RssPost[];
-}): string {
+}): RssBuildResult {
   const { locale, baseUrl, feedPath, posts } = args;
   const { title, description, language } = buildChannelMeta(locale);
   const channelLink = `${baseUrl}/${locale}/blog`;
@@ -60,6 +46,7 @@ export function buildEditorialRssXml(args: {
       const descriptionText = post.excerpt ?? '';
       const pubDate = toRssDate(post.published_at ?? post.created_at ?? null);
       const imageUrl = post.cover_image_url ? toAbsoluteUrl(baseUrl, post.cover_image_url) : null;
+      const mediaTag = imageUrl ? buildMediaContentTag(imageUrl, inferImageMimeType(imageUrl)) : '';
 
       return [
         '<item>',
@@ -68,14 +55,13 @@ export function buildEditorialRssXml(args: {
         `<guid isPermaLink="true">${escapeXml(canonicalLink)}</guid>`,
         `<pubDate>${escapeXml(pubDate)}</pubDate>`,
         `<description>${escapeXml(descriptionText)}</description>`,
-        imageUrl ? `<enclosure url="${escapeXml(imageUrl)}" type="image/jpeg" length="0" />` : '',
-        imageUrl ? `<media:content url="${escapeXml(imageUrl)}" medium="image" />` : '',
+        mediaTag,
         '</item>',
       ].join('');
     })
     .join('');
 
-  return [
+  const xml = [
     RSS_XML_DECLARATION,
     '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">',
     '<channel>',
@@ -89,4 +75,15 @@ export function buildEditorialRssXml(args: {
     '</channel>',
     '</rss>',
   ].join('');
+
+  return { xml, lastBuildDate, selfUrl: selfLink };
+}
+
+export function buildEditorialRssXml(args: {
+  locale: EditorialLocale;
+  baseUrl: string;
+  feedPath: string;
+  posts: RssPost[];
+}): string {
+  return buildEditorialRssDocument(args).xml;
 }

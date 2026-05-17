@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { shouldTrackSignedInRecommendations } from '@/features/recommendations/server/privacy';
 import {
   addCartItemSchema,
   ensureActiveCart,
@@ -150,16 +151,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: upsertError.message }, { status: 500 });
     }
 
-    await db.from('recommendation_events').insert({
-      user_id: user.id,
-      event_type: 'add_to_cart',
-      source_type: 'product',
-      target_product_id: productId,
-      signal_payload: {
-        variant_id: variantId ?? null,
-        price_snapshot: snapshotPrice,
-      },
-    });
+    if (await shouldTrackSignedInRecommendations(db, user.id)) {
+      await db.from('recommendation_events').insert({
+        user_id: user.id,
+        event_type: 'add_to_cart',
+        source_type: 'product',
+        target_product_id: productId,
+        signal_payload: {
+          variant_id: variantId ?? null,
+          price_snapshot: snapshotPrice,
+        },
+      });
+    }
 
     await updateCartStatus(db, cart.id, 'active');
     const items = await fetchCartItems(db, cart.id);

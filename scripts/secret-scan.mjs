@@ -29,6 +29,14 @@ const SECRET_PATTERNS = [
   { name: 'Supabase personal access token', regex: /\bsbp_[A-Za-z0-9]{20,}\b/g },
   { name: 'Supabase secret API key', regex: /\bsb_secret_[A-Za-z0-9_-]{10,}\b/g },
   { name: 'Supabase service role JWT', regex: /\beyJ[A-Za-z0-9_-]{20,}\.eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\b/g },
+  {
+    name: 'Hardcoded long secret token assignment',
+    regex: /\b(?:[A-Z0-9_]*(?:TOKEN|SECRET)[A-Z0-9_]*|SECRET)\s*[:=]\s*["'](?=[A-Za-z0-9+/_=\-]{32,}["'])(?=[A-Za-z0-9+/_=\-]*\d)[A-Za-z0-9+/_=\-]{32,}["']/g,
+  },
+  {
+    name: 'Hardcoded Modal agent token fallback',
+    regex: /\bos\.environ\.get\(\s*["']AGENT_INTERNAL_TOKEN["']\s*,\s*["'][A-Za-z0-9_-]{32,}["']\s*\)/g,
+  },
 ];
 
 function listTrackedFiles() {

@@ -1,6 +1,8 @@
 # *
 User-agent: *
 Allow: /
+Allow: /api/blog/rss
+Allow: /api/news/rss
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /buyer

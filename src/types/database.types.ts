@@ -3462,6 +3462,7 @@ export type Database = {
           legal_accepted_at: string | null
           onboarding_completed: boolean
           plan_type: string
+          recommendation_personalization_enabled: boolean
           role: string
           shop_name: string | null
           slug: string | null
@@ -3487,6 +3488,7 @@ export type Database = {
           legal_accepted_at?: string | null
           onboarding_completed?: boolean
           plan_type?: string
+          recommendation_personalization_enabled?: boolean
           role?: string
           shop_name?: string | null
           slug?: string | null
@@ -3512,6 +3514,7 @@ export type Database = {
           legal_accepted_at?: string | null
           onboarding_completed?: boolean
           plan_type?: string
+          recommendation_personalization_enabled?: boolean
           role?: string
           shop_name?: string | null
           slug?: string | null

@@ -80,7 +80,7 @@ export const useMarketingStore = create<MarketingStoreState>()(
               campaign_id: campaignId,
               event_type: eventType,
               locale: document.documentElement.lang || 'en',
-              page_url: window.location.pathname,
+              page_url: window.location.href,
               device_type: getDeviceType(),
               fingerprint: fingerprint || undefined,
             }),

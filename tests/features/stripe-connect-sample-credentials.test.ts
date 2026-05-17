@@ -55,6 +55,14 @@ test('getStripeClientForConnectSample rejects placeholder-like secret keys', asy
   }
 });
 
+test('getStripeClientForConnectSample accepts a configured Stripe secret key', async () => {
+  const { getStripeClientForConnectSample } = await importConnectSample();
+
+  MUTABLE_ENV.STRIPE_SECRET_KEY = 'sk_test_valid_connect_sample_secret_123';
+
+  assert.doesNotThrow(() => getStripeClientForConnectSample());
+});
+
 test('getStripeConnectThinWebhookSecret rejects placeholder-like webhook secrets', async () => {
   const { getStripeConnectThinWebhookSecret } = await importConnectSample();
 

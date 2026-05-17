@@ -1,6 +1,7 @@
 import 'server-only';
 
 import Stripe from 'stripe';
+import { normalizeEnvValue } from '@/lib/env/normalize';
 import { getServerEnv } from '@/lib/env/server';
 import { normalizeConnectCountryCode } from '@/lib/stripe/connect-countries';
 import {
@@ -36,20 +37,25 @@ function isStripeThinWebhookSecretPlaceholder(secret: string | undefined): boole
   return STRIPE_THIN_WEBHOOK_SECRET_PLACEHOLDER_PATTERN.test(secret);
 }
 
+function getStripeConnectSampleSecretKey(): string {
+  const secretKey = normalizeEnvValue(process.env.STRIPE_SECRET_KEY);
+
+  if (!secretKey || isStripeSecretPlaceholder(secretKey)) {
+    throw new Error(
+      'Missing STRIPE_SECRET_KEY. Configure a real Stripe secret key before using Stripe Connect.',
+    );
+  }
+
+  return secretKey;
+}
+
 /**
  * Builds a Stripe client for the Connect sample integration.
  * We intentionally do not force an API version here because the SDK auto-uses
  * the latest preview/stable behavior configured by Stripe.
  */
 export function getStripeClientForConnectSample(): Stripe {
-  const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
-
-  // PLACEHOLDER: Set STRIPE_SECRET_KEY=sk_test_xxx in your .env.local file.
-  if (!secretKey || isStripeSecretPlaceholder(secretKey)) {
-    throw new Error(
-      'Missing STRIPE_SECRET_KEY. Add a real key in .env.local (example placeholder: STRIPE_SECRET_KEY=sk_test_xxx).',
-    );
-  }
+  const secretKey = getStripeConnectSampleSecretKey();
 
   if (!cachedStripeClient) {
     cachedStripeClient = new Stripe(secretKey, {
@@ -68,8 +74,10 @@ export function getStripeClientForConnectSample(): Stripe {
  * Falls back to STRIPE_WEBHOOK_SECRET so existing setups keep working.
  */
 export function getStripeConnectThinWebhookSecret(): string {
-  const connectThinWebhookSecret = process.env.STRIPE_CONNECT_THIN_WEBHOOK_SECRET?.trim();
-  const fallbackWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
+  const connectThinWebhookSecret = normalizeEnvValue(
+    process.env.STRIPE_CONNECT_THIN_WEBHOOK_SECRET,
+  );
+  const fallbackWebhookSecret = normalizeEnvValue(process.env.STRIPE_WEBHOOK_SECRET);
   const hasRealConnectThinWebhookSecret =
     Boolean(connectThinWebhookSecret) &&
     !isStripeThinWebhookSecretPlaceholder(connectThinWebhookSecret);
@@ -77,10 +85,9 @@ export function getStripeConnectThinWebhookSecret(): string {
     ? connectThinWebhookSecret
     : fallbackWebhookSecret;
 
-  // PLACEHOLDER: Set STRIPE_CONNECT_THIN_WEBHOOK_SECRET=whsec_xxx in .env.local.
   if (!webhookSecret || isStripeThinWebhookSecretPlaceholder(webhookSecret)) {
     throw new Error(
-      'Missing STRIPE_CONNECT_THIN_WEBHOOK_SECRET (or STRIPE_WEBHOOK_SECRET). Add a real webhook secret (placeholder: whsec_xxx).',
+      'Missing STRIPE_CONNECT_THIN_WEBHOOK_SECRET (or STRIPE_WEBHOOK_SECRET). Configure a real Stripe webhook signing secret before processing Connect thin events.',
     );
   }
 

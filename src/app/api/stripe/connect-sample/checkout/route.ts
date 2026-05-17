@@ -1,6 +1,10 @@
 import Stripe from 'stripe';
 import { NextResponse } from 'next/server';
 import { getAppBaseUrl } from '@/lib/env/server';
+import {
+  requireStripeConnectSampleSeller,
+  stripeConnectSampleAccessResponse,
+} from '@/lib/stripe/connect-sample-access';
 import { getStripeClientForConnectSample } from '@/lib/stripe/connect-sample';
 
 type CreateCheckoutSessionRequest = {
@@ -29,6 +33,9 @@ function resolveDefaultPrice(product: Stripe.Product): Stripe.Price | null {
  */
 export async function POST(req: Request) {
   try {
+    const access = await requireStripeConnectSampleSeller();
+    if (!access.ok) return stripeConnectSampleAccessResponse(access);
+
     const payload = (await req.json().catch(() => ({}))) as CreateCheckoutSessionRequest;
     const productId = payload.productId?.trim();
     const parsedQuantity = payload.quantity;

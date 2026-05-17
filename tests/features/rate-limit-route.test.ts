@@ -1,5 +1,10 @@
 import assert from 'node:assert/strict';
 import { mock, test } from 'node:test';
+import {
+  ENDPOINT_RATE_LIMIT_ACTIONS,
+  HYBRID_FAIL_CLOSED_ACTIONS,
+  RATE_LIMIT_SCHEMAS,
+} from '@/lib/security/rate-limit-schemas';
 
 type CheckRateLimitInput = {
   action: string;
@@ -147,4 +152,13 @@ test('enforceRouteRateLimit skips checks for whitelisted IPs', async () => {
 
   assert.equal(response, null);
   assert.equal(checkRateLimitCalls.length, 0);
+});
+
+test('product downloads have an endpoint rate limit contract', () => {
+  assert.equal(ENDPOINT_RATE_LIMIT_ACTIONS['/api/download'], 'PRODUCT_DOWNLOAD');
+  assert.deepEqual(RATE_LIMIT_SCHEMAS.PRODUCT_DOWNLOAD, {
+    limit: 30,
+    windowSeconds: 60,
+  });
+  assert.equal(HYBRID_FAIL_CLOSED_ACTIONS.has('PRODUCT_DOWNLOAD'), true);
 });

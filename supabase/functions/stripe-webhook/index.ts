@@ -645,6 +645,68 @@ type LicenseResolution = {
   created: boolean;
 };
 
+type CheckoutPaymentReadiness = {
+  ready: boolean;
+  reason: string;
+  paymentIntent: Stripe.PaymentIntent | null;
+  paymentIntentId: string | null;
+  amountCents: number;
+  currency: string;
+  applicationFeeCents: number;
+};
+
+function getCheckoutSessionAmountTotalCents(session: Stripe.Checkout.Session): number {
+  return typeof session.amount_total === 'number' ? session.amount_total : 0;
+}
+
+function isZeroAmountCheckout(session: Stripe.Checkout.Session): boolean {
+  return getCheckoutSessionAmountTotalCents(session) === 0;
+}
+
+async function resolveCheckoutPaymentReadiness(
+  stripe: Stripe,
+  session: Stripe.Checkout.Session,
+): Promise<CheckoutPaymentReadiness> {
+  const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : null;
+  const paymentIntent = paymentIntentId ? await stripe.paymentIntents.retrieve(paymentIntentId) : null;
+  const noPaymentRequired = session.payment_status === 'no_payment_required' && isZeroAmountCheckout(session);
+  const ready =
+    session.payment_status === 'paid' ||
+    paymentIntent?.status === 'succeeded' ||
+    noPaymentRequired;
+
+  const amountCents = paymentIntent
+    ? (paymentIntent.amount_received || paymentIntent.amount || getCheckoutSessionAmountTotalCents(session))
+    : getCheckoutSessionAmountTotalCents(session);
+
+  return {
+    ready,
+    reason: ready
+      ? paymentIntent?.status ?? session.payment_status ?? 'ready'
+      : `payment_not_settled:${session.payment_status ?? 'unknown'}:${paymentIntent?.status ?? 'no_payment_intent'}`,
+    paymentIntent,
+    paymentIntentId,
+    amountCents,
+    currency: (paymentIntent?.currency ?? session.currency ?? 'usd').toLowerCase(),
+    applicationFeeCents: paymentIntent?.application_fee_amount || 0,
+  };
+}
+
+function logCheckoutAwaitingPayment(
+  kind: string | undefined,
+  session: Stripe.Checkout.Session,
+  payment: CheckoutPaymentReadiness,
+) {
+  console.info('Checkout session is not ready for fulfillment; awaiting settled payment', {
+    kind: kind ?? null,
+    checkout_session_id: session.id,
+    payment_status: session.payment_status,
+    payment_intent_id: payment.paymentIntentId,
+    payment_intent_status: payment.paymentIntent?.status ?? null,
+    reason: payment.reason,
+  });
+}
+
 async function redeemCouponForPurchase(params: {
   couponId: string | null;
   userId: string;
@@ -678,7 +740,7 @@ async function resolveOrCreateMainPurchase(params: {
   buyerId: string;
   productId: string;
   sellerId: string;
-  stripePaymentIntentId: string;
+  stripePaymentIntentId: string | null;
   stripeCheckoutSessionId: string;
   amount: number;
   currency: string;
@@ -725,13 +787,15 @@ async function resolveOrCreateMainPurchase(params: {
   if (existingBySessionError) throw existingBySessionError;
   if (existingBySession?.id) return { id: existingBySession.id, created: false };
 
-  const { data: existingByIntent, error: existingByIntentError } = await supabaseAdmin
-    .from('purchases')
-    .select('id')
-    .eq('stripe_payment_intent_id', params.stripePaymentIntentId)
-    .maybeSingle();
-  if (existingByIntentError) throw existingByIntentError;
-  if (existingByIntent?.id) return { id: existingByIntent.id, created: false };
+  if (params.stripePaymentIntentId) {
+    const { data: existingByIntent, error: existingByIntentError } = await supabaseAdmin
+      .from('purchases')
+      .select('id')
+      .eq('stripe_payment_intent_id', params.stripePaymentIntentId)
+      .maybeSingle();
+    if (existingByIntentError) throw existingByIntentError;
+    if (existingByIntent?.id) return { id: existingByIntent.id, created: false };
+  }
 
   throw new Error('Failed to resolve existing purchase after unique conflict');
 }
@@ -782,7 +846,7 @@ async function resolveOrCreateCartItemPurchase(params: {
   variantId: string | null;
   cartId: string;
   cartItemId: string;
-  stripePaymentIntentId: string;
+  stripePaymentIntentId: string | null;
   stripeCheckoutSessionId: string;
   amount: number;
   currency: string;
@@ -848,7 +912,7 @@ async function resolveOrCreateCommerceOrder(params: {
   feeCents: number;
   totalCents: number;
   stripeCheckoutSessionId: string;
-  stripePaymentIntentId: string;
+  stripePaymentIntentId: string | null;
 }): Promise<string> {
   const { data, error } = await supabaseAdmin
     .from('orders')
@@ -887,7 +951,7 @@ async function resolveOrCreateCommerceOrder(params: {
 async function resolveOrCreateCommercePayment(params: {
   orderId: string;
   stripeCheckoutSessionId: string;
-  stripePaymentIntentId: string;
+  stripePaymentIntentId: string | null;
   amountCents: number;
   currency: string;
   status: 'succeeded' | 'failed';
@@ -1205,10 +1269,6 @@ async function processCartMultiVendorCheckoutCompleted(event: Stripe.Event) {
   const stripe = getStripe();
   const session = event.data.object as Stripe.Checkout.Session;
 
-  if (typeof session.payment_intent !== 'string') {
-    throw new Error('Missing payment intent in cart checkout session');
-  }
-
   const buyerId = session.metadata?.buyerId;
   const cartId = session.metadata?.cartId;
   const sellerId = session.metadata?.sellerId;
@@ -1218,11 +1278,16 @@ async function processCartMultiVendorCheckoutCompleted(event: Stripe.Event) {
     throw new Error('Missing cart checkout metadata (buyerId/cartId/sellerId/cartItemIds)');
   }
 
+  const payment = await resolveCheckoutPaymentReadiness(stripe, session);
+  if (!payment.ready) {
+    logCheckoutAwaitingPayment(session.metadata?.kind, session, payment);
+    return;
+  }
+
   await syncBuyerStripeCustomerId(buyerId, session);
 
-  const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent);
-  const paymentCurrency = (paymentIntent.currency ?? 'usd').toLowerCase();
-  const applicationFeeCents = paymentIntent.application_fee_amount || 0;
+  const paymentCurrency = payment.currency;
+  const applicationFeeCents = payment.applicationFeeCents;
 
   const { data: snapshotRows, error: snapshotError } = await supabaseAdmin
     .from('checkout_session_items')
@@ -1429,16 +1494,16 @@ async function processCartMultiVendorCheckoutCompleted(event: Stripe.Event) {
     currency: paymentCurrency,
     subtotalCents: itemAmountsCents.reduce((sum, amount) => sum + amount, 0),
     feeCents: applicationFeeCents,
-    totalCents: paymentIntent.amount_received || itemAmountsCents.reduce((sum, amount) => sum + amount, 0),
+    totalCents: payment.amountCents || itemAmountsCents.reduce((sum, amount) => sum + amount, 0),
     stripeCheckoutSessionId: session.id,
-    stripePaymentIntentId: paymentIntent.id,
+    stripePaymentIntentId: payment.paymentIntentId,
   });
 
   await resolveOrCreateCommercePayment({
     orderId,
     stripeCheckoutSessionId: session.id,
-    stripePaymentIntentId: paymentIntent.id,
-    amountCents: paymentIntent.amount_received || itemAmountsCents.reduce((sum, amount) => sum + amount, 0),
+    stripePaymentIntentId: payment.paymentIntentId,
+    amountCents: payment.amountCents || itemAmountsCents.reduce((sum, amount) => sum + amount, 0),
     currency: paymentCurrency,
     status: 'succeeded',
   });
@@ -1450,7 +1515,7 @@ async function processCartMultiVendorCheckoutCompleted(event: Stripe.Event) {
     signal_payload: {
       cart_id: cartId,
       checkout_session_id: session.id,
-      payment_intent_id: paymentIntent.id,
+      payment_intent_id: payment.paymentIntentId,
       seller_id: sellerId,
     },
   });
@@ -1470,7 +1535,7 @@ async function processCartMultiVendorCheckoutCompleted(event: Stripe.Event) {
       variantId: item.variantId,
       cartId: item.cartId,
       cartItemId: item.cartItemId,
-      stripePaymentIntentId: paymentIntent.id,
+      stripePaymentIntentId: payment.paymentIntentId,
       stripeCheckoutSessionId: session.id,
       amount,
       currency: paymentCurrency,
@@ -1576,6 +1641,12 @@ async function processCheckoutCompleted(event: Stripe.Event) {
     throw new Error('Missing checkout metadata buyerId/productId');
   }
 
+  const payment = await resolveCheckoutPaymentReadiness(stripe, session);
+  if (!payment.ready) {
+    logCheckoutAwaitingPayment(kind, session, payment);
+    return;
+  }
+
   await syncBuyerStripeCustomerId(buyerId, session);
 
   const { data: product, error: productError } = await supabaseAdmin
@@ -1589,13 +1660,8 @@ async function processCheckoutCompleted(event: Stripe.Event) {
   }
   const checkoutProduct = product as CheckoutProductRow;
 
-  if (typeof session.payment_intent !== 'string') {
-    throw new Error('Missing payment intent in Stripe session');
-  }
-
-  const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent);
-  const amountTotal = (paymentIntent.amount_received || paymentIntent.amount) / 100;
-  const paymentCurrency = (paymentIntent.currency ?? 'usd').toLowerCase();
+  const amountTotal = payment.amountCents / 100;
+  const paymentCurrency = payment.currency;
   const amountSaved = (() => {
     const fromTotalDetails = session.total_details?.amount_discount;
     if (typeof fromTotalDetails === 'number') return Math.max(0, fromTotalDetails / 100);
@@ -1604,7 +1670,7 @@ async function processCheckoutCompleted(event: Stripe.Event) {
     }
     return 0;
   })();
-  const applicationFeeCents = paymentIntent.application_fee_amount || 0;
+  const applicationFeeCents = payment.applicationFeeCents;
   const commissionKode01 = applicationFeeCents / 100;
 
   let affiliateId: string | null = null;
@@ -1629,7 +1695,7 @@ async function processCheckoutCompleted(event: Stripe.Event) {
     buyerId,
     productId,
     sellerId: checkoutProduct.seller_id,
-    stripePaymentIntentId: paymentIntent.id,
+    stripePaymentIntentId: payment.paymentIntentId,
     stripeCheckoutSessionId: session.id,
     amount: amountTotal,
     currency: paymentCurrency,
@@ -1646,7 +1712,7 @@ async function processCheckoutCompleted(event: Stripe.Event) {
     target_product_id: productId,
     signal_payload: {
       checkout_session_id: session.id,
-      payment_intent_id: paymentIntent.id,
+      payment_intent_id: payment.paymentIntentId,
       seller_id: checkoutProduct.seller_id,
     },
   });
@@ -1706,13 +1772,14 @@ async function processAdCampaignCheckoutCompleted(event: Stripe.Event) {
     throw new Error('Missing ad campaign metadata campaignId/ownerUserId');
   }
 
-  if (typeof session.payment_intent !== 'string') {
-    throw new Error('Missing payment intent in ad campaign session');
+  const payment = await resolveCheckoutPaymentReadiness(stripe, session);
+  if (!payment.ready) {
+    logCheckoutAwaitingPayment(session.metadata?.kind, session, payment);
+    return;
   }
 
-  const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent);
-  const amountTotal = (paymentIntent.amount_received || paymentIntent.amount) / 100;
-  const paymentCurrency = (paymentIntent.currency ?? 'usd').toLowerCase();
+  const amountTotal = payment.amountCents / 100;
+  const paymentCurrency = payment.currency;
 
   const { data: existingOrder } = await supabaseAdmin
     .from('ad_orders')
@@ -1728,7 +1795,7 @@ async function processAdCampaignCheckoutCompleted(event: Stripe.Event) {
     const { error: orderError } = await supabaseAdmin
       .from('ad_orders')
       .update({
-        stripe_payment_intent_id: paymentIntent.id,
+        stripe_payment_intent_id: payment.paymentIntentId,
         amount: amountTotal,
         amount_usd: amountTotal,
         currency: paymentCurrency,
@@ -1743,7 +1810,7 @@ async function processAdCampaignCheckoutCompleted(event: Stripe.Event) {
         campaign_id: campaignId,
         owner_user_id: ownerUserId,
         stripe_checkout_session_id: session.id,
-        stripe_payment_intent_id: paymentIntent.id,
+        stripe_payment_intent_id: payment.paymentIntentId,
         amount: amountTotal,
         amount_usd: amountTotal,
         currency: paymentCurrency,
@@ -1784,13 +1851,14 @@ async function processSponsoredBlogCheckoutCompleted(event: Stripe.Event) {
     throw new Error('Missing sponsored blog metadata translationGroupId/ownerUserId');
   }
 
-  if (typeof session.payment_intent !== 'string') {
-    throw new Error('Missing payment intent in sponsored blog session');
+  const payment = await resolveCheckoutPaymentReadiness(stripe, session);
+  if (!payment.ready) {
+    logCheckoutAwaitingPayment(session.metadata?.kind, session, payment);
+    return;
   }
 
-  const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent);
-  const amountTotal = (paymentIntent.amount_received || paymentIntent.amount) / 100;
-  const paymentCurrency = (paymentIntent.currency ?? 'cad').toLowerCase();
+  const amountTotal = payment.amountCents / 100;
+  const paymentCurrency = payment.currency;
 
   let paidOrderFound = false;
 
@@ -1810,7 +1878,7 @@ async function processSponsoredBlogCheckoutCompleted(event: Stripe.Event) {
         .from('editorial_sponsorship_orders')
         .update({
           stripe_checkout_session_id: session.id,
-          stripe_payment_intent_id: paymentIntent.id,
+          stripe_payment_intent_id: payment.paymentIntentId,
           amount: amountTotal,
           currency: paymentCurrency,
           status: 'paid',
@@ -1836,7 +1904,7 @@ async function processSponsoredBlogCheckoutCompleted(event: Stripe.Event) {
       const { error: existingOrderUpdateError } = await supabaseAdmin
         .from('editorial_sponsorship_orders')
         .update({
-          stripe_payment_intent_id: paymentIntent.id,
+          stripe_payment_intent_id: payment.paymentIntentId,
           amount: amountTotal,
           currency: paymentCurrency,
           status: 'paid',
@@ -1854,7 +1922,7 @@ async function processSponsoredBlogCheckoutCompleted(event: Stripe.Event) {
         translation_group_id: translationGroupId,
         owner_user_id: ownerUserId,
         stripe_checkout_session_id: session.id,
-        stripe_payment_intent_id: paymentIntent.id,
+        stripe_payment_intent_id: payment.paymentIntentId,
         amount: amountTotal,
         currency: paymentCurrency,
         status: 'paid',
@@ -1896,6 +1964,77 @@ async function processCheckoutExpired(event: Stripe.Event) {
     .eq('status', 'checkout_in_progress');
 
   if (error) throw error;
+}
+
+async function processCheckoutAsyncPaymentFailed(event: Stripe.Event) {
+  const session = event.data.object as Stripe.Checkout.Session;
+  const kind = session.metadata?.kind;
+
+  if (kind === 'cart_multi_vendor') {
+    await processCheckoutExpired(event);
+    return;
+  }
+
+  if (kind === 'ad_campaign') {
+    const campaignId = session.metadata?.campaignId;
+    if (!campaignId) return;
+
+    const { error: orderError } = await supabaseAdmin
+      .from('ad_orders')
+      .update({ status: 'failed' })
+      .eq('stripe_checkout_session_id', session.id)
+      .neq('status', 'paid');
+    if (orderError) throw orderError;
+
+    const { error: campaignError } = await supabaseAdmin
+      .from('ad_campaigns')
+      .update({ status: 'draft', is_paid: false })
+      .eq('id', campaignId)
+      .eq('status', 'pending_payment');
+    if (campaignError) throw campaignError;
+
+    const { error: inventoryError } = await supabaseAdmin
+      .from('ad_inventory_reservations')
+      .delete()
+      .match({
+        campaign_id: campaignId,
+        placement_slug: 'news',
+        status: 'hold',
+      });
+    if (inventoryError) throw inventoryError;
+    return;
+  }
+
+  if (kind === 'sponsored_blog') {
+    const orderId = session.metadata?.orderId;
+    const translationGroupId = session.metadata?.translationGroupId;
+
+    let orderError: { message?: string } | null = null;
+    if (orderId) {
+      ({ error: orderError } = await supabaseAdmin
+        .from('editorial_sponsorship_orders')
+        .update({ status: 'failed' })
+        .eq('id', orderId)
+        .neq('status', 'paid'));
+    } else {
+      ({ error: orderError } = await supabaseAdmin
+        .from('editorial_sponsorship_orders')
+        .update({ status: 'failed' })
+        .eq('stripe_checkout_session_id', session.id)
+        .neq('status', 'paid'));
+    }
+    if (orderError) throw orderError;
+
+    if (translationGroupId) {
+      const { error: postsError } = await supabaseAdmin
+        .from('editorial_posts')
+        .update({ sponsorship_status: 'pending_payment' })
+        .eq('translation_group_id', translationGroupId)
+        .eq('is_sponsored', true)
+        .eq('sponsorship_status', 'pending_payment');
+      if (postsError) throw postsError;
+    }
+  }
 }
 
 async function processPaymentIntentFailed(event: Stripe.Event) {
@@ -1991,6 +2130,10 @@ async function processChargeDispute(event: Stripe.Event) {
 async function processStripeWebhookEvent(event: Stripe.Event) {
   if (event.type === 'checkout.session.completed') {
     await processCheckoutCompleted(event);
+  } else if (event.type === 'checkout.session.async_payment_succeeded') {
+    await processCheckoutCompleted(event);
+  } else if (event.type === 'checkout.session.async_payment_failed') {
+    await processCheckoutAsyncPaymentFailed(event);
   } else if (event.type === 'checkout.session.expired') {
     await processCheckoutExpired(event);
   } else if (event.type === 'payment_intent.payment_failed') {

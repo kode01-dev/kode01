@@ -14,6 +14,7 @@ import {
 import { AnonymousRecommendationProfile, RecommendationContext, RecommendedPaidProduct } from '../types';
 import { hasAnalyticsConsentFromCcCookie } from '../lib/consent';
 import { parseAnonymousRecommendationProfile } from '../lib/anonymous-profile';
+import { shouldTrackSignedInRecommendations } from './privacy';
 import { extractKeywordTokens } from '../lib/keywords';
 
 type ProductCandidateRow = {
@@ -475,13 +476,16 @@ export async function getRecommendedPaidProducts({
 
   let personalizedRanked = ranked;
   if (signedInUser) {
-    const { data: eventsData, error: eventsError } = await supabase
-      .from('recommendation_events')
-      .select('event_type, signal_payload, target_product_id')
-      .eq('user_id', signedInUser.id)
-      .gte('created_at', twelveMonthsAgo.toISOString())
-      .order('created_at', { ascending: false })
-      .limit(500);
+    const canPersonalizeSignedInUser = await shouldTrackSignedInRecommendations(supabase, signedInUser.id);
+    const { data: eventsData, error: eventsError } = canPersonalizeSignedInUser
+      ? await supabase
+        .from('recommendation_events')
+        .select('event_type, signal_payload, target_product_id')
+        .eq('user_id', signedInUser.id)
+        .gte('created_at', twelveMonthsAgo.toISOString())
+        .order('created_at', { ascending: false })
+        .limit(500)
+      : { data: null, error: null };
 
     if (!eventsError && eventsData) {
       const profile = buildUserKeywordProfile(eventsData as RecommendationEventRow[]);

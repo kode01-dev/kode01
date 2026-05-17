@@ -3,6 +3,7 @@ const CANONICAL_SITE_URL = 'https://kode01.com';
 const LOCALES = ['en', 'fr'];
 const BLOCKED_SEGMENTS = ['admin', 'dashboard', 'buyer', 'client', 'vendor', 'settings', 'auth', 'api'];
 const PUBLIC_ASSET_EXCLUSIONS = ['/icon.png'];
+const PUBLIC_API_ALLOWLIST = ['/api/blog/rss', '/api/news/rss'];
 
 // Static public routes (no dynamic params) — localized
 const STATIC_ROUTES = [
@@ -54,7 +55,7 @@ module.exports = {
             ? [
                   {
                       userAgent: '*',
-                      allow: '/',
+                      allow: ['/', ...PUBLIC_API_ALLOWLIST],
                       disallow: blockedPaths,
                   },
               ]

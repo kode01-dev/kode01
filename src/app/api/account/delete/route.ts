@@ -43,10 +43,78 @@ export async function POST(req: Request) {
       path: auditContext.path,
       ipAddress: auditContext.ipAddress,
       userAgent: auditContext.userAgent,
-      metadata: { email: user.email },
+      metadata: { confirmed: true },
     });
 
     const admin = createAdminClient();
+
+    const cleanupOperations = [
+      {
+        name: 'recommendation_events',
+        run: () => admin.from('recommendation_events').delete().eq('user_id', user.id),
+      },
+      {
+        name: 'cookie_consent_events',
+        run: () => admin.from('cookie_consent_events').update({ user_id: null }).eq('user_id', user.id),
+      },
+      {
+        name: 'marketing_campaign_events',
+        run: () => admin.from('marketing_campaign_events').update({ user_id: null }).eq('user_id', user.id),
+      },
+      {
+        name: 'notification_push_subscriptions',
+        run: () => admin.from('notification_push_subscriptions').delete().eq('user_id', user.id),
+      },
+      {
+        name: 'notifications',
+        run: () => admin.from('notifications').delete().eq('user_id', user.id),
+      },
+      {
+        name: 'abandoned_cart_email_jobs',
+        run: () => admin.from('abandoned_cart_email_jobs').delete().eq('user_id', user.id),
+      },
+      {
+        name: 'user_saved_items',
+        run: () => admin.from('user_saved_items').delete().eq('user_id', user.id),
+      },
+      {
+        name: 'product_reviews',
+        run: () => admin.from('product_reviews').delete().eq('user_id', user.id),
+      },
+      {
+        name: 'carts',
+        run: () => admin.from('carts').delete().eq('user_id', user.id),
+      },
+    ];
+
+    const cleanupResults = await Promise.all(
+      cleanupOperations.map(async (operation) => ({
+        name: operation.name,
+        result: await operation.run(),
+      })),
+    );
+
+    const cleanupFailures = cleanupResults.filter(({ result }) => result.error);
+    if (cleanupFailures.length > 0) {
+      console.error(
+        'Account deletion cleanup failures:',
+        cleanupFailures.map(({ name, result }) => `${name}: ${result.error?.message ?? 'unknown error'}`),
+      );
+      await logAuditEvent({
+        eventType: 'account_deletion_cleanup_failed',
+        userId: user.id,
+        path: auditContext.path,
+        ipAddress: auditContext.ipAddress,
+        userAgent: auditContext.userAgent,
+        metadata: {
+          failures: cleanupFailures.map(({ name, result }) => ({
+            table: name,
+            error_message: result.error?.message ?? 'unknown error',
+          })),
+        },
+      });
+      return NextResponse.json({ error: 'Failed to clean up account data' }, { status: 500 });
+    }
 
     // Delete auth first to avoid leaving a live auth user with partially deleted app data.
     const { error: authError } = await admin.auth.admin.deleteUser(user.id);

@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     const ccCookie = cookieMatch ? decodeURIComponent(cookieMatch[1]) : undefined;
 
     // Check if marketing consent is given
-    const hasConsent = hasMarketingConsentFromCcCookie(ccCookie);
+    const hasConsent = request.headers.get('sec-gpc') !== '1' && hasMarketingConsentFromCcCookie(ccCookie);
     if (!hasConsent) {
       // Still return success to prevent client errors, but don't track
       return NextResponse.json({ success: true, consent_blocked: true });

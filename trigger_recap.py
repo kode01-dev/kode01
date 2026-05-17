@@ -10,9 +10,14 @@ from dotenv import load_dotenv
 # Load .env if present
 load_dotenv()
 
-# Configuration
-API_URL = os.environ.get("MODAL_AGENT_API_URL", "https://simbourd--kode01-agent-runtime-sync-api.modal.run") + "/internal/jobs"
-SECRET = os.environ.get("AGENT_INTERNAL_TOKEN", "64f1d9e2b1c4a5d8e7f9a0b1c2d3e4f5a6b7c8d9e0f1") # Default value for local dev only
+def required_env(name: str) -> str:
+    value = os.environ.get(name, "").strip()
+    if not value:
+        raise SystemExit(f"Missing required environment variable: {name}")
+    return value
+
+API_URL = required_env("MODAL_AGENT_API_URL").rstrip("/") + "/internal/jobs"
+SECRET = required_env("AGENT_INTERNAL_TOKEN")
 
 def trigger_job():
     timestamp = str(int(time.time()))

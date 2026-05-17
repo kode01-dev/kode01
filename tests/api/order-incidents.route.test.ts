@@ -84,6 +84,15 @@ test('POST /api/order-incidents creates an incident for a valid purchase', async
     maybeSingle: async () => ({ data: null, error: null }),
   };
 
+  const profileQuery = {
+    select: () => profileQuery,
+    eq: () => profileQuery,
+    maybeSingle: async () => ({
+      data: { recommendation_personalization_enabled: true },
+      error: null,
+    }),
+  };
+
   createClientImpl = async () => ({
     auth: {
       getUser: async () => ({
@@ -98,6 +107,7 @@ test('POST /api/order-incidents creates an incident for a valid purchase', async
     from: (table: string) => {
       if (table === 'purchases') return purchaseQuery;
       if (table === 'purchase_incidents') return existingIncidentQuery;
+      if (table === 'profiles') return profileQuery;
       if (table === 'recommendation_events') return { insert: async () => ({ error: null }) };
       throw new Error(`Unexpected table ${table}`);
     },

@@ -1,11 +1,11 @@
 """Tests for the CheckpointManager and CheckpointData classes."""
 
+import json
 import pickle
-import tempfile
 from pathlib import Path
 
 import pytest
-import anyio
+from anyio import Path as AsyncPath
 
 from scrapling.spiders.request import Request
 from scrapling.spiders.checkpoint import CheckpointData, CheckpointManager
@@ -27,26 +27,13 @@ class TestCheckpointData:
             Request("https://example.com/1", priority=10),
             Request("https://example.com/2", priority=5),
         ]
-        seen = {"url1", "url2", "url3"}
+        seen = {b"url1", b"url2", b"url3"}
 
         data = CheckpointData(requests=requests, seen=seen)
 
         assert len(data.requests) == 2
         assert data.requests[0].url == "https://example.com/1"
-        assert data.seen == {"url1", "url2", "url3"}
-
-    def test_pickle_roundtrip(self):
-        """Test that CheckpointData can be pickled and unpickled."""
-        requests = [Request("https://example.com", priority=5)]
-        seen = {"fingerprint1", "fingerprint2"}
-        data = CheckpointData(requests=requests, seen=seen)
-
-        pickled = pickle.dumps(data)
-        restored = pickle.loads(pickled)
-
-        assert len(restored.requests) == 1
-        assert restored.requests[0].url == "https://example.com"
-        assert restored.seen == {"fingerprint1", "fingerprint2"}
+        assert data.seen == {b"url1", b"url2", b"url3"}
 
 
 class TestCheckpointManagerInit:
@@ -56,7 +43,7 @@ class TestCheckpointManagerInit:
         """Test initialization with string path."""
         manager = CheckpointManager("/tmp/test_crawl")
 
-        assert str(manager.crawldir) == "/tmp/test_crawl"
+        assert manager.crawldir == AsyncPath("/tmp/test_crawl")
         assert manager.interval == 300.0
 
     def test_init_with_pathlib_path(self):
@@ -64,7 +51,7 @@ class TestCheckpointManagerInit:
         path = Path("/tmp/test_crawl")
         manager = CheckpointManager(path)
 
-        assert str(manager.crawldir) == "/tmp/test_crawl"
+        assert manager.crawldir == AsyncPath(path)
 
     def test_init_with_custom_interval(self):
         """Test initialization with custom interval."""
@@ -90,18 +77,16 @@ class TestCheckpointManagerInit:
         """Test that checkpoint file path is correctly constructed."""
         manager = CheckpointManager("/tmp/test_crawl")
 
-        expected_path = "/tmp/test_crawl/checkpoint.pkl"
-        assert str(manager._checkpoint_path) == expected_path
+        assert manager._checkpoint_path == AsyncPath("/tmp/test_crawl/checkpoint.json")
 
 
 class TestCheckpointManagerOperations:
     """Test CheckpointManager save/load/cleanup operations."""
 
     @pytest.fixture
-    def temp_dir(self):
+    def temp_dir(self, tmp_path: Path):
         """Create a temporary directory for testing."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
+        return tmp_path
 
     @pytest.mark.asyncio
     async def test_has_checkpoint_false_when_no_file(self, temp_dir: Path):
@@ -120,13 +105,14 @@ class TestCheckpointManagerOperations:
 
         data = CheckpointData(
             requests=[Request("https://example.com")],
-            seen={"fp1", "fp2"},
+            seen={b"fp1", b"fp2"},
         )
 
         await manager.save(data)
 
-        checkpoint_path = crawl_dir / "checkpoint.pkl"
+        checkpoint_path = crawl_dir / "checkpoint.json"
         assert checkpoint_path.exists()
+        assert json.loads(checkpoint_path.read_text(encoding="utf-8"))["version"] == 1
 
     @pytest.mark.asyncio
     async def test_save_creates_directory_if_not_exists(self, temp_dir: Path):
@@ -169,7 +155,7 @@ class TestCheckpointManagerOperations:
                 Request("https://example.com/1", priority=10),
                 Request("https://example.com/2", priority=5),
             ],
-            seen={"fp1", "fp2", "fp3"},
+            seen={b"fp1", b"fp2", b"fp3"},
         )
 
         await manager.save(original_data)
@@ -179,7 +165,7 @@ class TestCheckpointManagerOperations:
         assert len(loaded_data.requests) == 2
         assert loaded_data.requests[0].url == "https://example.com/1"
         assert loaded_data.requests[0].priority == 10
-        assert loaded_data.seen == {"fp1", "fp2", "fp3"}
+        assert loaded_data.seen == {b"fp1", b"fp2", b"fp3"}
 
     @pytest.mark.asyncio
     async def test_save_is_atomic(self, temp_dir: Path):
@@ -195,7 +181,7 @@ class TestCheckpointManagerOperations:
         assert not temp_path.exists()
 
         # Checkpoint file should exist
-        checkpoint_path = crawl_dir / "checkpoint.pkl"
+        checkpoint_path = crawl_dir / "checkpoint.json"
         assert checkpoint_path.exists()
 
     @pytest.mark.asyncio
@@ -208,7 +194,7 @@ class TestCheckpointManagerOperations:
         data = CheckpointData()
         await manager.save(data)
 
-        checkpoint_path = crawl_dir / "checkpoint.pkl"
+        checkpoint_path = crawl_dir / "checkpoint.json"
         assert checkpoint_path.exists()
 
         # Cleanup should remove it
@@ -230,14 +216,35 @@ class TestCheckpointManagerOperations:
         crawl_dir = temp_dir / "crawl"
         crawl_dir.mkdir(parents=True)
 
-        checkpoint_path = crawl_dir / "checkpoint.pkl"
-        checkpoint_path.write_bytes(b"not valid pickle data")
+        checkpoint_path = crawl_dir / "checkpoint.json"
+        checkpoint_path.write_bytes(b"not valid JSON data")
 
         manager = CheckpointManager(crawl_dir)
 
         result = await manager.load()
 
         assert result is None
+
+    @pytest.mark.asyncio
+    async def test_load_ignores_legacy_pickle_checkpoint_without_execution(self, temp_dir: Path):
+        """Test load never executes legacy pickle checkpoint payloads."""
+        crawl_dir = temp_dir / "crawl"
+        crawl_dir.mkdir(parents=True)
+        marker_path = crawl_dir / "pickle_executed"
+
+        class MaliciousCheckpoint:
+            def __reduce__(self):
+                return marker_path.touch, ()
+
+        checkpoint_path = crawl_dir / "checkpoint.pkl"
+        checkpoint_path.write_bytes(pickle.dumps(MaliciousCheckpoint()))
+
+        manager = CheckpointManager(crawl_dir)
+
+        result = await manager.load()
+
+        assert result is None
+        assert not marker_path.exists()
 
     @pytest.mark.asyncio
     async def test_multiple_saves_overwrite(self, temp_dir: Path):
@@ -247,14 +254,14 @@ class TestCheckpointManagerOperations:
         # First save
         data1 = CheckpointData(
             requests=[Request("https://example.com/1")],
-            seen={"fp1"},
+            seen={b"fp1"},
         )
         await manager.save(data1)
 
         # Second save
         data2 = CheckpointData(
             requests=[Request("https://example.com/2"), Request("https://example.com/3")],
-            seen={"fp2", "fp3"},
+            seen={b"fp2", b"fp3"},
         )
         await manager.save(data2)
 
@@ -264,17 +271,16 @@ class TestCheckpointManagerOperations:
         assert loaded is not None
         assert len(loaded.requests) == 2
         assert loaded.requests[0].url == "https://example.com/2"
-        assert loaded.seen == {"fp2", "fp3"}
+        assert loaded.seen == {b"fp2", b"fp3"}
 
 
 class TestCheckpointManagerEdgeCases:
     """Test edge cases for CheckpointManager."""
 
     @pytest.fixture
-    def temp_dir(self):
+    def temp_dir(self, tmp_path: Path):
         """Create a temporary directory for testing."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
+        return tmp_path
 
     @pytest.mark.asyncio
     async def test_save_empty_checkpoint(self, temp_dir: Path):
@@ -296,11 +302,8 @@ class TestCheckpointManagerEdgeCases:
         manager = CheckpointManager(temp_dir / "crawl")
 
         # Create 1000 requests
-        requests = [
-            Request(f"https://example.com/{i}", priority=i % 10)
-            for i in range(1000)
-        ]
-        seen = {f"fp_{i}" for i in range(2000)}
+        requests = [Request(f"https://example.com/{i}", priority=i % 10) for i in range(1000)]
+        seen = {f"fp_{i}".encode() for i in range(2000)}
 
         data = CheckpointData(requests=requests, seen=seen)
         await manager.save(data)
@@ -323,9 +326,11 @@ class TestCheckpointManagerEdgeCases:
             dont_filter=True,
             meta={"item_id": 123, "page": 5},
             proxy="http://proxy:8080",
+            data=b"request-body",
         )
+        fingerprint = original_request.update_fingerprint()
 
-        data = CheckpointData(requests=[original_request], seen=set())
+        data = CheckpointData(requests=[original_request], seen={fingerprint})
         await manager.save(data)
 
         loaded = await manager.load()
@@ -338,4 +343,6 @@ class TestCheckpointManagerEdgeCases:
         assert restored.priority == 42
         assert restored.dont_filter is True
         assert restored.meta == {"item_id": 123, "page": 5}
-        assert restored._session_kwargs == {"proxy": "http://proxy:8080"}
+        assert restored._session_kwargs == {"proxy": "http://proxy:8080", "data": b"request-body"}
+        assert restored._fp == fingerprint
+        assert loaded.seen == {fingerprint}

@@ -1,6 +1,8 @@
 import { runAbandonedCartsTask } from './tasks/abandoned-carts';
 import { runAbandonedCartEmailsTask } from './tasks/abandoned-cart-emails';
 import { runPurgeCookieConsentTask } from './tasks/purge-cookie-consent-events';
+import { runPurgeRecommendationEventsTask } from './tasks/purge-recommendation-events';
+import { runPurgeMarketingEventsTask } from './tasks/purge-marketing-events';
 import { runSendEmailsTask } from './tasks/send-emails';
 import { runLicenseWebhookTask } from './tasks/license-webhooks';
 import { runApiMonitorHealthTask } from './tasks/api-monitor-health';
@@ -29,6 +31,8 @@ export const CRON_TASKS = {
   'abandoned-carts': runAbandonedCartsTask,
   'abandoned-cart-emails': runAbandonedCartEmailsTask,
   'purge-cookie-consent-events': runPurgeCookieConsentTask,
+  'purge-recommendation-events': runPurgeRecommendationEventsTask,
+  'purge-marketing-events': runPurgeMarketingEventsTask,
   'send-emails': runSendEmailsTask,
   'license-webhooks': runLicenseWebhookTask,
   'api-monitor-health': runApiMonitorHealthTask,
@@ -77,6 +81,24 @@ export const CRON_TASK_MATRIX: Record<CronTaskName, {
     runbook: '/admin/api-monitoring',
   },
   'purge-cookie-consent-events': {
+    owner: 'privacy',
+    frequency: 'dispatcher',
+    timeoutMs: 20_000,
+    idempotencyKey: 'retention window',
+    retry: 'safe to retry',
+    alert: 'warn after failure',
+    runbook: '/admin/privacy-cookies',
+  },
+  'purge-recommendation-events': {
+    owner: 'privacy',
+    frequency: 'dispatcher',
+    timeoutMs: 20_000,
+    idempotencyKey: 'retention window',
+    retry: 'safe to retry',
+    alert: 'warn after failure',
+    runbook: '/admin/privacy-cookies',
+  },
+  'purge-marketing-events': {
     owner: 'privacy',
     frequency: 'dispatcher',
     timeoutMs: 20_000,
@@ -158,7 +180,12 @@ export async function executeTask(name: CronTaskName, runId: string, authHeader:
       data = await runSendEmailsTask(runId, authHeader);
     } else if (name === 'weekly-ai-recap') {
       data = await runWeeklyAiRecapTask(runId, authHeader);
-    } else if (name === 'purge-cookie-consent-events' || name === 'license-webhooks') {
+    } else if (
+      name === 'purge-cookie-consent-events' ||
+      name === 'purge-recommendation-events' ||
+      name === 'purge-marketing-events' ||
+      name === 'license-webhooks'
+    ) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data = await (CRON_TASKS[name] as any)(runId);
     } else {

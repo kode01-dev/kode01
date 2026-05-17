@@ -228,8 +228,8 @@ async function PricingPageContent({ locale }: { locale: string }) {
             iconBg: 'bg-kode01-noir',
             title: t_ads('plans.newsletter.name'),
             description: isFr
-                ? 'Placement email dans le recap hebdomadaire.'
-                : 'Email placement in the weekly recap.',
+                ? 'Placement email dans la veille IA quotidienne.'
+                : 'Email placement in the daily AI brief.',
             features: JSON.parse(JSON.stringify(t_ads.raw('plans.newsletter.features'))) as string[],
             getPrice: (row: (typeof durationRows)[number]) => row.newsletterPrice,
             ctaLabel: isMember

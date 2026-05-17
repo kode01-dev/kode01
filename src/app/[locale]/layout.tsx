@@ -18,6 +18,7 @@ export function generateStaticParams() {
     return routing.locales.map((locale) => ({ locale }));
 }
 import CookieConsentComponent from '@/features/cookies/CookieConsent';
+import GoogleConsentModeBootstrap from '@/features/cookies/GoogleConsentModeBootstrap';
 import GoogleAnalytics from '@/features/cookies/GoogleAnalytics';
 import Honeypot from '@/components/security/Honeypot';
 
@@ -179,8 +180,6 @@ export default async function LocaleLayout(
                         <link rel="dns-prefetch" href={supabaseOrigin} />
                     </>
                 )}
-                <link rel="preconnect" href="https://app.zipchat.ai" />
-                <link rel="dns-prefetch" href="https://app.zipchat.ai" />
             </head>
             <body
                 suppressHydrationWarning
@@ -222,12 +221,7 @@ export default async function LocaleLayout(
   );
 })();`}
                 </Script>
-                <Script
-                    id="zipchat-widget"
-                    src="https://app.zipchat.ai/widget/zipchat.js?id=wD35np9xnKUAM802YRtS"
-                    data-no-optimize="1"
-                    strategy="lazyOnload"
-                />
+                <GoogleConsentModeBootstrap />
                 <GoogleAnalytics />
                 <NextIntlClientProvider messages={messages}>
                     <Providers lockscreenInitialState={lockscreenInitialState}>

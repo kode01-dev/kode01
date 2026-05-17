@@ -31,7 +31,7 @@ export async function GET() {
 
   const { data, error: profileError } = await supabase
     .from('profiles')
-    .select('id, role, slug, display_name, shop_name, avatar_url, stripe_customer_id, onboarding_completed')
+    .select('id, role, slug, display_name, shop_name, avatar_url, stripe_customer_id, onboarding_completed, recommendation_personalization_enabled')
     .eq('id', user.id)
     .maybeSingle();
 
@@ -53,6 +53,7 @@ export async function GET() {
         avatar_url: data.avatar_url,
         stripe_customer_id: data.stripe_customer_id,
         onboarding_completed: data.onboarding_completed ?? false,
+        recommendation_personalization_enabled: data.recommendation_personalization_enabled ?? false,
       }
     : null;
 

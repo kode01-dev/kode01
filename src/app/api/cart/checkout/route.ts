@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getAppBaseUrl } from '@/lib/env/server';
 import { stripe } from '@/lib/stripe/server';
+import { shouldTrackSignedInRecommendations } from '@/features/recommendations/server/privacy';
 import {
   checkoutSchema,
   getOpenCart,
@@ -327,7 +328,6 @@ export async function POST(request: Request) {
         const amountCentsByItem = request.sellerItems.map((item) => Math.round(item.priceSnapshot * 100));
         const feeCentsByItem = splitProportionalCents(applicationFeeCents, amountCentsByItem);
         const session = await stripe.checkout.sessions.create({
-          payment_method_types: ['card'],
           adaptive_pricing: {
             enabled: true,
           },
@@ -395,16 +395,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: cartStatusError.message }, { status: 500 });
     }
 
-    await db.from('recommendation_events').insert({
-      user_id: user.id,
-      event_type: 'checkout_started',
-      source_type: 'checkout',
-      signal_payload: {
-        cart_id: cart.id,
-        session_ids: sessions.map((session) => session.checkoutSessionId),
-        multi_vendor: sessions.length > 1,
-      },
-    });
+    if (await shouldTrackSignedInRecommendations(db, user.id)) {
+      await db.from('recommendation_events').insert({
+        user_id: user.id,
+        event_type: 'checkout_started',
+        source_type: 'checkout',
+        signal_payload: {
+          cart_id: cart.id,
+          session_ids: sessions.map((session) => session.checkoutSessionId),
+          multi_vendor: sessions.length > 1,
+        },
+      });
+    }
 
     return NextResponse.json({
       sessions,

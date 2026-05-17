@@ -2,55 +2,11 @@
 
 import { useCallback } from 'react';
 import { Mail } from 'lucide-react';
-
-type ZipchatApi = {
-    open?: () => void;
-    show?: () => void;
-    toggle?: () => void;
-};
-
-type ZipchatWindow = Window & {
-    Zipchat?: ZipchatApi;
-};
-
-const RETRY_INTERVAL_MS = 250;
-const RETRY_TIMEOUT_MS = 4000;
-
-function tryOpenZipchat(): boolean {
-    const zipchat = (window as ZipchatWindow).Zipchat;
-    if (zipchat?.open) {
-        zipchat.open();
-        return true;
-    }
-
-    if (zipchat?.show) {
-        zipchat.show();
-        return true;
-    }
-
-    if (zipchat?.toggle) {
-        zipchat.toggle();
-        return true;
-    }
-
-    return false;
-}
+import { requestZipchatSupport } from './zipchat-client';
 
 export function OpenZipchatCard() {
     const handleOpenZipchat = useCallback(() => {
-        if (tryOpenZipchat()) {
-            return;
-        }
-
-        const intervalId = window.setInterval(() => {
-            if (tryOpenZipchat()) {
-                window.clearInterval(intervalId);
-            }
-        }, RETRY_INTERVAL_MS);
-
-        window.setTimeout(() => {
-            window.clearInterval(intervalId);
-        }, RETRY_TIMEOUT_MS);
+        requestZipchatSupport();
     }, []);
 
     return (

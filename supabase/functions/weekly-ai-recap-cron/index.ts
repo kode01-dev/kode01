@@ -218,6 +218,7 @@ const FIRECRAWL_SCRAPE_URL = 'https://api.firecrawl.dev/v2/scrape';
 const FIRECRAWL_TIMEOUT_MS = 20_000;
 const RSS_FETCH_TIMEOUT_MS = 10_000;
 const CHEERIO_FETCH_TIMEOUT_MS = 12_000;
+const RECAP_FETCH_MAX_REDIRECTS = 3;
 const FIRECRAWL_MAX_ATTEMPTS = 3;
 const FIRECRAWL_RETRYABLE_STATUS = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
 const GEMINI_MAX_ATTEMPTS = 3;
@@ -314,6 +315,23 @@ const summary30LocaleSchema = z.object({
 const summary30Schema = z.object({
   fr: summary30LocaleSchema,
   en: summary30LocaleSchema,
+});
+
+const copyrightComplianceIssueSchema = z.object({
+  risk: z.enum(['low', 'medium', 'high']),
+  rule_ids: z.array(z.string().min(1).max(24)).max(12),
+  locale: z.string().min(2).max(16),
+  passage: z.string().max(600),
+  source_url: z.string().max(2000),
+  reason: z.string().min(1).max(1000),
+  suggestion: z.string().min(1).max(1000),
+  requires_external_verification: z.boolean(),
+});
+
+const copyrightComplianceSchema = z.object({
+  status: z.enum(['pass', 'warn', 'fail']),
+  max_risk: z.enum(['low', 'medium', 'high']),
+  issues: z.array(copyrightComplianceIssueSchema).max(40),
 });
 
 function requiredEnv(name: string) {
@@ -806,6 +824,188 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+const BLOCKED_RECAP_HOSTNAMES = new Set([
+  'localhost',
+  'localhost.localdomain',
+  'host.docker.internal',
+  'metadata.google.internal',
+]);
+
+const BLOCKED_RECAP_HOSTNAME_SUFFIXES = [
+  '.localhost',
+  '.local',
+  '.internal',
+  '.home.arpa',
+];
+
+function normalizeRecapHostname(hostname: string) {
+  const normalized = hostname.trim().toLowerCase().replace(/\.$/, '');
+  if (normalized.startsWith('[') && normalized.endsWith(']')) {
+    return normalized.slice(1, -1);
+  }
+  return normalized;
+}
+
+function isBlockedRecapHostname(hostname: string) {
+  const normalized = normalizeRecapHostname(hostname);
+  if (!normalized) return true;
+  if (BLOCKED_RECAP_HOSTNAMES.has(normalized)) return true;
+  return BLOCKED_RECAP_HOSTNAME_SUFFIXES.some((suffix) => normalized.endsWith(suffix));
+}
+
+function isIpv4Address(value: string) {
+  return /^(?:\d{1,3}\.){3}\d{1,3}$/.test(value);
+}
+
+function isBlockedIpv4Address(address: string) {
+  const parts = address.split('.');
+  if (parts.length !== 4) return true;
+  const octets = parts.map((part) => Number.parseInt(part, 10));
+  if (octets.some((octet) => Number.isNaN(octet) || octet < 0 || octet > 255)) return true;
+
+  const [a, b, c] = octets;
+  if (a === 0) return true;
+  if (a === 10) return true;
+  if (a === 100 && b >= 64 && b <= 127) return true;
+  if (a === 127) return true;
+  if (a === 169 && b === 254) return true;
+  if (a === 172 && b >= 16 && b <= 31) return true;
+  if (a === 192 && b === 0 && c === 0) return true;
+  if (a === 192 && b === 0 && c === 2) return true;
+  if (a === 192 && b === 88 && c === 99) return true;
+  if (a === 192 && b === 168) return true;
+  if (a === 198 && b >= 18 && b <= 19) return true;
+  if (a === 198 && b === 51 && c === 100) return true;
+  if (a === 203 && b === 0 && c === 113) return true;
+  if (a >= 224) return true;
+
+  return false;
+}
+
+function extractMappedIpv4(address: string) {
+  const marker = '::ffff:';
+  const lower = address.toLowerCase();
+  const markerIndex = lower.lastIndexOf(marker);
+  if (markerIndex === -1) return null;
+  const candidate = address.slice(markerIndex + marker.length);
+  return isIpv4Address(candidate) ? candidate : null;
+}
+
+function isBlockedIpv6Address(address: string) {
+  const normalized = address.trim().toLowerCase();
+  if (!normalized) return true;
+
+  const mappedIpv4 = extractMappedIpv4(normalized);
+  if (mappedIpv4) return isBlockedIpv4Address(mappedIpv4);
+
+  if (normalized === '::') return true;
+  if (normalized === '::1') return true;
+  if (normalized.startsWith('fc') || normalized.startsWith('fd')) return true;
+  if (normalized.startsWith('fe8') || normalized.startsWith('fe9') || normalized.startsWith('fea') || normalized.startsWith('feb')) return true;
+  if (normalized.startsWith('ff')) return true;
+  if (normalized.startsWith('2001:db8')) return true;
+
+  return false;
+}
+
+function isBlockedRecapIpAddress(address: string) {
+  if (isIpv4Address(address)) return isBlockedIpv4Address(address);
+  if (address.includes(':')) return isBlockedIpv6Address(address);
+  return true;
+}
+
+async function resolveRecapHostname(hostname: string) {
+  const [ipv4Result, ipv6Result] = await Promise.allSettled([
+    Deno.resolveDns(hostname, 'A'),
+    Deno.resolveDns(hostname, 'AAAA'),
+  ]);
+
+  return [
+    ...(ipv4Result.status === 'fulfilled' ? ipv4Result.value : []),
+    ...(ipv6Result.status === 'fulfilled' ? ipv6Result.value : []),
+  ];
+}
+
+async function validatePublicHttpsUrl(rawUrl: string, baseUrl?: string) {
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl.trim(), baseUrl);
+  } catch {
+    throw new Error('blocked_url:invalid_url');
+  }
+
+  if (parsed.protocol !== 'https:') {
+    throw new Error('blocked_url:invalid_protocol');
+  }
+  if (parsed.username || parsed.password) {
+    throw new Error('blocked_url:contains_credentials');
+  }
+  if (parsed.port && parsed.port !== '443') {
+    throw new Error('blocked_url:invalid_port');
+  }
+
+  const hostname = normalizeRecapHostname(parsed.hostname);
+  if (isBlockedRecapHostname(hostname)) {
+    throw new Error('blocked_url:blocked_hostname');
+  }
+
+  const addresses = isIpv4Address(hostname) || hostname.includes(':')
+    ? [hostname]
+    : await resolveRecapHostname(hostname);
+
+  if (addresses.length === 0) {
+    throw new Error('blocked_url:hostname_resolution_empty');
+  }
+
+  const blockedAddress = addresses.find((address) => isBlockedRecapIpAddress(address));
+  if (blockedAddress) {
+    throw new Error(`blocked_url:blocked_ip:${blockedAddress}`);
+  }
+
+  return parsed.toString();
+}
+
+function isRedirectResponse(status: number) {
+  return status >= 300 && status < 400;
+}
+
+async function fetchPublicHttpsWithRedirects(
+  rawUrl: string,
+  init: RequestInit,
+  timeoutMs: number,
+) {
+  let currentUrl = await validatePublicHttpsUrl(rawUrl);
+
+  for (let redirectCount = 0; redirectCount <= RECAP_FETCH_MAX_REDIRECTS; redirectCount += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(currentUrl, {
+        ...init,
+        signal: controller.signal,
+        redirect: 'manual',
+      });
+
+      if (!isRedirectResponse(response.status)) {
+        return { response, finalUrl: currentUrl };
+      }
+
+      const location = response.headers.get('location');
+      if (!location) {
+        throw new Error('blocked_url:redirect_missing_location');
+      }
+      if (redirectCount >= RECAP_FETCH_MAX_REDIRECTS) {
+        throw new Error('blocked_url:redirect_limit_exceeded');
+      }
+      currentUrl = await validatePublicHttpsUrl(location, currentUrl);
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  throw new Error('blocked_url:redirect_limit_exceeded');
+}
+
 function getRetryAfterMs(response: Response) {
   const raw = response.headers.get('retry-after');
   if (!raw) return null;
@@ -846,7 +1046,8 @@ function toAbsoluteUrl(candidate: string, baseUrl: string) {
   if (/^(mailto|tel|javascript):/i.test(trimmed)) return null;
 
   try {
-    return new URL(trimmed, baseUrl).toString();
+    const parsed = new URL(trimmed, baseUrl);
+    return parsed.protocol === 'https:' ? parsed.toString() : null;
   } catch {
     return null;
   }
@@ -899,20 +1100,17 @@ function collectCheerioArticleCandidates(html: string, sourceUrl: string): strin
 }
 
 async function fetchHtmlWithTimeout(targetUrl: string, timeoutMs: number) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(targetUrl, {
-      signal: controller.signal,
+  const { response, finalUrl } = await fetchPublicHttpsWithRedirects(
+    targetUrl,
+    {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; KODE01-AI-Recap/1.0; +https://kode01.com)',
       },
-    });
-    const html = await response.text();
-    return { response, html };
-  } finally {
-    clearTimeout(timeout);
-  }
+    },
+    timeoutMs,
+  );
+  const html = await response.text();
+  return { response, html, finalUrl };
 }
 
 async function discoverBestArticleUrlFromSource(source: SourceRow) {
@@ -1013,6 +1211,7 @@ async function scrapeWithCheerio(
 
 async function fetchFirecrawlWithRetry(sourceUrl: string, apiKey: string) {
   let lastError: unknown = null;
+  const safeSourceUrl = await validatePublicHttpsUrl(sourceUrl);
 
   for (let attempt = 1; attempt <= FIRECRAWL_MAX_ATTEMPTS; attempt += 1) {
     const controller = new AbortController();
@@ -1026,7 +1225,7 @@ async function fetchFirecrawlWithRetry(sourceUrl: string, apiKey: string) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          url: sourceUrl,
+          url: safeSourceUrl,
           formats: ['markdown'],
           onlyMainContent: true,
           blockAds: true,
@@ -1245,13 +1444,10 @@ async function scrapeViaRss(source: SourceRow, config: RecapConfig): Promise<Scr
     throw new Error(`[RSS] Source "${source.name}" is configured with rss route but has no feed_url`);
   }
 
-  const feedController = new AbortController();
-  const feedTimeout = setTimeout(() => feedController.abort(), RSS_FETCH_TIMEOUT_MS);
   let rssStatus = 500;
   try {
-    const rssResponse = await fetch(feedUrl, {
-      signal: feedController.signal,
-    });
+    const safeFeedUrl = await validatePublicHttpsUrl(feedUrl, source.url);
+    const { response: rssResponse } = await fetchPublicHttpsWithRedirects(safeFeedUrl, {}, RSS_FETCH_TIMEOUT_MS);
     rssStatus = rssResponse.status;
     if (!rssResponse.ok) {
       return fallbackToFirecrawlIfAllowed({
@@ -1277,7 +1473,9 @@ async function scrapeViaRss(source: SourceRow, config: RecapConfig): Promise<Scr
       });
     }
 
-    const targetUrl = entry.link?.trim() || source.url;
+    const targetUrl = entry.link?.trim()
+      ? await validatePublicHttpsUrl(entry.link.trim(), source.url)
+      : await validatePublicHttpsUrl(source.url);
     if (entry.link && targetUrl !== source.url) {
       console.log(`[RSS] Resolved link for ${source.name}: ${targetUrl}`);
       const deduped = await findDuplicateScrape(targetUrl, entry.title || source.name);
@@ -1345,8 +1543,6 @@ async function scrapeViaRss(source: SourceRow, config: RecapConfig): Promise<Scr
       status: rssStatus,
       priorMethod: 'rss',
     });
-  } finally {
-    clearTimeout(feedTimeout);
   }
 }
 
@@ -2242,6 +2438,25 @@ type FactCheckResult = {
   issues: FactCheckIssue[];
 };
 
+type CopyrightRisk = 'low' | 'medium' | 'high';
+
+type CopyrightComplianceIssue = {
+  risk: CopyrightRisk;
+  rule_ids: string[];
+  locale: string;
+  passage: string;
+  source_url: string;
+  reason: string;
+  suggestion: string;
+  requires_external_verification: boolean;
+};
+
+type CopyrightComplianceResult = {
+  status: 'pass' | 'warn' | 'fail';
+  max_risk: CopyrightRisk;
+  issues: CopyrightComplianceIssue[];
+};
+
 async function factCheckArticle(args: {
   sourceContent: string;
   articleFr: string;
@@ -2324,6 +2539,157 @@ If everything checks out, return: { "issues": [] }
 
   console.log(`weekly-ai-recap-cron: fact-check result: ${status} (${issues.length} issues, ${majorCount} major)`);
   return { status, issues };
+}
+
+const COPYRIGHT_RISK_RANK: Record<CopyrightRisk, number> = {
+  low: 0,
+  medium: 1,
+  high: 2,
+};
+
+function normalizeCopyrightCompliancePayload(payload: unknown): CopyrightComplianceResult {
+  const parsed = parseWithSchema(copyrightComplianceSchema, payload);
+  if (!parsed.success) {
+    throw new Error(`copyright_compliance_failed: invalid payload ${JSON.stringify(parsed.details)}`);
+  }
+
+  const issues = parsed.data.issues.map((issue) => ({
+    ...issue,
+    locale: ['fr', 'en', 'both', 'unknown'].includes(issue.locale) ? issue.locale : 'unknown',
+    passage: issue.passage.trim().slice(0, 600),
+    source_url: issue.source_url.trim().slice(0, 2000),
+    reason: issue.reason.trim().slice(0, 1000),
+    suggestion: issue.suggestion.trim().slice(0, 1000),
+  }));
+  const issueMaxRank = Math.max(0, ...issues.map((issue) => COPYRIGHT_RISK_RANK[issue.risk]));
+  const reportedRank = COPYRIGHT_RISK_RANK[parsed.data.max_risk];
+  const maxRank = Math.max(issueMaxRank, reportedRank);
+  const maxRisk = (Object.entries(COPYRIGHT_RISK_RANK).find(([, rank]) => rank === maxRank)?.[0] ?? 'low') as CopyrightRisk;
+  const status: CopyrightComplianceResult['status'] =
+    maxRank >= COPYRIGHT_RISK_RANK.medium ? 'fail' : issues.length > 0 ? 'warn' : 'pass';
+
+  return {
+    status,
+    max_risk: maxRisk,
+    issues,
+  };
+}
+
+function shouldBlockCopyrightCompliance(result: CopyrightComplianceResult) {
+  return COPYRIGHT_RISK_RANK[result.max_risk] >= COPYRIGHT_RISK_RANK.medium;
+}
+
+async function copyrightComplianceCheck(args: {
+  evidencePack: EvidencePack;
+  articleFr: string;
+  articleEn: string;
+  allowedSourceUrls: string[];
+  config: RecapConfig;
+}): Promise<CopyrightComplianceResult> {
+  const googleApiKey = args.config.googleApiKey?.trim();
+  if (!googleApiKey) {
+    throw new Error('copyright_compliance_failed: missing GOOGLE_API_KEY / GOOGLE_GENERATIVE_AI_API_KEY');
+  }
+
+  const evidence = args.evidencePack.stories.map((story, index) => ({
+    index: index + 1,
+    source_url: story.sourceUrl,
+    source_name: story.sourceName,
+    title: story.title,
+    snippet: truncateForPrompt(story.snippet, 900),
+    claims: story.claims.slice(0, 8),
+    data_points: story.dataPoints,
+  }));
+
+  const systemText = [
+    'You are an editorial copyright, anti-plagiarism, and journalistic quality compliance reviewer.',
+    'Compare the generated AI news articles against the source evidence.',
+    'Do not call uncertain passages plagiarism; mark them as requiring external verification.',
+    'Output JSON ONLY.',
+  ].join(' ');
+
+  const userText = `
+Allowed source URLs:
+${args.allowedSourceUrls.map((url) => `- ${url}`).join('\n')}
+
+Source evidence:
+${JSON.stringify(evidence, null, 2)}
+
+Rules:
+1. Flag copied full sentences unless they are short attributed quotes.
+2. Flag close translations or paragraph-level paraphrases of source text.
+3. Flag facts, dates, figures, product announcements, benchmarks, quotes, or specific claims without proximity attribution in the same paragraph.
+4. Flag long quotes, reproduced source tables, charts, screenshots, logos, or illustrations without clear permission.
+5. Classify risk as low for public facts correctly cited, medium for close paraphrase or weak attribution, high for copying, close translation, long excerpt, unauthorized media, or missing source.
+6. If a passage is uncertain, set requires_external_verification=true and explain what must be checked.
+
+French article:
+${truncateForPrompt(args.articleFr, 9000)}
+
+English article:
+${truncateForPrompt(args.articleEn, 9000)}
+
+Return strict JSON:
+{
+  "status": "pass" | "warn" | "fail",
+  "max_risk": "low" | "medium" | "high",
+  "issues": [
+    {
+      "risk": "low" | "medium" | "high",
+      "rule_ids": ["1"],
+      "locale": "fr" | "en" | "both" | "unknown",
+      "passage": "short excerpt or description",
+      "source_url": "source URL or empty string",
+      "reason": "why this is a copyright or attribution risk",
+      "suggestion": "specific editorial fix",
+      "requires_external_verification": false
+    }
+  ]
+}
+`.trim();
+
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(args.config.summaryModel)}:generateContent?key=${encodeURIComponent(googleApiKey)}`;
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: systemText }] },
+      contents: [{ role: 'user', parts: [{ text: userText }] }],
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 2400,
+        responseMimeType: 'application/json',
+      },
+    }),
+  });
+
+  const rawBody = await response.text();
+  if (!response.ok) {
+    throw new Error(`copyright_compliance_failed: Gemini API ${response.status}: ${rawBody.slice(0, 500)}`);
+  }
+
+  const geminiPayload = JSON.parse(rawBody) as Record<string, unknown>;
+  const candidates = geminiPayload.candidates as Array<Record<string, unknown>> | undefined;
+  const text = (candidates?.[0]?.content as Record<string, unknown>)?.parts as Array<Record<string, unknown>> | undefined;
+  const jsonText = text?.[0]?.text as string | undefined;
+
+  if (!jsonText) {
+    throw new Error('copyright_compliance_failed: empty Gemini response');
+  }
+
+  let payload: unknown;
+  try {
+    payload = parseModelJson(jsonText, 'copyright compliance');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`copyright_compliance_failed: ${message}`);
+  }
+  const result = normalizeCopyrightCompliancePayload(payload);
+  console.log(
+    `weekly-ai-recap-cron: copyright compliance result: ${result.status} (${result.max_risk}, ${result.issues.length} issues)`,
+  );
+  return result;
 }
 
 type DraftBrief = {
@@ -2462,6 +2828,9 @@ COPYRIGHT & ORIGINALITY: You are writing ORIGINAL journalism, not summarizing or
 - Your article must pass a plagiarism check — no sentence should match the source verbatim beyond common proper nouns or technical terms.
 - Add context, comparisons, and implications that the source does not provide.
 - Credit the source for its findings but write the article as YOUR analysis.
+- Attribute every specific number, date, benchmark, product announcement, quote, and proprietary claim in the same paragraph where it appears, using markdown links such as Selon [OpenAI](https://example.com)...
+- Do not directly translate a source paragraph; both FR and EN versions need their own structure, transitions, and examples.
+- Do not reproduce third-party tables, charts, screenshots, logos, or illustrations. Describe the factual takeaway instead unless permission is explicit in the provided source context.
 
 EDITORIAL RULES:
 X Never invent data, citations, or statistics
@@ -4465,6 +4834,95 @@ async function buildArticlePipeline(payload: {
       );
     }
 
+    const copyrightComplianceResult = await copyrightComplianceCheck({
+      evidencePack,
+      articleFr: webDraft.fr.article_markdown,
+      articleEn: webDraft.en.article_markdown,
+      allowedSourceUrls: selectedStories.map((story) => story.sourceUrl),
+      config,
+    });
+
+    if (shouldBlockCopyrightCompliance(copyrightComplianceResult)) {
+      const message = `Copyright compliance blocked publication with max risk "${copyrightComplianceResult.max_risk}"`;
+      await supabaseAdmin
+        .from('ai_recap_editions')
+        .update({
+          status: 'failed',
+          run_id: run.id,
+          fact_check_result: factCheckResult,
+          quality_report: {
+            generated_at: new Date().toISOString(),
+            generated_by: 'weekly-ai-recap-cron',
+            stage: 'copyright_compliance',
+            status: 'failed',
+            brief_quality: briefQuality,
+            fact_check: {
+              status: factCheckResult.status,
+              issues: factCheckResult.issues,
+              issues_count: factCheckResult.issues.length,
+            },
+            copyright_compliance: copyrightComplianceResult,
+            evidence_pack: {
+              story_count: evidencePack.stories.length,
+              source_urls: evidencePack.sourceUrls,
+              token_estimate: evidencePack.tokenEstimate,
+              truncation: packTruncationStats,
+            },
+          },
+        })
+        .eq('id', edition.id);
+
+      await notifyAdminsOnFailure({
+        editionKey,
+        mode: 'build_article',
+        failureReason: 'copyright_compliance_failed',
+        errorMessage: message,
+        config,
+      });
+      await markRun(
+        run.id,
+        'failed',
+        {
+          mode: 'build_article',
+          editionKey,
+          sourcesConfigured: sourceRows.length,
+          sourcesScraped: successfulScrapes,
+          sourcesFailed: failedSourceIds.size,
+          scrape_methods_breakdown: scrapeMethodsBreakdown,
+          brief_quality_score: briefQuality.score,
+          brief_attempts: briefQuality.attempts,
+          fact_check_status: factCheckResult.status,
+          fact_check_issues: factCheckResult.issues.length,
+          fact_check_issues_detail: factCheckResult.issues,
+          copyright_compliance_status: copyrightComplianceResult.status,
+          copyright_compliance_max_risk: copyrightComplianceResult.max_risk,
+          copyright_compliance_issues: copyrightComplianceResult.issues.length,
+          copyright_compliance_issues_detail: copyrightComplianceResult.issues,
+          token_usage_estimate: evidencePack.tokenEstimate,
+          pack_truncation_stats: packTruncationStats,
+          newsletter_after_publish_status: 'skipped',
+          newsletter_after_publish_reason: 'copyright_compliance_failed',
+          article_ready: false,
+        },
+        message,
+        'copyright_compliance_failed',
+      );
+
+      return json(
+        {
+          runId: run.id,
+          editionId: edition.id,
+          editionKey,
+          status: 'failed',
+          reason: 'copyright_compliance_failed',
+          error: message,
+          factCheck: factCheckResult,
+          copyrightCompliance: copyrightComplianceResult,
+        },
+        409,
+      );
+    }
+
     let summary30Payload: Summary30Payload;
     let summary30Attempts = 0;
     try {
@@ -4495,6 +4953,7 @@ async function buildArticlePipeline(payload: {
               issues: factCheckResult.issues,
               issues_count: factCheckResult.issues.length,
             },
+            copyright_compliance: copyrightComplianceResult,
             summary30s: {
               status: 'failed',
               attempts: SUMMARY30_MAX_ATTEMPTS,
@@ -4527,6 +4986,10 @@ async function buildArticlePipeline(payload: {
           fact_check_status: factCheckResult.status,
           fact_check_issues: factCheckResult.issues.length,
           fact_check_issues_detail: factCheckResult.issues,
+          copyright_compliance_status: copyrightComplianceResult.status,
+          copyright_compliance_max_risk: copyrightComplianceResult.max_risk,
+          copyright_compliance_issues: copyrightComplianceResult.issues.length,
+          copyright_compliance_issues_detail: copyrightComplianceResult.issues,
           summary30s_status: 'failed',
           summary30s_attempts: SUMMARY30_MAX_ATTEMPTS,
           token_usage_estimate: evidencePack.tokenEstimate,
@@ -4678,6 +5141,7 @@ async function buildArticlePipeline(payload: {
             issues: factCheckResult.issues,
             issues_count: factCheckResult.issues.length,
           },
+          copyright_compliance: copyrightComplianceResult,
           summary30s: {
             status: 'pass',
             attempts: summary30Attempts,
@@ -4719,6 +5183,10 @@ async function buildArticlePipeline(payload: {
       fact_check_status: factCheckResult.status,
       fact_check_issues: factCheckResult.issues.length,
       fact_check_issues_detail: factCheckResult.issues,
+      copyright_compliance_status: copyrightComplianceResult.status,
+      copyright_compliance_max_risk: copyrightComplianceResult.max_risk,
+      copyright_compliance_issues: copyrightComplianceResult.issues.length,
+      copyright_compliance_issues_detail: copyrightComplianceResult.issues,
       summary30s_status: 'pass',
       summary30s_attempts: summary30Attempts,
       newsletter_after_publish_status: newsletterAfterPublish.status,
@@ -4761,6 +5229,7 @@ async function buildArticlePipeline(payload: {
     const failureReason =
       lower.includes('brief_quality') ? 'brief_quality_failed'
         : lower.includes('fact_check') ? 'fact_check_failed'
+          : lower.includes('copyright_compliance') ? 'copyright_compliance_failed'
           : lower.includes('summary_30s') || lower.includes('summary30') ? 'summary_30s_failed'
             : 'build_article_failed';
 

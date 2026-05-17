@@ -240,7 +240,7 @@ test('POST /api/stripe/connect returns country_unsupported when profile.country 
 test('POST /api/stripe/connect returns setup error when Stripe secret key is missing', async () => {
   getStripeClientImpl = () => {
     throw new Error(
-      'Missing STRIPE_SECRET_KEY. Add a real key in .env.local (example placeholder: STRIPE_SECRET_KEY=sk_test_xxx).',
+      'Missing STRIPE_SECRET_KEY. Configure a real Stripe secret key before using Stripe Connect.',
     );
   };
 

@@ -10,6 +10,7 @@ import {
 import { applyEventToAnonymousProfile, parseAnonymousRecommendationProfile } from '@/features/recommendations/lib/anonymous-profile';
 import { hasAnalyticsConsentFromCcCookie } from '@/features/recommendations/lib/consent';
 import { RecommendationEventPayload } from '@/features/recommendations/types';
+import { shouldTrackSignedInRecommendations } from '@/features/recommendations/server/privacy';
 import type { Json } from '@/types/database.types';
 
 const payloadSchema = z.object({
@@ -49,6 +50,11 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
+      const canTrack = await shouldTrackSignedInRecommendations(supabase, user.id);
+      if (!canTrack) {
+        return NextResponse.json({ success: true, skipped: 'recommendation_personalization_disabled' });
+      }
+
       const { error } = await supabase.from('recommendation_events').insert({
         user_id: user.id,
         event_type: payload.eventType,

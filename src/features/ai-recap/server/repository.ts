@@ -1,7 +1,7 @@
 import { unstable_cache } from 'next/cache';
 import { PUBLIC_CACHE_TAGS } from '@/lib/cache/tags';
 import { createPublicServerClient } from '@/lib/supabase/server-public';
-import { RecapPostCard, RecapPostDetail } from '../types';
+import { RecapLocale, RecapPostCard, RecapPostDetail } from '../types';
 
 type JsonRecord = Record<string, unknown>;
 type SupabaseQueryError = {
@@ -333,13 +333,19 @@ async function fetchPublishedRecapPostsPage(args: {
   };
 }
 
-async function fetchRecapPostBySlug(slug: string): Promise<RecapPostDetail | null> {
+async function fetchRecapPostBySlug(slug: string, locale?: RecapLocale): Promise<RecapPostDetail | null> {
   const supabase = createPublicServerClient();
-  const withTagsResult = await supabase
+  let queryWithTags = supabase
     .from('ai_recap_posts')
     .select('id, edition_id, locale, slug, title, intro, excerpt, tags, published_at, content_markdown, content_json')
     .eq('slug', slug)
-    .eq('is_published', true)
+    .eq('is_published', true);
+
+  if (locale) {
+    queryWithTags = queryWithTags.eq('locale', locale);
+  }
+
+  const withTagsResult = await queryWithTags
     .maybeSingle();
 
   if (!withTagsResult.error) {
@@ -356,11 +362,17 @@ async function fetchRecapPostBySlug(slug: string): Promise<RecapPostDetail | nul
     return null;
   }
 
-  const withoutTagsResult = await supabase
+  let queryWithoutTags = supabase
     .from('ai_recap_posts')
     .select('id, edition_id, locale, slug, title, intro, excerpt, published_at, content_markdown, content_json')
     .eq('slug', slug)
-    .eq('is_published', true)
+    .eq('is_published', true);
+
+  if (locale) {
+    queryWithoutTags = queryWithoutTags.eq('locale', locale);
+  }
+
+  const withoutTagsResult = await queryWithoutTags
     .maybeSingle();
 
   if (withoutTagsResult.error || !withoutTagsResult.data) {
@@ -457,6 +469,14 @@ const getRecapPostBySlugCached = unstable_cache(
   { tags: [PUBLIC_CACHE_TAGS.news], revalidate: FALLBACK_REVALIDATE_SECONDS },
 );
 
+const getRecapPostBySlugAndLocaleCached = unstable_cache(
+  async (slug: string, locale: RecapLocale): Promise<RecapPostDetail | null> => {
+    return fetchRecapPostBySlug(slug, locale);
+  },
+  ['news:published:detail-by-locale:v1'],
+  { tags: [PUBLIC_CACHE_TAGS.news], revalidate: FALLBACK_REVALIDATE_SECONDS },
+);
+
 const getSiblingRecapPostsCached = unstable_cache(
   async (editionId: string, excludeSlug: string): Promise<RecapPostCard[]> => {
     return fetchSiblingRecapPosts(editionId, excludeSlug);
@@ -482,6 +502,10 @@ export async function getPublishedRecapPostsPage(args: {
 
 export async function getRecapPostBySlug(slug: string): Promise<RecapPostDetail | null> {
   return getRecapPostBySlugCached(slug);
+}
+
+export async function getRecapPostBySlugAndLocale(slug: string, locale: RecapLocale): Promise<RecapPostDetail | null> {
+  return getRecapPostBySlugAndLocaleCached(slug, locale);
 }
 
 export async function getSiblingRecapPosts(editionId: string, excludeSlug: string) {

@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import {
+  requireStripeConnectSampleSeller,
+  stripeConnectSampleAccessResponse,
+} from '@/lib/stripe/connect-sample-access';
 import {
   buildStripeConnectAccountCreateParams,
   buildStripeConnectAccountUpdateParams,
@@ -19,25 +22,9 @@ type ConnectSampleAccountRequest = {
  */
 export async function GET() {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('stripe_account_id')
-      .eq('id', user.id)
-      .single();
-
-    if (profileError) {
-      return NextResponse.json({ error: 'Failed to load profile' }, { status: 500 });
-    }
+    const access = await requireStripeConnectSampleSeller();
+    if (!access.ok) return stripeConnectSampleAccessResponse(access);
+    const { profile } = access;
 
     if (!profile?.stripe_account_id) {
       return NextResponse.json({ connectedAccount: null });
@@ -64,15 +51,9 @@ export async function GET() {
  */
 export async function POST(req: Request) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const access = await requireStripeConnectSampleSeller();
+    if (!access.ok) return stripeConnectSampleAccessResponse(access);
+    const { supabase, user, profile } = access;
 
     const body = (await req.json().catch(() => ({}))) as ConnectSampleAccountRequest;
     const trimmedDisplayName = body.displayName?.trim();
@@ -90,16 +71,6 @@ export async function POST(req: Request) {
         { error: 'contactEmail is required. Add a valid seller contact email.' },
         { status: 400 },
       );
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('stripe_account_id')
-      .eq('id', user.id)
-      .single();
-
-    if (profileError) {
-      return NextResponse.json({ error: 'Failed to load profile' }, { status: 500 });
     }
 
     const stripeClient = getStripeClientForConnectSample();

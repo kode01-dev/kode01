@@ -27,6 +27,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description: t('subtitle'),
     alternates: {
       canonical: `/${locale}/news`,
+      types: {
+        'application/rss+xml': [
+          {
+            title: locale === 'fr' ? 'KODE01 Nouvelles IA RSS' : 'KODE01 AI News RSS',
+            url: `/${locale}/news/rss.xml`,
+          },
+        ],
+      },
     },
   }, '/news', { locale });
 }

@@ -14,6 +14,7 @@ interface Profile {
     avatar_url: string | null;
     stripe_customer_id?: string | null;
     onboarding_completed: boolean;
+    recommendation_personalization_enabled: boolean;
 }
 
 interface AuthContextType {

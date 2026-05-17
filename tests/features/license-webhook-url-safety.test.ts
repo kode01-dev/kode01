@@ -19,14 +19,20 @@ test('validateWebhookEndpointUrl blocks local hostnames and private IP literals'
     assert.equal(localhostResult.reason, 'blocked_hostname');
   }
 
-  const privateIpResult = await validateWebhookEndpointUrl('http://127.0.0.1:8080/hook');
+  const privateIpResult = await validateWebhookEndpointUrl('https://127.0.0.1/hook');
   assert.equal(privateIpResult.ok, false);
   if (!privateIpResult.ok) {
     assert.equal(privateIpResult.reason, 'blocked_ip_literal');
   }
 });
 
-test('validateWebhookEndpointUrl blocks unsupported protocols and credentials in URL', async () => {
+test('validateWebhookEndpointUrl blocks plaintext, unsupported protocols, and credentials in URL', async () => {
+  const plaintextResult = await validateWebhookEndpointUrl('http://example.com/hook');
+  assert.equal(plaintextResult.ok, false);
+  if (!plaintextResult.ok) {
+    assert.equal(plaintextResult.reason, 'invalid_protocol');
+  }
+
   const protocolResult = await validateWebhookEndpointUrl('ftp://example.com/hook');
   assert.equal(protocolResult.ok, false);
   if (!protocolResult.ok) {

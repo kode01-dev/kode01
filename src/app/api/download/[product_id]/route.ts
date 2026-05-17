@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getAuditContextFromRequest, logAuditEvent } from '@/lib/security/audit';
 import { securityErrorResponse } from '@/lib/security/api-errors';
+import { enforceRouteRateLimit } from '@/lib/security/rate-limit-route';
+import { shouldTrackSignedInRecommendations } from '@/features/recommendations/server/privacy';
+import { isSellerVaultPath } from '@/lib/vendor/vault-path';
 
 export async function GET(
     req: Request,
@@ -34,6 +37,13 @@ export async function GET(
         }
         actorUserId = user.id;
 
+        const rateLimited = await enforceRouteRateLimit({
+            request: req,
+            action: 'PRODUCT_DOWNLOAD',
+            extraKeyPart: `${user.id}:${product_id}`,
+        });
+        if (rateLimited) return rateLimited;
+
         // Check if the user has purchased this product
         const { data: purchase, error: purchaseError } = await supabase
             .from('purchases')
@@ -64,13 +74,25 @@ export async function GET(
         // Fetch the product's vault file path
         const { data: product, error: productError } = await supabase
             .from('products')
-            .select('file_path_vault')
+            .select('file_path_vault, seller_id')
             .eq('id', product_id)
             .single();
 
         if (productError || !product || !product.file_path_vault) {
             await logAuditEvent({
                 eventType: 'product.download.failed.product_not_found',
+                userId: actorUserId,
+                path: auditContext.path,
+                ipAddress: auditContext.ipAddress,
+                userAgent: auditContext.userAgent,
+                metadata: { product_id: product_id },
+            });
+            return NextResponse.json({ error: 'Product file not found' }, { status: 404 });
+        }
+
+        if (!isSellerVaultPath(product.file_path_vault, product.seller_id)) {
+            await logAuditEvent({
+                eventType: 'product.download.failed.invalid_vault_path',
                 userId: actorUserId,
                 path: auditContext.path,
                 ipAddress: auditContext.ipAddress,
@@ -113,15 +135,17 @@ export async function GET(
             },
         });
 
-        await supabase.from('recommendation_events').insert({
-            user_id: user.id,
-            event_type: 'download_started',
-            source_type: 'download',
-            target_product_id: product_id,
-            signal_payload: {
-                purchase_id: purchase.id,
-            },
-        });
+        if (await shouldTrackSignedInRecommendations(supabase, user.id)) {
+            await supabase.from('recommendation_events').insert({
+                user_id: user.id,
+                event_type: 'download_started',
+                source_type: 'download',
+                target_product_id: product_id,
+                signal_payload: {
+                    purchase_id: purchase.id,
+                },
+            });
+        }
 
         // Redirect the user to the signed URL so the download starts
         return NextResponse.redirect(signedUrlData.signedUrl);

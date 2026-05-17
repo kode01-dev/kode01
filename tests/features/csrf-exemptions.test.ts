@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import test from 'node:test';
 import { CSRF_EXEMPT_API_PATHS, isCsrfExemptApiPath } from '@/lib/security/csrf-exemptions';
 
@@ -23,4 +25,12 @@ test('csrf exemption path normalization only trims trailing slash', () => {
 test('csrf exemption list has unique entries', () => {
   const unique = new Set(CSRF_EXEMPT_API_PATHS);
   assert.equal(unique.size, CSRF_EXEMPT_API_PATHS.length);
+});
+
+test('proxy uses the exact csrf exemption allowlist instead of broad prefixes', () => {
+  const proxySource = readFileSync(resolve('src/proxy.ts'), 'utf8');
+
+  assert.match(proxySource, /from '@\/lib\/security\/csrf-exemptions'/);
+  assert.doesNotMatch(proxySource, /CSRF_EXEMPT_API_PREFIXES/);
+  assert.doesNotMatch(proxySource, /pathname\.startsWith\(prefix\)/);
 });

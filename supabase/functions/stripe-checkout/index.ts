@@ -58,7 +58,6 @@ Deno.serve(async (req) => {
     );
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
       adaptive_pricing: {
         enabled: true,
       },

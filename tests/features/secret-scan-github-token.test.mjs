@@ -33,3 +33,25 @@ test('secret scan blocks committed GitHub tokens', () => {
     fs.rmSync(repo, { recursive: true, force: true });
   }
 });
+
+test('secret scan blocks hardcoded Modal agent token fallbacks', () => {
+  const repo = makeTempGitRepo();
+
+  try {
+    const file = path.join(repo, 'trigger_recap.py');
+    const fakeAgentToken = `${'a'.repeat(31)}1`;
+    fs.writeFileSync(
+      file,
+      `import os\nSECRET = os.environ.get("AGENT_INTERNAL_TOKEN", "${fakeAgentToken}")\n`,
+    );
+    const add = spawnSync('git', ['add', 'trigger_recap.py'], { cwd: repo, encoding: 'utf8' });
+    assert.equal(add.status, 0, add.stderr);
+
+    const scan = spawnSync(process.execPath, [secretScanScript], { cwd: repo, encoding: 'utf8' });
+
+    assert.equal(scan.status, 1);
+    assert.match(scan.stderr, /trigger_recap\.py:2 Hardcoded Modal agent token fallback/);
+  } finally {
+    fs.rmSync(repo, { recursive: true, force: true });
+  }
+});

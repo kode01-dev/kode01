@@ -21,11 +21,11 @@ export default async function LegalLandingPage() {
     const l = await getTranslations('legal');
 
     const legalLinks = [
-        { href: '/privacy', title: t('privacy'), icon: Shield, desc: 'How we handle your personal data.' },
-        { href: '/terms', title: t('terms'), icon: Scale, desc: 'Rules for using our platform.' },
-        { href: '/cookies', title: l('cookies.title'), icon: Cookie, desc: 'How we use cookies to improve experience.' },
-        { href: '/canada-privacy', title: l('canada.title'), icon: MapPin, desc: 'Compliance with Law 25 & PIPEDA.' },
-        { href: '/gdpr-ccpa', title: l('gdpr_ccpa.title'), icon: Globe, desc: 'EU and California data rights.' }
+        { href: '/privacy', title: t('privacy'), icon: Shield, desc: l('landing_privacy_desc') },
+        { href: '/terms', title: t('terms'), icon: Scale, desc: l('landing_terms_desc') },
+        { href: '/cookies', title: l('cookies.title'), icon: Cookie, desc: l('landing_cookies_desc') },
+        { href: '/canada-privacy', title: l('canada.title'), icon: MapPin, desc: l('landing_canada_desc') },
+        { href: '/gdpr-ccpa', title: l('gdpr_ccpa.title'), icon: Globe, desc: l('landing_gdpr_ccpa_desc') }
     ];
 
     return (
@@ -38,7 +38,7 @@ export default async function LegalLandingPage() {
                         {t('legal')}
                     </h1>
                     <p className="text-kode01-noir/70 text-lg sm:text-xl max-w-2xl mb-12 leading-relaxed">
-                        Transparency and privacy are central to KODE01. Review our legal policies and your rights in one place.
+                        {l('landing_intro')}
                     </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

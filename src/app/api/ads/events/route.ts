@@ -29,7 +29,7 @@ export async function POST(req: Request) {
       const cookieMatch = cookieHeader.match(/cc_cookie=([^;]+)/);
       const ccCookie = cookieMatch ? decodeURIComponent(cookieMatch[1]) : undefined;
 
-      if (!hasMarketingConsentFromCcCookie(ccCookie)) {
+      if (req.headers.get('sec-gpc') === '1' || !hasMarketingConsentFromCcCookie(ccCookie)) {
         return NextResponse.json({ success: true, consent_blocked: true });
       }
     }

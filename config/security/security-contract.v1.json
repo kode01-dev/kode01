@@ -21,7 +21,7 @@
       "mfa_required": false,
       "csrf_required": true,
       "rate_limit": "GLOBAL_API + endpoint policy",
-      "compensating_controls": "Seller MFA is optional at launch; route auth, seller role checks, ownership checks, CSRF, RLS, audit logging, and rate limits remain required."
+      "compensating_controls": "Seller MFA is not required at launch; route auth, seller role checks, ownership checks, CSRF, RLS, audit logging, and rate limits remain required."
     },
     {
       "path_prefix": "/api/vendor/products/*/license",
@@ -30,7 +30,7 @@
       "mfa_required": false,
       "csrf_required": true,
       "rate_limit": "GLOBAL_API + endpoint policy",
-      "compensating_controls": "Seller MFA is optional at launch; route auth, seller role checks, ownership checks, CSRF, RLS, audit logging, and rate limits remain required."
+      "compensating_controls": "Seller MFA is not required at launch; route auth, seller role checks, ownership checks, CSRF, RLS, audit logging, and rate limits remain required."
     },
     {
       "path_prefix": "/api/stripe/connect",
@@ -39,7 +39,7 @@
       "mfa_required": false,
       "csrf_required": true,
       "rate_limit": "STRIPE_CHECKOUT",
-      "compensating_controls": "Seller MFA is optional at launch; Stripe Connect actions remain protected by session auth, seller role checks, CSRF, Stripe state validation, audit logging, and rate limits."
+      "compensating_controls": "Seller MFA is not required at launch; Stripe Connect actions remain protected by session auth, seller role checks, CSRF, Stripe state validation, audit logging, and rate limits."
     },
     {
       "path_prefix": "/api/stripe/checkout",
@@ -63,6 +63,7 @@
       "role_required": "buyer",
       "ownership_check_required": true,
       "signed_url_required": true,
+      "vault_path_validation_required": true,
       "rate_limit": "GLOBAL_API + endpoint policy"
     },
     {

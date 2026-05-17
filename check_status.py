@@ -1,14 +1,20 @@
 import hashlib
 import hmac
 import json
+import os
 import time
 import uuid
 import httpx
 import sys
 
-# Configuration
-API_BASE_URL = "https://simbourd--kode01-agent-runtime-sync-api.modal.run"
-SECRET = "64f1d9e2b1c4a5d8e7f9a0b1c2d3e4f5a6b7c8d9e0f1"
+def required_env(name: str) -> str:
+    value = os.environ.get(name, "").strip()
+    if not value:
+        raise SystemExit(f"Missing required environment variable: {name}")
+    return value
+
+API_BASE_URL = required_env("MODAL_AGENT_API_URL").rstrip("/")
+SECRET = required_env("AGENT_INTERNAL_TOKEN")
 JOB_ID = sys.argv[1] if len(sys.argv) > 1 else 'manual-6ef3662d'
 
 def check_status(job_id):

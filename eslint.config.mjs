@@ -17,7 +17,23 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Temporary work trees and snapshots.
     "tmp/**",
+    // Vendored Python reference project; not part of the Next.js lint surface.
+    "Scrapling-main/**",
   ]),
+  {
+    files: ["tests/**/*.ts", "tests/**/*.mjs"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

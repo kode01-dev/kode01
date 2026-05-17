@@ -27,6 +27,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     robots: seo.robots ?? 'index, follow',
     alternates: {
       canonical: seo.canonicalUrl ?? `${baseUrl}/${locale}/blog`,
+      types: {
+        'application/rss+xml': [
+          {
+            title: locale === 'fr' ? 'KODE01 Blogue RSS' : 'KODE01 Blog RSS',
+            url: `${baseUrl}/${locale}/blog/rss.xml`,
+          },
+        ],
+      },
     },
     openGraph: {
       title: seo.ogTitle ?? title,

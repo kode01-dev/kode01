@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getAuditContextFromRequest, logAuditEvent } from '@/lib/security/audit';
 import { createOrderIncidentSchema } from '@/features/order-incidents/server/schemas';
+import { shouldTrackSignedInRecommendations } from '@/features/recommendations/server/privacy';
 import type { BuyerOrderIncidentListItem } from '@/features/order-incidents/types';
 import { computeIncidentSlaDeadline } from '@/features/order-incidents/server/sla';
 
@@ -310,17 +311,19 @@ export async function POST(request: Request) {
       });
     }
 
-    await supabase.from('recommendation_events').insert({
-      user_id: user.id,
-      event_type: 'refund_requested',
-      source_type: 'refund',
-      target_product_id: purchaseRow.product_id,
-      signal_payload: {
-        incident_id: createdIncident.id,
-        purchase_id: purchaseId,
-        issue_type: issueType,
-      },
-    });
+    if (await shouldTrackSignedInRecommendations(supabase, user.id)) {
+      await supabase.from('recommendation_events').insert({
+        user_id: user.id,
+        event_type: 'refund_requested',
+        source_type: 'refund',
+        target_product_id: purchaseRow.product_id,
+        signal_payload: {
+          incident_id: createdIncident.id,
+          purchase_id: purchaseId,
+          issue_type: issueType,
+        },
+      });
+    }
 
     await logAuditEvent({
       eventType: 'order_incidents.create.success',

@@ -40,6 +40,7 @@ export default function CanadaPrivacyContent() {
                 <div className="not-prose space-y-5">
                     <section className="rounded-2xl border border-kode01-noir/10 bg-kode01-cream/60 p-6 md:p-7">
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-kode01-noir/55">{t('title')}</p>
+                        <p className="mt-2 text-xs font-semibold text-kode01-noir/55">{t('last_updated')}</p>
                         <p className="mt-3 text-kode01-noir/85 leading-relaxed">{t('intro')}</p>
                     </section>
 

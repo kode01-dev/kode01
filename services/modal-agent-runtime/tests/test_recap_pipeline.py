@@ -108,7 +108,7 @@ def make_config(**overrides):
         "article_max_tokens": 2000,
         "ai_fail_fast": True,
         "allow_paid_fallback": False,
-        "max_anthropic_calls_per_run": 3,
+        "max_anthropic_calls_per_run": 4,
         "firecrawl_api_key": "firecrawl-key",
         "app_base_url": "https://kode01.test",
         "sendfox_api_token": "sendfox-key",
@@ -161,6 +161,15 @@ def make_summary():
     return {
         "fr": {"bullets": ["FR 1"], "primary_source_url": "https://example.com/story", "source_urls": ["https://example.com/story"]},
         "en": {"bullets": ["EN 1"], "primary_source_url": "https://example.com/story", "source_urls": ["https://example.com/story"]},
+    }
+
+
+def make_copyright_compliance(max_risk="low", issues=None):
+    issues = issues if issues is not None else []
+    return {
+        "status": "fail" if max_risk in {"medium", "high"} else "warn" if issues else "pass",
+        "max_risk": max_risk,
+        "issues": issues,
     }
 
 
@@ -255,11 +264,14 @@ class RecapPipelineScraplingTests(unittest.TestCase):
     def setUp(self):
         self.original_scrapling_fetch = pipeline._scrapling_fetch
         self.original_fetch_url_text = pipeline._fetch_url_text
+        self.original_validate_public_https_url = pipeline._validate_public_https_url
+        pipeline._validate_public_https_url = lambda url, base_url=None: pipeline.urljoin(base_url, url.strip()) if base_url else url.strip()
         self.original_firecrawl = pipeline._scrape_with_firecrawl
         self.original_scrape_source = pipeline._scrape_source
         self.original_generate_brief = pipeline._generate_brief
         self.original_generate_article = pipeline._generate_article
         self.original_fact_check = pipeline._fact_check
+        self.original_copyright_compliance_check = pipeline._copyright_compliance_check
         self.original_generate_summary30 = pipeline._generate_summary30
         self.original_sendfox_request = pipeline._sendfox_request
         self.original_repository = pipeline.RecapRepository
@@ -268,11 +280,13 @@ class RecapPipelineScraplingTests(unittest.TestCase):
     def tearDown(self):
         pipeline._scrapling_fetch = self.original_scrapling_fetch
         pipeline._fetch_url_text = self.original_fetch_url_text
+        pipeline._validate_public_https_url = self.original_validate_public_https_url
         pipeline._scrape_with_firecrawl = self.original_firecrawl
         pipeline._scrape_source = self.original_scrape_source
         pipeline._generate_brief = self.original_generate_brief
         pipeline._generate_article = self.original_generate_article
         pipeline._fact_check = self.original_fact_check
+        pipeline._copyright_compliance_check = self.original_copyright_compliance_check
         pipeline._generate_summary30 = self.original_generate_summary30
         pipeline._sendfox_request = self.original_sendfox_request
         pipeline.RecapRepository = self.original_repository
@@ -298,6 +312,7 @@ class RecapPipelineScraplingTests(unittest.TestCase):
           <description>Short teaser</description>
         </item></channel></rss>
         """
+        pipeline._validate_public_https_url = lambda url: url
         pipeline._fetch_url_text = lambda url, timeout, user_agent=None: (200, feed)
         pipeline._scrapling_fetch = lambda url, stealth=False: FakePage()
         config = make_config()
@@ -307,6 +322,182 @@ class RecapPipelineScraplingTests(unittest.TestCase):
         self.assertTrue(result["scrape_ok"])
         self.assertEqual(result["scrape_method"], "rss+scrapling")
         self.assertEqual(result["source_url"], "https://example.com/news/rss-story")
+
+    def test_rss_skips_duplicate_first_entry_and_uses_next_entry(self):
+        feed = """
+        <rss><channel>
+          <item>
+            <title>Old RSS Story</title>
+            <link>https://example.com/news/old-rss-story</link>
+            <description>Old teaser</description>
+          </item>
+          <item>
+            <title>New RSS Story</title>
+            <link>https://example.com/news/new-rss-story</link>
+            <description>New teaser</description>
+          </item>
+        </channel></rss>
+        """
+        calls = []
+        pipeline._validate_public_https_url = lambda url: url
+        pipeline._fetch_url_text = lambda url, timeout, user_agent=None: (200, feed)
+        pipeline._scrapling_fetch = lambda url, stealth=False: calls.append(url) or FakePage()
+        seen = pipeline._canonical_source_url_set(["https://example.com/news/old-rss-story"])
+
+        result = pipeline._scrape_via_rss(make_source(), make_config(), seen)
+
+        self.assertTrue(result["scrape_ok"])
+        self.assertEqual(result["source_url"], "https://example.com/news/new-rss-story")
+        self.assertEqual(calls, ["https://example.com/news/new-rss-story"])
+
+    def test_rss_atom_href_link_is_supported(self):
+        feed = """
+        <feed xmlns="http://www.w3.org/2005/Atom">
+          <entry>
+            <title>Atom Story</title>
+            <link rel="alternate" href="https://example.com/news/atom-story" />
+            <summary>Atom teaser</summary>
+          </entry>
+        </feed>
+        """
+        pipeline._validate_public_https_url = lambda url: url
+        pipeline._fetch_url_text = lambda url, timeout, user_agent=None: (200, feed)
+        pipeline._scrapling_fetch = lambda url, stealth=False: FakePage()
+
+        result = pipeline._scrape_via_rss(make_source(), make_config())
+
+        self.assertTrue(result["scrape_ok"])
+        self.assertEqual(result["source_url"], "https://example.com/news/atom-story")
+        self.assertEqual(result["scrape_method"], "rss+scrapling")
+
+    def test_rss_skips_blocked_entry_link_and_uses_next_entry(self):
+        feed = """
+        <rss><channel>
+          <item>
+            <title>Blocked</title>
+            <link>https://127.0.0.1/private</link>
+            <description>Blocked teaser</description>
+          </item>
+          <item>
+            <title>Safe</title>
+            <link>https://example.com/news/safe-story</link>
+            <description>Safe teaser</description>
+          </item>
+        </channel></rss>
+        """
+
+        def validate(url):
+            if "127.0.0.1" in url:
+                raise RuntimeError("blocked_url:blocked_ip")
+            return url
+
+        pipeline._validate_public_https_url = validate
+        pipeline._fetch_url_text = lambda url, timeout, user_agent=None: (200, feed)
+        pipeline._scrapling_fetch = lambda url, stealth=False: FakePage()
+
+        result = pipeline._scrape_via_rss(make_source(), make_config())
+
+        self.assertTrue(result["scrape_ok"])
+        self.assertEqual(result["source_url"], "https://example.com/news/safe-story")
+
+    def test_rss_rejects_blocked_feed_url(self):
+        pipeline._validate_public_https_url = self.original_validate_public_https_url
+
+        result = pipeline._scrape_via_rss(
+            make_source(feed_url="https://127.0.0.1/feed.xml"),
+            make_config(),
+        )
+
+        self.assertFalse(result["scrape_ok"])
+        self.assertIn("blocked_url", result["error"])
+
+    def test_rss_firecrawl_fallback_after_scrapling_failure_is_preserved(self):
+        feed = """
+        <rss><channel><item>
+          <title>RSS Story</title>
+          <link>https://example.com/news/rss-story</link>
+          <description>Short teaser</description>
+        </item></channel></rss>
+        """
+        pipeline._validate_public_https_url = lambda url: url
+        pipeline._fetch_url_text = lambda url, timeout, user_agent=None: (200, feed)
+        pipeline._scrapling_fetch = lambda url, stealth=False: (_ for _ in ()).throw(RuntimeError("blocked"))
+        pipeline._scrape_with_firecrawl = lambda source, target_url, config: {
+            "source_url": target_url,
+            "title": "Fallback",
+            "text": "fallback text",
+            "snippet": "fallback text",
+            "status": 200,
+            "scrape_ok": True,
+            "scrape_method": "firecrawl",
+            "quality": {"word_count": 150, "data_points": 0, "score": 150},
+        }
+
+        result = pipeline._scrape_via_rss(make_source(), make_config())
+
+        self.assertTrue(result["scrape_ok"])
+        self.assertEqual(result["scrape_method"], "rss+firecrawl")
+        self.assertEqual(result["source_url"], "https://example.com/news/rss-story")
+
+    def test_rss_fetch_blocks_redirect_to_private_destination(self):
+        pipeline._validate_public_https_url = self.original_validate_public_https_url
+
+        class RedirectResponse:
+            status_code = 302
+            headers = {"location": "https://127.0.0.1/private"}
+            content = b""
+            text = ""
+
+        class RedirectClient:
+            def __init__(self, timeout=10.0, follow_redirects=False):
+                self.timeout = timeout
+                self.follow_redirects = follow_redirects
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def get(self, url, headers=None):
+                return RedirectResponse()
+
+        pipeline.httpx.Client = RedirectClient
+
+        with self.assertRaises(RuntimeError) as raised:
+            pipeline._fetch_url_text("https://93.184.216.34/feed.xml", 10)
+
+        self.assertIn("blocked_url", str(raised.exception))
+
+    def test_rss_fetch_rejects_oversized_response(self):
+        pipeline._validate_public_https_url = self.original_validate_public_https_url
+
+        class LargeResponse:
+            status_code = 200
+            headers = {}
+            content = b"x" * (pipeline.RSS_MAX_BYTES + 1)
+            text = "too large"
+
+        class LargeClient:
+            def __init__(self, timeout=10.0, follow_redirects=False):
+                self.timeout = timeout
+                self.follow_redirects = follow_redirects
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def get(self, url, headers=None):
+                return LargeResponse()
+
+        pipeline.httpx.Client = LargeClient
+
+        with self.assertRaises(RuntimeError) as raised:
+            pipeline._fetch_url_text("https://93.184.216.34/feed.xml", 10)
+
+        self.assertIn("too large", str(raised.exception))
 
     def test_firecrawl_fallback_after_scrapling_failure(self):
         pipeline._scrapling_fetch = lambda url, stealth=False: (_ for _ in ()).throw(RuntimeError("blocked"))
@@ -458,6 +649,7 @@ class RecapPipelineScraplingTests(unittest.TestCase):
         pipeline._generate_brief = lambda stories, evidence_pack, edition_key, config: make_brief()
         pipeline._generate_article = lambda stories, brief, evidence_pack, edition_key, config, **kwargs: make_article()
         pipeline._fact_check = lambda article, evidence_pack, config, **kwargs: {"status": "pass", "issues": []}
+        pipeline._copyright_compliance_check = lambda article, evidence_pack, config, **kwargs: make_copyright_compliance()
         pipeline._generate_summary30 = lambda article, stories, config, **kwargs: make_summary()
 
         result = pipeline._run_build_article(
@@ -472,7 +664,104 @@ class RecapPipelineScraplingTests(unittest.TestCase):
         self.assertTrue(repo.posts["fr"]["is_published"])
         self.assertTrue(repo.posts["en"]["is_published"])
         self.assertEqual(result["newsletter"]["reason"], "manual_build_no_auto_dispatch")
+        self.assertEqual(repo.edition["quality_report"]["copyright_compliance"]["max_risk"], "low")
+        self.assertEqual(repo.run_marks[-1]["metrics"]["copyright_compliance_status"], "pass")
         self.assertEqual(repo.run_marks[-1]["status"], "succeeded")
+
+    def test_copyright_compliance_medium_risk_blocks_publication_and_newsletter(self):
+        repo = FakeRepo()
+        pipeline._scrape_source = lambda source, config, seen_source_urls=None: {
+            "source_url": "https://example.com/story",
+            "title": "Enterprise AI story",
+            "text": ("Verified enterprise AI source text 2026. " * 20).strip(),
+            "snippet": "Verified enterprise AI source text 2026.",
+            "status": 200,
+            "scrape_ok": True,
+            "scrape_method": "rss+scrapling",
+            "quality": {"word_count": 120, "data_points": 1, "score": 140},
+        }
+        pipeline._generate_brief = lambda stories, evidence_pack, edition_key, config: make_brief()
+        pipeline._generate_article = lambda stories, brief, evidence_pack, edition_key, config, **kwargs: make_article()
+        pipeline._fact_check = lambda article, evidence_pack, config, **kwargs: {"status": "pass", "issues": []}
+        pipeline._copyright_compliance_check = lambda article, evidence_pack, config, **kwargs: make_copyright_compliance(
+            "medium",
+            [
+                {
+                    "risk": "medium",
+                    "rule_ids": ["5", "6"],
+                    "locale": "fr",
+                    "passage": "Une statistique specifique est mentionnee sans attribution de proximite.",
+                    "source_url": "https://example.com/story",
+                    "reason": "Attribution insuffisante dans le paragraphe concerne.",
+                    "suggestion": "Ajouter Selon [Source](https://example.com/story) dans le paragraphe.",
+                    "requires_external_verification": False,
+                }
+            ],
+        )
+        pipeline._generate_summary30 = lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("summary should not run"))
+        pipeline._sendfox_request = lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("newsletter should not send"))
+
+        result = pipeline._run_build_article(
+            {"trigger": "cron", "editionKey": "AI-2026-W18", "force": True},
+            repo=repo,
+            config=make_config(),
+            schedule_timezone="America/Toronto",
+        )
+
+        self.assertEqual(result["status"], "failed")
+        self.assertEqual(result["reason"], "copyright_compliance_failed")
+        self.assertEqual(repo.posts, {})
+        self.assertIsNone(repo.dispatch)
+        self.assertEqual(repo.edition["quality_report"]["stage"], "copyright_compliance")
+        self.assertEqual(repo.edition["quality_report"]["copyright_compliance"]["max_risk"], "medium")
+        self.assertEqual(repo.run_marks[-1]["failure_reason"], "copyright_compliance_failed")
+        self.assertEqual(repo.run_marks[-1]["metrics"]["copyright_compliance_max_risk"], "medium")
+
+    def test_copyright_compliance_high_risk_blocks_copied_passage(self):
+        repo = FakeRepo()
+        pipeline._scrape_source = lambda source, config, seen_source_urls=None: {
+            "source_url": "https://example.com/story",
+            "title": "Enterprise AI story",
+            "text": ("Verified enterprise AI source text 2026. " * 20).strip(),
+            "snippet": "Verified enterprise AI source text 2026.",
+            "status": 200,
+            "scrape_ok": True,
+            "scrape_method": "rss+scrapling",
+            "quality": {"word_count": 120, "data_points": 1, "score": 140},
+        }
+        pipeline._generate_brief = lambda stories, evidence_pack, edition_key, config: make_brief()
+        pipeline._generate_article = lambda stories, brief, evidence_pack, edition_key, config, **kwargs: make_article()
+        pipeline._fact_check = lambda article, evidence_pack, config, **kwargs: {"status": "pass", "issues": []}
+        pipeline._copyright_compliance_check = lambda article, evidence_pack, config, **kwargs: make_copyright_compliance(
+            "high",
+            [
+                {
+                    "risk": "high",
+                    "rule_ids": ["1", "2", "13"],
+                    "locale": "en",
+                    "passage": "A copied source sentence appears verbatim.",
+                    "source_url": "https://example.com/story",
+                    "reason": "The passage appears to copy or closely translate source wording.",
+                    "suggestion": "Rewrite the claim with a different structure and attribution.",
+                    "requires_external_verification": True,
+                }
+            ],
+        )
+        pipeline._generate_summary30 = lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("summary should not run"))
+        pipeline._sendfox_request = lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("newsletter should not send"))
+
+        result = pipeline._run_build_article(
+            {"trigger": "manual", "editionKey": "AI-2026-W18"},
+            repo=repo,
+            config=make_config(),
+            schedule_timezone="America/Toronto",
+        )
+
+        self.assertEqual(result["status"], "failed")
+        self.assertEqual(result["reason"], "copyright_compliance_failed")
+        self.assertEqual(repo.posts, {})
+        self.assertEqual(repo.edition["quality_report"]["copyright_compliance"]["max_risk"], "high")
+        self.assertTrue(repo.edition["quality_report"]["copyright_compliance"]["issues"][0]["requires_external_verification"])
 
     def test_anthropic_request_uses_structured_output_config(self):
         repo = FakeRepo()

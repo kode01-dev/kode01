@@ -18,6 +18,7 @@ export type RateLimitAction =
   | 'AD_EVENT'
   | 'LOCKSCREEN_UNLOCK'
   | 'LICENSE_API'
+  | 'PRODUCT_DOWNLOAD'
   | 'ARTICLE_CLAP'
   | 'WEBHOOK_REPLAY';
 
@@ -56,6 +57,7 @@ export const RATE_LIMIT_SCHEMAS: Record<RateLimitAction, RateLimitSchema> = {
   AD_EVENT: { limit: 50, windowSeconds: 60 },
   LOCKSCREEN_UNLOCK: { limit: 10, windowSeconds: 15 * 60 },
   LICENSE_API: { limit: 120, windowSeconds: 60 },
+  PRODUCT_DOWNLOAD: { limit: 30, windowSeconds: 60 },
   ARTICLE_CLAP: { limit: 30, windowSeconds: 60 },
   WEBHOOK_REPLAY: { limit: 20, windowSeconds: 60 },
 };
@@ -74,6 +76,7 @@ export const ENDPOINT_RATE_LIMIT_ACTIONS: Record<string, RateLimitAction> = {
   '/api/lockscreen/unlock': 'LOCKSCREEN_UNLOCK',
   '/api/licenses/verify': 'LICENSE_API',
   '/api/licenses/activate': 'LICENSE_API',
+  '/api/download': 'PRODUCT_DOWNLOAD',
   '/api/claps': 'ARTICLE_CLAP',
 };
 
@@ -89,5 +92,6 @@ export const HYBRID_FAIL_CLOSED_ACTIONS = new Set<RateLimitAction>([
   'NEWSLETTER_SUBSCRIBE',
   'LOCKSCREEN_UNLOCK',
   'LICENSE_API',
+  'PRODUCT_DOWNLOAD',
   'WEBHOOK_REPLAY',
 ]);

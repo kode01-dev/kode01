@@ -1,7 +1,9 @@
 import hashlib
+import ipaddress
 import json
 import os
 import re
+import socket
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -19,10 +21,22 @@ FIRECRAWL_SCRAPE_URL = "https://api.firecrawl.dev/v2/scrape"
 GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 ANTHROPIC_ENDPOINT = "https://api.anthropic.com/v1/messages"
 RSS_TIMEOUT_SECONDS = 10.0
+RSS_MAX_ENTRIES = 5
+RSS_MAX_BYTES = 1_000_000
+RSS_MAX_REDIRECTS = 3
 SCRAPLING_TIMEOUT_SECONDS = 18.0
 FIRECRAWL_TIMEOUT_SECONDS = 20.0
 ARTICLE_SELECTORS = ("article", "main", "[role='main']", ".post", ".article", ".content", "#content")
 TAG_RE = re.compile(r"(?is)<[^>]+>")
+RSS_REDIRECT_STATUSES = {301, 302, 303, 307, 308}
+RSS_BLOCKED_HOSTNAMES = {
+    "localhost",
+    "localhost.localdomain",
+    "host.docker.internal",
+    "metadata.google.internal",
+    "169.254.169.254",
+}
+RSS_BLOCKED_HOSTNAME_SUFFIXES = (".localhost", ".local", ".internal", ".home.arpa")
 
 ARTICLE_OUTPUT_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -71,6 +85,43 @@ FACT_CHECK_OUTPUT_SCHEMA: dict[str, Any] = {
         }
     },
     "required": ["issues"],
+    "additionalProperties": False,
+}
+
+COPYRIGHT_COMPLIANCE_OUTPUT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "status": {"type": "string"},
+        "max_risk": {"type": "string"},
+        "issues": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "risk": {"type": "string"},
+                    "rule_ids": {"type": "array", "items": {"type": "string"}},
+                    "locale": {"type": "string"},
+                    "passage": {"type": "string"},
+                    "source_url": {"type": "string"},
+                    "reason": {"type": "string"},
+                    "suggestion": {"type": "string"},
+                    "requires_external_verification": {"type": "boolean"},
+                },
+                "required": [
+                    "risk",
+                    "rule_ids",
+                    "locale",
+                    "passage",
+                    "source_url",
+                    "reason",
+                    "suggestion",
+                    "requires_external_verification",
+                ],
+                "additionalProperties": False,
+            },
+        },
+    },
+    "required": ["status", "max_risk", "issues"],
     "additionalProperties": False,
 }
 
@@ -438,7 +489,7 @@ class NativeRecapConfig:
             article_max_tokens=_bounded_int_env("RECAP_ARTICLE_MAX_TOKENS", 6500, 1000, 8192),
             ai_fail_fast=_bool_env("RECAP_AI_FAIL_FAST", True),
             allow_paid_fallback=_bool_env("RECAP_ALLOW_PAID_FALLBACK", False),
-            max_anthropic_calls_per_run=_bounded_int_env("RECAP_MAX_ANTHROPIC_CALLS_PER_RUN", 3, 0, 20),
+            max_anthropic_calls_per_run=_bounded_int_env("RECAP_MAX_ANTHROPIC_CALLS_PER_RUN", 4, 0, 20),
             firecrawl_api_key=_trim_or_none(os.getenv("FIRECRAWL_API_KEY")),
             app_base_url=(os.getenv("APP_BASE_URL") or "https://kode01.com").strip().rstrip("/"),
             sendfox_api_token=_trim_or_none(os.getenv("SENDFOX_API_TOKEN")),
@@ -450,11 +501,100 @@ class NativeRecapConfig:
         )
 
 
+def _is_blocked_rss_hostname(hostname: str) -> bool:
+    normalized = (hostname or "").strip().lower().rstrip(".")
+    if not normalized:
+        return True
+    if normalized in RSS_BLOCKED_HOSTNAMES:
+        return True
+    return any(normalized.endswith(suffix) for suffix in RSS_BLOCKED_HOSTNAME_SUFFIXES)
+
+
+def _is_blocked_rss_ip_address(address: str) -> bool:
+    try:
+        ip = ipaddress.ip_address(address)
+    except ValueError:
+        return True
+    return bool(
+        ip.is_private
+        or ip.is_loopback
+        or ip.is_link_local
+        or ip.is_multicast
+        or ip.is_reserved
+        or ip.is_unspecified
+    )
+
+
+def _resolve_rss_hostname(hostname: str) -> list[str]:
+    records = socket.getaddrinfo(hostname, None, type=socket.SOCK_STREAM)
+    out: list[str] = []
+    for record in records:
+        address = str(record[4][0])
+        if address not in out:
+            out.append(address)
+    return out
+
+
+def _validate_public_https_url(raw_url: str, base_url: str | None = None) -> str:
+    if not isinstance(raw_url, str) or not raw_url.strip():
+        raise RuntimeError("blocked_url:invalid_url")
+    try:
+        candidate = urljoin(base_url, raw_url.strip()) if base_url else raw_url.strip()
+        parsed = urlparse(candidate)
+    except Exception as exc:
+        raise RuntimeError("blocked_url:invalid_url") from exc
+
+    hostname = (parsed.hostname or "").strip().lower().rstrip(".")
+    if parsed.scheme.lower() != "https" or not hostname:
+        raise RuntimeError("blocked_url:invalid_protocol")
+    if parsed.username or parsed.password:
+        raise RuntimeError("blocked_url:contains_credentials")
+    if _is_blocked_rss_hostname(hostname):
+        raise RuntimeError("blocked_url:blocked_hostname")
+
+    try:
+        ipaddress.ip_address(hostname)
+        addresses = [hostname]
+    except ValueError:
+        try:
+            addresses = _resolve_rss_hostname(hostname)
+        except Exception as exc:
+            raise RuntimeError("blocked_url:hostname_resolution_failed") from exc
+        if not addresses:
+            raise RuntimeError("blocked_url:hostname_resolution_empty")
+
+    blocked_address = next((address for address in addresses if _is_blocked_rss_ip_address(address)), None)
+    if blocked_address:
+        raise RuntimeError(f"blocked_url:blocked_ip:{blocked_address}")
+
+    return parsed.geturl()
+
+
 def _fetch_url_text(url: str, timeout_seconds: float, *, user_agent: str | None = None) -> tuple[int, str]:
     headers = {"User-Agent": user_agent} if user_agent else {}
-    with httpx.Client(timeout=timeout_seconds, follow_redirects=True) as client:
-        response = client.get(url, headers=headers)
-    return response.status_code, response.text
+    current_url = _validate_public_https_url(url)
+    with httpx.Client(timeout=timeout_seconds, follow_redirects=False) as client:
+        for redirect_count in range(RSS_MAX_REDIRECTS + 1):
+            response = client.get(current_url, headers=headers)
+            if response.status_code not in RSS_REDIRECT_STATUSES:
+                content = getattr(response, "content", None)
+                if isinstance(content, bytes):
+                    if len(content) > RSS_MAX_BYTES:
+                        raise RuntimeError("RSS response too large")
+                else:
+                    text_bytes = str(getattr(response, "text", "")).encode("utf-8", errors="ignore")
+                    if len(text_bytes) > RSS_MAX_BYTES:
+                        raise RuntimeError("RSS response too large")
+                return response.status_code, response.text
+
+            location = response.headers.get("location") if getattr(response, "headers", None) is not None else None
+            if not location:
+                raise RuntimeError("RSS redirect missing location")
+            if redirect_count >= RSS_MAX_REDIRECTS:
+                raise RuntimeError("RSS redirect limit exceeded")
+            current_url = _validate_public_https_url(urljoin(current_url, location))
+
+    raise RuntimeError("RSS redirect limit exceeded")
 
 
 def _response_status(page: Any) -> int:
@@ -488,14 +628,15 @@ def _selector_text(selector: Any) -> str:
 
 
 def _scrapling_fetch(url: str, *, stealth: bool = False) -> Any:
+    safe_url = _validate_public_https_url(url)
     try:
         from scrapling.fetchers import Fetcher, StealthyFetcher
     except Exception as exc:
         raise RuntimeError("scrapling[fetchers] is not installed in the Modal image") from exc
 
     if stealth:
-        return StealthyFetcher.fetch(url, headless=True, network_idle=True, timeout=int(SCRAPLING_TIMEOUT_SECONDS * 1000))
-    return Fetcher.get(url, timeout=int(SCRAPLING_TIMEOUT_SECONDS))
+        return StealthyFetcher.fetch(safe_url, headless=True, network_idle=True, timeout=int(SCRAPLING_TIMEOUT_SECONDS * 1000))
+    return Fetcher.get(safe_url, timeout=int(SCRAPLING_TIMEOUT_SECONDS))
 
 
 def _extract_links_from_page(page: Any, base_url: str) -> list[str]:
@@ -508,7 +649,10 @@ def _extract_links_from_page(page: Any, base_url: str) -> list[str]:
         href = str(raw).strip()
         if not href or href.startswith(("mailto:", "tel:", "javascript:", "#")):
             continue
-        absolute = urljoin(base_url, href)
+        try:
+            absolute = _validate_public_https_url(href, base_url)
+        except RuntimeError:
+            continue
         if absolute not in out:
             out.append(absolute)
     if out:
@@ -519,7 +663,10 @@ def _extract_links_from_page(page: Any, base_url: str) -> list[str]:
         href = unescape((match.group(2) or "").strip())
         if not href or href.startswith(("mailto:", "tel:", "javascript:", "#")):
             continue
-        absolute = urljoin(base_url, href)
+        try:
+            absolute = _validate_public_https_url(href, base_url)
+        except RuntimeError:
+            continue
         if absolute not in out:
             out.append(absolute)
     return out
@@ -529,6 +676,8 @@ def _is_likely_article_url(candidate: str, source_url: str) -> bool:
     try:
         parsed_candidate = urlparse(candidate)
         parsed_source = urlparse(source_url)
+        if parsed_candidate.scheme != "https" or parsed_source.scheme != "https":
+            return False
         if parsed_candidate.hostname != parsed_source.hostname:
             return False
         path = (parsed_candidate.path or "").lower()
@@ -552,14 +701,15 @@ def _score_article_url(candidate: str, source_url: str) -> int:
 
 
 def _discover_best_article_url(source: RecapSource) -> str:
+    safe_source_url = _validate_public_https_url(source.url)
     try:
-        page = _scrapling_fetch(source.url)
+        page = _scrapling_fetch(safe_source_url)
     except Exception:
-        return source.url
-    candidates = [url for url in _extract_links_from_page(page, source.url) if _is_likely_article_url(url, source.url)]
+        return safe_source_url
+    candidates = [url for url in _extract_links_from_page(page, safe_source_url) if _is_likely_article_url(url, safe_source_url)]
     if not candidates:
-        return source.url
-    return sorted(candidates, key=lambda item: _score_article_url(item, source.url), reverse=True)[0]
+        return safe_source_url
+    return sorted(candidates, key=lambda item: _score_article_url(item, safe_source_url), reverse=True)[0]
 
 
 def _extract_main_content_from_scrapling_page(source: RecapSource, target_url: str, page: Any) -> dict[str, Any]:
@@ -604,11 +754,26 @@ def _extract_main_content_from_scrapling_page(source: RecapSource, target_url: s
 
 def _scrape_with_scrapling(source: RecapSource, target_url: str, config: NativeRecapConfig) -> dict[str, Any]:
     started = time.monotonic()
+    try:
+        safe_target_url = _validate_public_https_url(target_url)
+    except Exception as exc:
+        return {
+            "source_url": target_url,
+            "title": source.name,
+            "text": "",
+            "snippet": "",
+            "status": 400,
+            "scrape_ok": False,
+            "scrape_method": "scrapling",
+            "duration_ms": int((time.monotonic() - started) * 1000),
+            "quality": {"word_count": 0, "data_points": 0, "score": 0},
+            "error": _safe_error(exc),
+        }
     last_error: Exception | None = None
     for stealth in (False, True):
         try:
-            page = _scrapling_fetch(target_url, stealth=stealth)
-            extracted = _extract_main_content_from_scrapling_page(source, target_url, page)
+            page = _scrapling_fetch(safe_target_url, stealth=stealth)
+            extracted = _extract_main_content_from_scrapling_page(source, safe_target_url, page)
             quality = _score_content(extracted["text"])
             status = _response_status(page)
             scrape_ok = status < 400 and quality["word_count"] >= config.scrape_min_words and quality["score"] >= config.scrape_min_words
@@ -626,7 +791,7 @@ def _scrape_with_scrapling(source: RecapSource, target_url: str, config: NativeR
             last_error = exc
             continue
     return {
-        "source_url": target_url,
+        "source_url": safe_target_url,
         "title": source.name,
         "text": "",
         "snippet": "",
@@ -640,9 +805,24 @@ def _scrape_with_scrapling(source: RecapSource, target_url: str, config: NativeR
 
 
 def _scrape_with_firecrawl(source: RecapSource, target_url: str, config: NativeRecapConfig) -> dict[str, Any]:
-    if not config.firecrawl_api_key:
+    try:
+        safe_target_url = _validate_public_https_url(target_url)
+    except Exception as exc:
         return {
             "source_url": target_url,
+            "title": source.name,
+            "text": "",
+            "snippet": "",
+            "status": 400,
+            "scrape_ok": False,
+            "scrape_method": "firecrawl",
+            "quality": {"word_count": 0, "data_points": 0, "score": 0},
+            "error": _safe_error(exc),
+        }
+
+    if not config.firecrawl_api_key:
+        return {
+            "source_url": safe_target_url,
             "title": source.name,
             "text": "",
             "snippet": "",
@@ -657,13 +837,13 @@ def _scrape_with_firecrawl(source: RecapSource, target_url: str, config: NativeR
             response = client.post(
                 FIRECRAWL_SCRAPE_URL,
                 headers={"Authorization": f"Bearer {config.firecrawl_api_key}", "Content-Type": "application/json"},
-                json={"url": target_url, "formats": ["markdown"]},
+                json={"url": safe_target_url, "formats": ["markdown"]},
             )
         body = response.json() if response.text else {}
         markdown = str((body.get("data") or {}).get("markdown") or "") if isinstance(body, dict) else ""
     except Exception as exc:
         return {
-            "source_url": target_url,
+            "source_url": safe_target_url,
             "title": source.name,
             "text": "",
             "snippet": "",
@@ -676,7 +856,7 @@ def _scrape_with_firecrawl(source: RecapSource, target_url: str, config: NativeR
     text = _compact_text(markdown)
     quality = _score_content(text)
     return {
-        "source_url": target_url,
+        "source_url": safe_target_url,
         "title": (markdown.strip().splitlines()[0] if markdown.strip() else source.name).replace("#", "").strip()[:180],
         "text": text,
         "snippet": _extract_snippet(text),
@@ -687,67 +867,127 @@ def _scrape_with_firecrawl(source: RecapSource, target_url: str, config: NativeR
     }
 
 
-def _parse_rss_first_entry(xml_text: str) -> dict[str, str] | None:
+def _xml_local_name(tag: str) -> str:
+    return tag.rsplit("}", 1)[-1] if "}" in tag else tag
+
+
+def _xml_text(node: ElementTree.Element | None) -> str:
+    if node is None:
+        return ""
+    return _compact_text(" ".join(chunk for chunk in node.itertext() if chunk))
+
+
+def _first_entry_child(entry: ElementTree.Element, *names: str) -> ElementTree.Element | None:
+    wanted = set(names)
+    for child in list(entry):
+        if _xml_local_name(child.tag) in wanted:
+            return child
+    return None
+
+
+def _extract_rss_entry_link(entry: ElementTree.Element) -> str:
+    text_link = _xml_text(_first_entry_child(entry, "link"))
+    if text_link:
+        return text_link
+
+    fallback_href = ""
+    for child in list(entry):
+        if _xml_local_name(child.tag) != "link":
+            continue
+        href = (child.attrib.get("href") or "").strip()
+        if not href:
+            continue
+        rel = (child.attrib.get("rel") or "alternate").strip().lower()
+        if rel in {"", "alternate"}:
+            return href
+        if not fallback_href:
+            fallback_href = href
+    return fallback_href
+
+
+def _parse_rss_entries(xml_text: str, max_entries: int = RSS_MAX_ENTRIES) -> list[dict[str, str]]:
     try:
         root = ElementTree.fromstring(xml_text)
     except ElementTree.ParseError:
-        return None
+        return []
     candidates = root.findall(".//item") + root.findall(".//{*}entry")
     if not candidates:
-        return None
-    entry = candidates[0]
-    title = ""
-    link = ""
-    description = ""
-    title_node = entry.find("title")
-    if title_node is None:
-        title_node = entry.find("{*}title")
-    if title_node is not None and title_node.text:
-        title = title_node.text.strip()
-    link_node = entry.find("link")
-    if link_node is None:
-        link_node = entry.find("{*}link")
-    if link_node is not None:
-        link = (link_node.text or link_node.attrib.get("href") or "").strip()
-    description_node = entry.find("description")
-    if description_node is None:
-        description_node = entry.find("{*}summary")
-    if description_node is None:
-        description_node = entry.find("{*}content")
-    if description_node is not None and description_node.text:
-        description = _strip_html(description_node.text)
-    return {"title": title, "link": link, "description": description} if link else None
+        return []
+
+    entries: list[dict[str, str]] = []
+    for entry in candidates[:max(1, max_entries)]:
+        title = _xml_text(_first_entry_child(entry, "title"))
+        link = _extract_rss_entry_link(entry)
+        description_node = _first_entry_child(entry, "description")
+        if description_node is None:
+            description_node = _first_entry_child(entry, "summary")
+        if description_node is None:
+            description_node = _first_entry_child(entry, "content")
+        if description_node is None:
+            description_node = _first_entry_child(entry, "encoded")
+        description = _strip_html(_xml_text(description_node))
+        if link:
+            entries.append({"title": title, "link": link, "description": description})
+    return entries
 
 
 def _scrape_via_rss(source: RecapSource, config: NativeRecapConfig, seen_source_urls: set[str] | None = None) -> dict[str, Any]:
     if not source.feed_url:
         return {"source_url": source.url, "title": source.name, "text": "", "snippet": "", "status": 400, "scrape_ok": False, "scrape_method": "rss", "quality": {"word_count": 0, "data_points": 0, "score": 0}, "error": "RSS route missing feed_url"}
     try:
-        status, xml_text = _fetch_url_text(source.feed_url, RSS_TIMEOUT_SECONDS)
+        feed_url = _validate_public_https_url(source.feed_url)
+        status, xml_text = _fetch_url_text(feed_url, RSS_TIMEOUT_SECONDS)
     except Exception as exc:
         return {"source_url": source.url, "title": source.name, "text": "", "snippet": "", "status": 500, "scrape_ok": False, "scrape_method": "rss", "quality": {"word_count": 0, "data_points": 0, "score": 0}, "error": _safe_error(exc)}
     if status >= 400 or not xml_text:
         return {"source_url": source.url, "title": source.name, "text": "", "snippet": "", "status": status, "scrape_ok": False, "scrape_method": "rss", "quality": {"word_count": 0, "data_points": 0, "score": 0}, "error": f"RSS HTTP status {status}"}
-    entry = _parse_rss_first_entry(xml_text)
-    if not entry:
+    entries = _parse_rss_entries(xml_text)
+    if not entries:
         return {"source_url": source.url, "title": source.name, "text": "", "snippet": "", "status": status, "scrape_ok": False, "scrape_method": "rss", "quality": {"word_count": 0, "data_points": 0, "score": 0}, "error": "RSS entry parse failed"}
 
-    if _is_seen_source_url(entry["link"], seen_source_urls):
-        print(f"[Dedupe] Skipping already published article: {entry['link']}")
-        return _duplicate_scrape_result(source, entry["link"], entry.get("title") or source.name)
+    last_result: dict[str, Any] | None = None
+    for entry in entries:
+        try:
+            target_url = _validate_public_https_url(urljoin(feed_url, entry["link"]))
+        except Exception as exc:
+            last_result = {"source_url": source.url, "title": entry.get("title") or source.name, "text": "", "snippet": "", "status": 400, "scrape_ok": False, "scrape_method": "rss", "quality": {"word_count": 0, "data_points": 0, "score": 0}, "error": _safe_error(exc)}
+            continue
 
-    scrapling = _scrape_with_scrapling(source, entry["link"], config)
-    if scrapling["scrape_ok"]:
-        scrapling["scrape_method"] = "rss+scrapling"
-        return scrapling
-    if source.rss_allow_firecrawl_fallback:
-        fallback = _scrape_with_firecrawl(source, entry["link"], config)
-        fallback["scrape_method"] = "rss+firecrawl"
-        if fallback["scrape_ok"]:
-            return fallback
-    rss_text = entry["description"] or entry["title"]
-    quality = _score_content(rss_text)
-    return {"source_url": entry["link"], "title": (entry["title"] or source.name)[:180], "text": rss_text, "snippet": _extract_snippet(rss_text), "status": status, "scrape_ok": quality["word_count"] >= config.scrape_min_words, "scrape_method": "rss", "quality": quality}
+        if _is_seen_source_url(target_url, seen_source_urls):
+            print(f"[Dedupe] Skipping already published article: {target_url}")
+            last_result = _duplicate_scrape_result(source, target_url, entry.get("title") or source.name)
+            continue
+
+        scrapling = _scrape_with_scrapling(source, target_url, config)
+        if scrapling["scrape_ok"]:
+            scrapling["scrape_method"] = "rss+scrapling"
+            return scrapling
+        last_result = scrapling
+
+        if source.rss_allow_firecrawl_fallback:
+            fallback = _scrape_with_firecrawl(source, target_url, config)
+            fallback["scrape_method"] = "rss+firecrawl"
+            if fallback["scrape_ok"]:
+                return fallback
+            last_result = fallback
+
+        rss_text = entry["description"] or entry["title"]
+        quality = _score_content(rss_text)
+        rss_result = {
+            "source_url": target_url,
+            "title": (entry["title"] or source.name)[:180],
+            "text": rss_text,
+            "snippet": _extract_snippet(rss_text),
+            "status": status,
+            "scrape_ok": quality["word_count"] >= config.scrape_min_words,
+            "scrape_method": "rss",
+            "quality": quality,
+        }
+        if rss_result["scrape_ok"]:
+            return rss_result
+        last_result = rss_result
+
+    return last_result or {"source_url": source.url, "title": source.name, "text": "", "snippet": "", "status": status, "scrape_ok": False, "scrape_method": "rss", "quality": {"word_count": 0, "data_points": 0, "score": 0}, "error": "RSS entries exhausted"}
 
 
 def _scrape_source(source: RecapSource, config: NativeRecapConfig, seen_source_urls: set[str] | None = None) -> dict[str, Any]:
@@ -1145,6 +1385,9 @@ def _generate_article(
             "Do not invent facts.",
             "French and English must both be complete.",
             "Use markdown for article_markdown.",
+            "Add proximity attribution in the relevant paragraph for dates, numbers, benchmarks, product announcements, quotes, and specific claims, using markdown links such as Selon [OpenAI](https://example.com)...",
+            "Do not copy full sentences, closely translate paragraphs, reproduce third-party tables, or describe unlicensed images/logos as reused assets.",
+            "Use sources only for facts, dates, figures, declarations, events, and general ideas; change the structure, angle, examples, and transitions.",
             "Do not include a Sources, References, source-credit, or URL list section in article_markdown; sources are rendered separately.",
         ],
     }
@@ -1203,6 +1446,95 @@ def _fact_check(
     issues = result.get("issues") if isinstance(result.get("issues"), list) else []
     major_count = len([issue for issue in issues if isinstance(issue, dict) and issue.get("severity") == "major"])
     return {"status": "fail" if major_count else "warn" if issues else "pass", "issues": issues}
+
+
+COPYRIGHT_RISK_RANK = {"low": 0, "medium": 1, "high": 2}
+
+
+def _normalize_copyright_risk(value: Any) -> str:
+    risk = str(value or "").strip().lower()
+    return risk if risk in COPYRIGHT_RISK_RANK else "low"
+
+
+def _normalize_copyright_issue(issue: Any) -> dict[str, Any] | None:
+    if not isinstance(issue, dict):
+        return None
+    rule_ids = issue.get("rule_ids")
+    if not isinstance(rule_ids, list):
+        rule_ids = []
+    locale = str(issue.get("locale") or "unknown").strip().lower()
+    if locale not in {"fr", "en", "both", "unknown"}:
+        locale = "unknown"
+    return {
+        "risk": _normalize_copyright_risk(issue.get("risk")),
+        "rule_ids": [str(item).strip()[:24] for item in rule_ids if str(item).strip()][:12],
+        "locale": locale,
+        "passage": _extract_snippet(str(issue.get("passage") or ""), 500),
+        "source_url": str(issue.get("source_url") or "").strip()[:2000],
+        "reason": _extract_snippet(str(issue.get("reason") or ""), 800),
+        "suggestion": _extract_snippet(str(issue.get("suggestion") or ""), 800),
+        "requires_external_verification": bool(issue.get("requires_external_verification")),
+    }
+
+
+def _normalize_copyright_compliance_report(report: dict[str, Any]) -> dict[str, Any]:
+    raw_issues = report.get("issues") if isinstance(report.get("issues"), list) else []
+    issues = [normalized for issue in raw_issues if (normalized := _normalize_copyright_issue(issue))]
+    issue_max_risk = max((COPYRIGHT_RISK_RANK[item["risk"]] for item in issues), default=0)
+    reported_risk = COPYRIGHT_RISK_RANK[_normalize_copyright_risk(report.get("max_risk"))]
+    max_risk_rank = max(issue_max_risk, reported_risk)
+    max_risk = next(risk for risk, rank in COPYRIGHT_RISK_RANK.items() if rank == max_risk_rank)
+    status = "fail" if max_risk_rank >= COPYRIGHT_RISK_RANK["medium"] else "warn" if issues else "pass"
+    return {"status": status, "max_risk": max_risk, "issues": issues}
+
+
+def _copyright_compliance_should_block(report: dict[str, Any]) -> bool:
+    return COPYRIGHT_RISK_RANK.get(str(report.get("max_risk") or "low"), 0) >= COPYRIGHT_RISK_RANK["medium"]
+
+
+def _copyright_compliance_check(
+    article: dict[str, Any],
+    evidence_pack: dict[str, Any],
+    config: NativeRecapConfig,
+    *,
+    edition_key: str | None = None,
+    run_id: str | None = None,
+    repo: RecapRepository | None = None,
+    tracker: RecapAiRunTracker | None = None,
+) -> dict[str, Any]:
+    system = (
+        "You are an editorial copyright, anti-plagiarism, and journalistic quality compliance reviewer. "
+        "Return only the requested structured output. Do not call uncertain passages plagiarism; mark them as requiring external verification."
+    )
+    request_payload = {
+        "rules": [
+            "Flag copied full sentences unless they are short attributed quotes.",
+            "Flag close translations or paragraph-level paraphrases of source text.",
+            "Flag facts, dates, figures, product announcements, benchmarks, quotes, or specific claims without proximity attribution in the same paragraph.",
+            "Flag long quotes, reproduced source tables, charts, screenshots, logos, or illustrations without clear permission.",
+            "Use low for public facts correctly cited, medium for close paraphrase or weak attribution, high for copying, close translation, long excerpt, unauthorized media, or missing source.",
+        ],
+        "risk_policy": "Publication must fail when max_risk is medium or high.",
+        "evidence": evidence_pack.get("stories", []),
+        "fr": article["fr"].get("article_markdown"),
+        "en": article["en"].get("article_markdown"),
+    }
+    user = json.dumps(request_payload, ensure_ascii=False)
+    print(f"DEBUG: Copyright compliance input size: {len(user)} chars")
+    result = _anthropic_json(
+        config,
+        system,
+        user,
+        output_schema=COPYRIGHT_COMPLIANCE_OUTPUT_SCHEMA,
+        stage="copyright_compliance",
+        edition_key=edition_key,
+        run_id=run_id,
+        repo=repo,
+        tracker=tracker,
+        input_payload=request_payload,
+        max_output_tokens=2400,
+    )
+    return _normalize_copyright_compliance_report(result)
 
 
 def _generate_summary30(
@@ -1468,6 +1800,65 @@ def _run_build_article(payload: dict[str, Any], *, repo: RecapRepository, config
             ai_tracker.record_failure("fact_check_failed", "fact_check")
             repo.update_edition(edition["id"], {"status": "failed", "run_id": run["id"], "fact_check_result": fact_check, "quality_report": {"stage": "fact_check", "status": "failed", "fact_check": fact_check}})
             raise RuntimeError("fact_check_failed: Fact-check blocked publication")
+        try:
+            copyright_compliance = _copyright_compliance_check(
+                article,
+                evidence_pack,
+                config,
+                edition_key=edition_key,
+                run_id=run["id"],
+                repo=repo,
+                tracker=ai_tracker,
+            )
+        except Exception as exc:
+            ai_tracker.record_failure("copyright_compliance_failed", "copyright_compliance")
+            raise RuntimeError(f"copyright_compliance_failed: {_safe_error(exc)}") from exc
+        if _copyright_compliance_should_block(copyright_compliance):
+            ai_tracker.record_failure("copyright_compliance_failed", "copyright_compliance")
+            message = f"Copyright compliance blocked publication with max risk \"{copyright_compliance['max_risk']}\""
+            quality_report = {
+                "stage": "copyright_compliance",
+                "status": "failed",
+                "fact_check": fact_check,
+                "copyright_compliance": copyright_compliance,
+                "evidence_pack": evidence_pack,
+            }
+            metrics = {
+                "mode": "build_article",
+                "editionKey": edition_key,
+                "sourcesConfigured": len(sources),
+                "sourcesScraped": len([doc for doc in docs if doc.get("scrape_ok")]),
+                "sourcesFailed": failed_sources,
+                "storiesSelected": len(stories),
+                "scrape_methods_breakdown": breakdown,
+                "fact_check_status": fact_check["status"],
+                "copyright_compliance_status": copyright_compliance["status"],
+                "copyright_compliance_max_risk": copyright_compliance["max_risk"],
+                "copyright_compliance_issues": len(copyright_compliance["issues"]),
+                "copyright_compliance_issues_detail": copyright_compliance["issues"],
+                "newsletter_after_publish": {"status": "skipped", "reason": "copyright_compliance_failed"},
+                "article_ready": False,
+                **ai_tracker.snapshot(),
+            }
+            repo.update_edition(
+                edition["id"],
+                {
+                    "status": "failed",
+                    "run_id": run["id"],
+                    "fact_check_result": fact_check,
+                    "quality_report": quality_report,
+                },
+            )
+            repo.mark_run(run["id"], "failed", metrics, message, "copyright_compliance_failed")
+            return {
+                "status": "failed",
+                "reason": "copyright_compliance_failed",
+                "error": message,
+                "editionKey": edition_key,
+                "runId": run["id"],
+                "editionId": edition["id"],
+                "copyrightCompliance": copyright_compliance,
+            }
         summary30 = _generate_summary30(article, stories, config, edition_key=edition_key, run_id=run["id"], repo=repo, tracker=ai_tracker)
         now_iso = datetime.now(timezone.utc).isoformat()
         slug_token = _normalize_slug(edition_key)
@@ -1481,11 +1872,11 @@ def _run_build_article(payload: dict[str, Any], *, repo: RecapRepository, config
             content_json = {**brief[locale], "title": title, "introduction": intro, "tags": tags, "summary30s": summary30, "source_manifest": source_manifest, "sourceStories": stories}
             posts.append({"edition_id": edition["id"], "locale": locale, "slug": f"{prefix}-{slug_token}", "title": title, "intro": intro, "excerpt": _build_excerpt(intro, markdown, str(stories[0].get("snippet") or "")), "content_json": content_json, "content_markdown": markdown, "tags": tags[:3], "is_published": True, "published_at": now_iso})
         saved_posts = repo.upsert_posts(posts)
-        repo.update_edition(edition["id"], {"status": "published", "run_id": run["id"], "published_at": now_iso, "fact_check_result": fact_check, "quality_report": {"stage": "completed", "status": "pass", "fact_check": fact_check, "evidence_pack": evidence_pack, "summary30s": {"status": "pass"}}})
+        repo.update_edition(edition["id"], {"status": "published", "run_id": run["id"], "published_at": now_iso, "fact_check_result": fact_check, "quality_report": {"stage": "completed", "status": "pass", "fact_check": fact_check, "copyright_compliance": copyright_compliance, "evidence_pack": evidence_pack, "summary30s": {"status": "pass"}}})
         newsletter_result = {"status": "skipped", "reason": "manual_build_no_auto_dispatch"}
         if payload.get("trigger") != "manual" or payload.get("force"):
             newsletter_result = _send_newsletter_for_edition(repo, config, edition["id"], edition_key)
-        metrics = {"mode": "build_article", "editionKey": edition_key, "sourcesConfigured": len(sources), "sourcesScraped": len([doc for doc in docs if doc.get("scrape_ok")]), "sourcesFailed": failed_sources, "storiesSelected": len(stories), "scrape_methods_breakdown": breakdown, "fact_check_status": fact_check["status"], "newsletter_after_publish": newsletter_result, "article_ready": True, **ai_tracker.snapshot()}
+        metrics = {"mode": "build_article", "editionKey": edition_key, "sourcesConfigured": len(sources), "sourcesScraped": len([doc for doc in docs if doc.get("scrape_ok")]), "sourcesFailed": failed_sources, "storiesSelected": len(stories), "scrape_methods_breakdown": breakdown, "fact_check_status": fact_check["status"], "copyright_compliance_status": copyright_compliance["status"], "copyright_compliance_max_risk": copyright_compliance["max_risk"], "copyright_compliance_issues": len(copyright_compliance["issues"]), "copyright_compliance_issues_detail": copyright_compliance["issues"], "newsletter_after_publish": newsletter_result, "article_ready": True, **ai_tracker.snapshot()}
         repo.mark_run(run["id"], "succeeded", metrics)
         return {"status": "succeeded", "editionKey": edition_key, "runId": run["id"], "editionId": edition["id"], "posts": saved_posts, "newsletter": newsletter_result, "metrics": metrics}
     except Exception as exc:

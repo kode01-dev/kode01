@@ -6,6 +6,7 @@ import {
   computeLicenseWebhookRetryDelaySeconds,
   truncateWebhookResponseBody,
 } from '@/features/licenses/server/webhook-delivery';
+import { postWebhookWithPinnedDns } from '@/features/licenses/server/pinned-webhook-http';
 import { validateWebhookEndpointUrl } from '@/features/licenses/server/webhook-url-safety';
 import { SupabaseClient } from '@supabase/supabase-js';
 
@@ -214,13 +215,12 @@ async function dispatchDelivery(params: {
     });
   }
 
-  const timeoutController = new AbortController();
-  const timeout = setTimeout(() => timeoutController.abort(), params.timeoutMs);
   const startedAt = Date.now();
 
   try {
-    const response = await fetch(endpointValidation.normalizedUrl, {
-      method: 'POST',
+    const response = await postWebhookWithPinnedDns({
+      url: endpointValidation.normalizedUrl,
+      resolvedAddresses: endpointValidation.resolvedAddresses,
       headers: {
         'Content-Type': 'application/json',
         'x-kode01-signature': signature,
@@ -229,12 +229,9 @@ async function dispatchDelivery(params: {
         'x-request-id': params.requestId,
       },
       body: payloadText,
-      cache: 'no-store',
-      signal: timeoutController.signal,
-      redirect: 'manual',
+      timeoutMs: params.timeoutMs,
     });
 
-    const responseText = await response.text().catch(() => null);
     await trackExternalApiCallEvent({
       endpoint: 'license_webhook_delivery',
       channel: 'outbound',
@@ -258,7 +255,7 @@ async function dispatchDelivery(params: {
       signature,
       succeeded: response.ok,
       responseStatus: response.status,
-      responseBody: responseText,
+      responseBody: response.text,
       lastError: response.ok ? null : `http_${response.status}`,
     });
   } catch (error) {
@@ -291,8 +288,6 @@ async function dispatchDelivery(params: {
       responseBody: null,
       lastError: errorMessage,
     });
-  } finally {
-    clearTimeout(timeout);
   }
 }
 

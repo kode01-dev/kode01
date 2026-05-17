@@ -24,6 +24,17 @@ test('CSP connect-src allows Google Analytics collection endpoints', () => {
   assert.match(config, /https:\/\/stats\.g\.doubleclick\.net/);
 });
 
+test('Zipchat is controlled by consent-aware controller instead of global layout script', () => {
+  const layout = readProjectFile('src/app/[locale]/layout.tsx');
+  const providers = readProjectFile('src/components/Providers.tsx');
+  const controller = readProjectFile('src/components/zipchat/ZipchatController.tsx');
+
+  assert.doesNotMatch(layout, /app\.zipchat\.ai\/widget\/zipchat\.js/);
+  assert.match(providers, /<ZipchatController \/>/);
+  assert.match(controller, /hasMarketingConsentInBrowser/);
+  assert.match(controller, /OPEN_ZIPCHAT_SUPPORT_EVENT/);
+});
+
 test('news index degrades instead of throwing on data load failure', () => {
   const newsPage = readProjectFile('src/app/[locale]/(marketing)/news/page.tsx');
 

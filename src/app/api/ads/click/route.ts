@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { recordAdEvent, resolveCreativeClickTarget } from '@/features/ads/server/repository';
+import { hasMarketingConsentFromCcCookie } from '@/features/cookies/lib/consent';
 
 const schema = z.object({
   campaignId: z.string().uuid(),
@@ -72,6 +73,17 @@ function sanitizeRedirectTarget(
   return sanitizeExternalRedirectTarget(target);
 }
 
+function getCookieValue(cookieHeader: string, cookieName: string): string | undefined {
+  const cookieMatch = cookieHeader.match(new RegExp(`${cookieName}=([^;]+)`));
+  return cookieMatch ? decodeURIComponent(cookieMatch[1]) : undefined;
+}
+
+function canRecordWebMarketingClick(req: Request): boolean {
+  if (req.headers.get('sec-gpc') === '1') return false;
+  const ccCookie = getCookieValue(req.headers.get('cookie') || '', 'cc_cookie');
+  return hasMarketingConsentFromCcCookie(ccCookie);
+}
+
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const parsed = schema.safeParse({
@@ -104,24 +116,28 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Invalid redirect target' }, { status: 400 });
   }
 
-  try {
-    await recordAdEvent({
-      campaignId: parsed.data.campaignId,
-      creativeId: parsed.data.creativeId,
-      placementSlug: parsed.data.placement,
-      channel: parsed.data.channel,
-      eventType: parsed.data.channel === 'email' ? 'email_ad_click' : 'click',
-      pagePath: null,
-      locale: parsed.data.locale ?? null,
-      metadata: {
-        target: safeTarget,
-        ...(parsed.data.sendSlot ? { send_slot: parsed.data.sendSlot } : {}),
-        ...(parsed.data.newsletterSlot ? { newsletter_slot: parsed.data.newsletterSlot } : {}),
-        ...(parsed.data.servedFromPool ? { served_from_pool: parsed.data.servedFromPool } : {}),
-      },
-    });
-  } catch (error) {
-    console.error('Ad click tracking error:', error);
+  const shouldRecordClick = parsed.data.channel === 'email' || canRecordWebMarketingClick(req);
+
+  if (shouldRecordClick) {
+    try {
+      await recordAdEvent({
+        campaignId: parsed.data.campaignId,
+        creativeId: parsed.data.creativeId,
+        placementSlug: parsed.data.placement,
+        channel: parsed.data.channel,
+        eventType: parsed.data.channel === 'email' ? 'email_ad_click' : 'click',
+        pagePath: null,
+        locale: parsed.data.locale ?? null,
+        metadata: {
+          target: safeTarget,
+          ...(parsed.data.sendSlot ? { send_slot: parsed.data.sendSlot } : {}),
+          ...(parsed.data.newsletterSlot ? { newsletter_slot: parsed.data.newsletterSlot } : {}),
+          ...(parsed.data.servedFromPool ? { served_from_pool: parsed.data.servedFromPool } : {}),
+        },
+      });
+    } catch (error) {
+      console.error('Ad click tracking error:', error);
+    }
   }
 
   const redirectTarget = safeTarget.startsWith('/') ? new URL(safeTarget, url.origin) : safeTarget;
