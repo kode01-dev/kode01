@@ -47,6 +47,7 @@ print(f"DEBUG: App {APP_NAME} starting up...")
 AGENT_RUNTIME_SECRETS = [
     modal.Secret.from_name("kode01-agent-runtime-secrets"),
     modal.Secret.from_name("kode01-agent-runtime-supabase-cutover"),
+    modal.Secret.from_name("kode01-agent-runtime-google"),
 ]
 image = (
     modal.Image.debian_slim(python_version="3.12")
