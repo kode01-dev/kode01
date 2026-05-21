@@ -3,7 +3,7 @@ import json
 import os
 import time
 
-# Configuration (Project zboonzqhrbuueqqzzrgn)
+# Configuration (Project noemwcxtlibtimusldyn)
 SUPABASE_FUNCTIONS_URL = os.getenv("SUPABASE_FUNCTIONS_URL")
 # Service Role Key for privileged auth
 SRK = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
