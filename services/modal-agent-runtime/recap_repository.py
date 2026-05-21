@@ -141,7 +141,7 @@ class RecapRepository:
         if not base_url:
             raise RecapRepositoryError("SUPABASE_URL (or SUPABASE_FUNCTIONS_URL derivation) is missing")
         if not service_role_key:
-            raise RecapRepositoryError("SUPABASE_SERVICE_ROLE_KEY is required for modal-native recap repository")
+            raise RecapRepositoryError("SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY is required for modal-native recap repository")
         self.base_url = base_url.rstrip("/")
         self.service_role_key = service_role_key.strip()
         self.timeout_seconds = max(1.0, min(timeout_seconds, 120.0))
@@ -149,7 +149,7 @@ class RecapRepository:
     @classmethod
     def from_env(cls) -> "RecapRepository":
         base_url = _derive_supabase_base_url()
-        service_role_key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+        service_role_key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_SECRET_KEY") or "").strip()
         timeout_seconds = _to_float(os.getenv("AGENT_RECAP_REPO_TIMEOUT_SECONDS"), 20.0)
         return cls(
             base_url=base_url,

@@ -28,8 +28,9 @@ export async function invokeEdgeFunction({
   requestId,
 }: InvokeEdgeFunctionOptions): Promise<Response> {
   const env = getServerEnv();
-  const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY
-    ? normalizeSupabaseApiKey(env.SUPABASE_SERVICE_ROLE_KEY)
+  const rawServiceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY ?? env.SUPABASE_SECRET_KEY;
+  const serviceRoleKey = rawServiceRoleKey
+    ? normalizeSupabaseApiKey(rawServiceRoleKey)
     : '';
   const cronSecret = env.CRON_SECRET?.trim() ?? '';
   const internalAuthToken =
@@ -53,7 +54,7 @@ export async function invokeEdgeFunction({
 
   if (!outgoingHeaders.has('Authorization') && !outgoingHeaders.has('x-internal-auth')) {
     throw new Error(
-      'Missing edge invocation credentials. Set SUPABASE_SERVICE_ROLE_KEY, EDGE_INTERNAL_AUTH_TOKEN, or provide an Authorization header.',
+      'Missing edge invocation credentials. Set SUPABASE_SERVICE_ROLE_KEY, SUPABASE_SECRET_KEY, EDGE_INTERNAL_AUTH_TOKEN, or provide an Authorization header.',
     );
   }
 

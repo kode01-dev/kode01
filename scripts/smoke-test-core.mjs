@@ -17,7 +17,6 @@ async function validateEnv(envPath, label) {
 
   const mandatoryKeys = [
     'NEXT_PUBLIC_SUPABASE_URL',
-    'SUPABASE_SERVICE_ROLE_KEY',
     'DATABASE_URL',
     'STRIPE_SECRET_KEY',
     'RESEND_API_KEY'
@@ -38,6 +37,13 @@ async function validateEnv(envPath, label) {
     missing++;
   } else {
     console.log('Found Supabase public key');
+  }
+
+  if (!config.SUPABASE_SERVICE_ROLE_KEY && !config.SUPABASE_SECRET_KEY) {
+    console.error('Missing mandatory Supabase service key: SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY');
+    missing++;
+  } else {
+    console.log('Found Supabase service key');
   }
 
   if (missing === 0) {

@@ -200,7 +200,7 @@ class BlogRepository:
         if not base_url:
             raise BlogRepositoryError("SUPABASE_URL or SUPABASE_FUNCTIONS_URL is missing")
         if not service_role_key:
-            raise BlogRepositoryError("SUPABASE_SERVICE_ROLE_KEY is required")
+            raise BlogRepositoryError("SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY is required")
         self.base_url = base_url.rstrip("/")
         self.service_role_key = service_role_key.strip()
         self.timeout_seconds = max(1.0, min(timeout_seconds, 120.0))
@@ -210,7 +210,7 @@ class BlogRepository:
         timeout = float(os.getenv("SEO_BLOG_REPO_TIMEOUT_SECONDS", "25") or "25")
         return cls(
             base_url=_derive_supabase_base_url(),
-            service_role_key=_trim(os.getenv("SUPABASE_SERVICE_ROLE_KEY")),
+            service_role_key=_trim(os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_SECRET_KEY")),
             timeout_seconds=timeout,
         )
 

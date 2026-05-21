@@ -76,7 +76,7 @@ export async function GET(req: Request) {
       envCheck('CRON_SECRET', ['CRON_SECRET_NEXT']),
       envCheck('MODAL_AGENT_API_URL'),
       envCheck('AGENT_INTERNAL_TOKEN', ['AGENT_INTERNAL_TOKEN_NEXT']),
-      envCheck('SUPABASE_SERVICE_ROLE_KEY'),
+      envCheck('SUPABASE_SERVICE_ROLE_KEY', ['SUPABASE_SECRET_KEY']),
       envCheck('FIRECRAWL_API_KEY'),
       envCheck('GOOGLE_GENERATIVE_AI_API_KEY', ['GOOGLE_API_KEY']),
       envCheck('ANTHROPIC_API_KEY'),

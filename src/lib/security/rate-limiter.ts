@@ -48,10 +48,12 @@ const inMemoryFallbackCounters = new Map<string, InMemoryFallbackCounter>();
 
 function getRateLimitRpcConfig(): { supabaseUrl: string; serviceRoleKey: string } {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const serviceRoleKey = normalizeSupabaseApiKey(process.env.SUPABASE_SERVICE_ROLE_KEY ?? '');
+  const serviceRoleKey = normalizeSupabaseApiKey(
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY ?? '',
+  );
 
   if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error('Rate limiter requires NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+    throw new Error('Rate limiter requires NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY');
   }
 
   return { supabaseUrl, serviceRoleKey };

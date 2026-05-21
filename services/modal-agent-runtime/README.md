@@ -28,7 +28,7 @@ python -m modal deploy services/modal-agent-runtime/runtime.py
 - `AGENT_INTERNAL_AUTH_MAX_SKEW_SECONDS` (optional, default `300`)
 - `APP_BASE_URL`
 - `SUPABASE_FUNCTIONS_URL`
-- `SUPABASE_SERVICE_ROLE_KEY` (preferred) or `CRON_SECRET`
+- `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_SECRET_KEY` (preferred) or `CRON_SECRET`
 
 ## Optional scheduler ownership / kill-switch
 

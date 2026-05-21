@@ -49,7 +49,7 @@ let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
 function getSupabaseRestContext() {
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const rawServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  const rawServiceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)?.trim();
   if (!baseUrl || !rawServiceRoleKey) return null;
 
   const serviceRoleKey = normalizeSupabaseApiKey(rawServiceRoleKey);

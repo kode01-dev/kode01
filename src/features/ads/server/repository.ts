@@ -250,9 +250,9 @@ export async function resolveActiveCreativesForPlacement(
   placementSlug: AdPlacementSlug,
   limit = 1,
 ): Promise<SponsoredCreative[]> {
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY;
   if (!serviceKey) {
-    console.warn(`[Ads] Skipping sponsored ad resolution for "${placementSlug}": SUPABASE_SERVICE_ROLE_KEY is not configured.`);
+    console.warn(`[Ads] Skipping sponsored ad resolution for "${placementSlug}": SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY is not configured.`);
     return [];
   }
 

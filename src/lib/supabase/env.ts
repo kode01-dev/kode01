@@ -24,7 +24,10 @@ export function isSupabasePublicEnvConfigured(): boolean {
 export function isSupabaseAdminEnvConfigured(): boolean {
     return Boolean(
         normalizeEnvValue(process.env.NEXT_PUBLIC_SUPABASE_URL)
-        && normalizeEnvValue(process.env.SUPABASE_SERVICE_ROLE_KEY),
+        && (
+            normalizeEnvValue(process.env.SUPABASE_SERVICE_ROLE_KEY)
+            || normalizeEnvValue(process.env.SUPABASE_SECRET_KEY)
+        ),
     );
 }
 
