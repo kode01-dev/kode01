@@ -2,7 +2,7 @@ import httpx
 import json
 import os
 
-# Configuration (Project zboonzqhrbuueqqzzrgn)
+# Configuration (Project noemwcxtlibtimusldyn)
 SUPABASE_FUNCTIONS_URL = os.getenv("SUPABASE_FUNCTIONS_URL")
 SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 

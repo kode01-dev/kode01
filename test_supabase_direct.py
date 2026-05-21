@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 def test_direct():
     load_dotenv(".env.production")
     
-    url = "https://zboonzqhrbuueqqzzrgn.supabase.co/functions/v1/weekly-ai-recap-cron"
+    url = "https://noemwcxtlibtimusldyn.supabase.co/functions/v1/weekly-ai-recap-cron"
     key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
     
     if not key:
