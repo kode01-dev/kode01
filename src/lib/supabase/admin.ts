@@ -11,7 +11,7 @@ export function createAdminClient(): SupabaseClient<Database> {
   if (_adminClient) return _adminClient;
 
   const env = getRequiredServerEnv(['NEXT_PUBLIC_SUPABASE_URL']);
-  const rawServiceKey = env.SUPABASE_SERVICE_ROLE_KEY ?? env.SUPABASE_SECRET_KEY;
+  const rawServiceKey = env.SUPABASE_SECRET_KEY ?? env.SUPABASE_SERVICE_ROLE_KEY;
   if (!rawServiceKey) {
     throw new MissingServerEnvError(['SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY']);
   }

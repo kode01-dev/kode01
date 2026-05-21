@@ -474,7 +474,7 @@ def invoke_recap_upstream(payload: dict[str, Any]) -> tuple[dict[str, Any], str 
 
     url = f"{base_url}/weekly-ai-recap-cron"
 
-    bearer = (os.getenv("CRON_SECRET") or os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_SECRET_KEY") or "").strip()
+    bearer = (os.getenv("CRON_SECRET") or os.getenv("SUPABASE_SECRET_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
     internal_token = (os.getenv("EDGE_INTERNAL_AUTH_TOKEN") or "").strip()
     if not bearer:
         raise RuntimeError("CRON_SECRET, SUPABASE_SERVICE_ROLE_KEY, or SUPABASE_SECRET_KEY is required for recap invocation")

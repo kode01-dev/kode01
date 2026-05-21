@@ -210,7 +210,7 @@ class BlogRepository:
         timeout = float(os.getenv("SEO_BLOG_REPO_TIMEOUT_SECONDS", "25") or "25")
         return cls(
             base_url=_derive_supabase_base_url(),
-            service_role_key=_trim(os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_SECRET_KEY")),
+            service_role_key=_trim(os.getenv("SUPABASE_SECRET_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY")),
             timeout_seconds=timeout,
         )
 

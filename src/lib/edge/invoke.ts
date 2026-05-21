@@ -28,7 +28,7 @@ export async function invokeEdgeFunction({
   requestId,
 }: InvokeEdgeFunctionOptions): Promise<Response> {
   const env = getServerEnv();
-  const rawServiceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY ?? env.SUPABASE_SECRET_KEY;
+  const rawServiceRoleKey = env.SUPABASE_SECRET_KEY ?? env.SUPABASE_SERVICE_ROLE_KEY;
   const serviceRoleKey = rawServiceRoleKey
     ? normalizeSupabaseApiKey(rawServiceRoleKey)
     : '';

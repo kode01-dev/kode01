@@ -49,7 +49,7 @@ const inMemoryFallbackCounters = new Map<string, InMemoryFallbackCounter>();
 function getRateLimitRpcConfig(): { supabaseUrl: string; serviceRoleKey: string } {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const serviceRoleKey = normalizeSupabaseApiKey(
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY ?? '',
+    process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
   );
 
   if (!supabaseUrl || !serviceRoleKey) {

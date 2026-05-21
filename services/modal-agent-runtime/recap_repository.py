@@ -149,7 +149,7 @@ class RecapRepository:
     @classmethod
     def from_env(cls) -> "RecapRepository":
         base_url = _derive_supabase_base_url()
-        service_role_key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_SECRET_KEY") or "").strip()
+        service_role_key = (os.getenv("SUPABASE_SECRET_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
         timeout_seconds = _to_float(os.getenv("AGENT_RECAP_REPO_TIMEOUT_SECONDS"), 20.0)
         return cls(
             base_url=base_url,
