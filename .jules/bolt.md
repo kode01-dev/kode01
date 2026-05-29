@@ -9,3 +9,7 @@
 ## 2024-05-24 - N+1 Webhook Dispatching in Cron Jobs
 **Learning:** Sequential `dispatchDelivery` calls inside cron jobs (like `src/app/api/cron/license-webhooks/route.ts`) that execute `fetch()` and `supabase.update()` sequentially cause severe latency bottlenecks.
 **Action:** Parallelize independent webhook dispatching across chunks using `Promise.all` inside the cron loop. Use a batch chunk size (e.g. 10) to limit concurrency instead of mapping an unbounded array, protecting database connection pools and external APIs while eliminating sequential N+1 network latency.
+
+## 2026-05-29 - Public Bundle Link Hydration
+**Learning:** Public bundle list hydration can become CPU-bound when each bundle scans the full `product_bundle_items` link array to find its own products.
+**Action:** Build a `bundle_id -> product_id[]` map once before mapping bundles so hydration stays O(bundles + links), preserving product order without repeated filters.

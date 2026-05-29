@@ -24,7 +24,7 @@ type BundleProductRow = {
     | null;
 };
 
-type BundleItemLinkRow = {
+export type BundleItemLinkRow = {
   bundle_id: string;
   product_id: string;
 };
@@ -110,6 +110,23 @@ function computeDiscountPercent(totalOriginal: number, bundlePrice: number): num
   return Math.max(0, Math.round(raw));
 }
 
+export function groupBundleItemProductIds(links: BundleItemLinkRow[]): Map<string, string[]> {
+  const productIdsByBundle = new Map<string, string[]>();
+
+  // Index links once so bundle listing stays O(bundles + links) instead of
+  // rescanning every link for each bundle.
+  for (const link of links) {
+    const productIds = productIdsByBundle.get(link.bundle_id);
+    if (productIds) {
+      productIds.push(link.product_id);
+    } else {
+      productIdsByBundle.set(link.bundle_id, [link.product_id]);
+    }
+  }
+
+  return productIdsByBundle;
+}
+
 function firstProfile(
   profiles: BundleProductRow['profiles'],
 ): { display_name: string | null; shop_name: string | null; avatar_url: string | null } | null {
@@ -189,8 +206,10 @@ export async function listPublicBundles(): Promise<PublicBundle[]> {
     );
   }
 
+  const productIdsByBundle = groupBundleItemProductIds(links);
+
   return bundleRows.map((bundle) => {
-    const linkedIds = links.filter((entry) => entry.bundle_id === bundle.id).map((entry) => entry.product_id);
+    const linkedIds = productIdsByBundle.get(bundle.id) ?? [];
     const items = linkedIds
       .map((itemId) => includedProducts.get(itemId))
       .filter((row): row is IncludedProductRow => Boolean(row))
@@ -403,10 +422,10 @@ export async function listPublicBundlesContainingProduct(productId: string): Pro
     );
   }
 
+  const productIdsByBundle = groupBundleItemProductIds(links);
+
   return bundles.map((bundle) => {
-    const linkedIds = links
-      .filter((entry) => entry.bundle_id === bundle.id)
-      .map((entry) => entry.product_id);
+    const linkedIds = productIdsByBundle.get(bundle.id) ?? [];
     const items = linkedIds
       .map((itemId) => includedProducts.get(itemId))
       .filter((row): row is IncludedProductRow => Boolean(row))
