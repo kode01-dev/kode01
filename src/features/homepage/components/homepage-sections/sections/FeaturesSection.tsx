@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import { PUBLIC_MARKETPLACE_ENABLED } from '@/config/marketplace';
 
 interface FeaturesSectionProps {
     onOpenShop: () => void;
@@ -179,7 +180,7 @@ export const FeaturesSection = ({
                         onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.transform = 'scale(1.05)')}
                         onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.transform = 'scale(1)')}
                     >
-                        {t('browse_catalog')}
+                        {PUBLIC_MARKETPLACE_ENABLED ? t('browse_catalog') : t('read_ai_news')}
                     </button>
                     <div
                         className="feat-deco-arch"

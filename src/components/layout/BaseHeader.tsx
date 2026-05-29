@@ -24,12 +24,14 @@ import { BaseHeaderMobileSearchOverlay } from './base-header/BaseHeaderMobileSea
 import { useHeaderMenuData } from './base-header/useHeaderMenuData';
 import { useHeaderNavigationGuard } from './base-header/headerNavigation';
 import type { TaxonomyLabelItem } from './base-header/types';
+import type { LanguageSwitcherLocalePathnames } from '@/components/layout/LanguageSwitcher';
 
 interface BaseHeaderProps {
     hideSearchOnTop?: boolean;
+    localePathnames?: LanguageSwitcherLocalePathnames;
 }
 
-export function BaseHeader({ hideSearchOnTop = false }: BaseHeaderProps = {}) {
+export function BaseHeader({ hideSearchOnTop = false, localePathnames }: BaseHeaderProps = {}) {
     const t = useTranslations('layout');
     const locale = useLocale();
     const pathname = usePathname();
@@ -210,7 +212,7 @@ export function BaseHeader({ hideSearchOnTop = false }: BaseHeaderProps = {}) {
                             )} />
 
                             <div className="hidden xl:block">
-                                <LanguageSwitcher isScrolled={useSolidHeaderStyle} />
+                                <LanguageSwitcher isScrolled={useSolidHeaderStyle} localePathnames={localePathnames} />
                             </div>
 
                             {!loading && (
@@ -275,6 +277,7 @@ export function BaseHeader({ hideSearchOnTop = false }: BaseHeaderProps = {}) {
                             setIsMobileProfileOpen={setIsMobileProfileOpen}
                             mobileLoggingOut={mobileLoggingOut}
                             onMobileLogout={handleMobileLogout}
+                            localePathnames={localePathnames}
                         />
                     </nav>
                 </div>

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { createClient } from '@/lib/supabase/client';
 import { isSupabasePublicEnvConfigured } from '@/lib/supabase/env';
+import { PUBLIC_MARKETPLACE_ENABLED } from '@/config/marketplace';
 
 import type {
     ProductCategoryMenuRow,
@@ -24,6 +25,12 @@ export function useHeaderMenuData(): UseHeaderMenuDataResult {
         let cancelled = false;
 
         const loadMenuTaxonomy = async () => {
+            if (!PUBLIC_MARKETPLACE_ENABLED) {
+                setMenuCategories([]);
+                setMenuSubcategories([]);
+                return;
+            }
+
             if (!isSupabasePublicEnvConfigured()) {
                 if (!cancelled) {
                     setMenuCategories([]);

@@ -1962,7 +1962,7 @@ Output JSON format ONLY:
     ],
     generationConfig: {
       temperature: 0.2,
-      maxOutputTokens: 1800,
+      maxOutputTokens: 8192,
       responseMimeType: 'application/json',
     },
   });
@@ -5539,6 +5539,61 @@ async function tickPipeline(payload: { trigger: 'cron' | 'manual' | 'retry'; for
   });
 }
 
+function isEnabledEnvValue(value: string | undefined) {
+  const normalized = value?.trim().toLowerCase();
+  return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
+}
+
+function getDisabledEdgeRunReason() {
+  if (isEnabledEnvValue(Deno.env.get('AGENT_CRON_KILL_SWITCH'))) {
+    return 'kill_switch';
+  }
+
+  if (isEnabledEnvValue(Deno.env.get('AGENT_CRON_DISABLE_WEEKLY_RECAP'))) {
+    return 'flow_disabled';
+  }
+
+  const disabledFlows = (Deno.env.get('AGENT_CRON_DISABLED_FLOWS') ?? '')
+    .split(',')
+    .map((item) => item.trim().toLowerCase());
+  if (disabledFlows.includes('weekly-ai-recap')) {
+    return 'flow_disabled';
+  }
+
+  return null;
+}
+
+async function blockDisabledDirectRun(mode: string) {
+  const envReason = getDisabledEdgeRunReason();
+  if (envReason) {
+    return json(
+      {
+        skipped: true,
+        reason: envReason,
+        mode,
+        error: 'AI recap runs are disabled',
+      },
+      mode === 'tick' ? 200 : 409,
+    );
+  }
+
+  if (mode === 'tick') return null;
+
+  const config = getConfig();
+  const schedule = await getSchedule(config);
+  if (schedule.isEnabled) return null;
+
+  return json(
+    {
+      skipped: true,
+      reason: 'schedule_disabled',
+      mode,
+      error: 'AI recap schedule is disabled',
+    },
+    409,
+  );
+}
+
 async function runPipeline(payload: {
   trigger: 'cron' | 'manual' | 'retry';
   force: boolean;
@@ -5630,6 +5685,8 @@ Deno.serve(async (req: Request) => {
 
     const payload = parsed.data;
     const mode = payload.mode ?? 'tick';
+    const directRunBlock = await blockDisabledDirectRun(mode);
+    if (directRunBlock) return directRunBlock;
 
     if (mode === 'retry_newsletter') {
       return await retryNewsletter(payload.editionKey, payload.testEmail, payload.testMode);

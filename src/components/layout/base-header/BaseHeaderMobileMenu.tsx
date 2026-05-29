@@ -18,6 +18,8 @@ import {
 import { getDashboardOverviewHref } from '@/features/dashboard/lib/paths';
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
 import { cn } from '@/lib/utils';
+import { PUBLIC_MARKETPLACE_ENABLED } from '@/config/marketplace';
+import type { LanguageSwitcherLocalePathnames } from '@/components/layout/LanguageSwitcher';
 
 import { desktopLinks } from './constants';
 import { buildCategoryHref, buildSubcategoryHref } from './headerNavigation';
@@ -57,6 +59,7 @@ interface BaseHeaderMobileMenuProps {
     setIsMobileProfileOpen: React.Dispatch<React.SetStateAction<boolean>>;
     mobileLoggingOut: boolean;
     onMobileLogout: () => Promise<void>;
+    localePathnames?: LanguageSwitcherLocalePathnames;
 }
 
 function getDisplayName(profile: HeaderProfile | null, user: User | null): string {
@@ -102,6 +105,7 @@ export function BaseHeaderMobileMenu({
     setIsMobileProfileOpen,
     mobileLoggingOut,
     onMobileLogout,
+    localePathnames,
 }: BaseHeaderMobileMenuProps) {
     const t = useTranslations('layout');
     const tAuth = useTranslations('auth');
@@ -157,26 +161,38 @@ export function BaseHeaderMobileMenu({
                 maxHeight: menuStyle.maxHeight,
             }}
         >
-            <button
-                onClick={() => {
-                    setIsMobileExploreOpen((current) => {
-                        const next = !current;
-                        if (!next) {
-                            clearExpandedMobileCategories();
-                        }
-                        return next;
-                    });
-                }}
-                className={cn(
-                    "font-bold text-lg py-3 px-2 rounded-xl border-b inline-flex items-center justify-between bg-transparent border-x-0 border-t-0 cursor-pointer transition-colors active:bg-kode01-pink active:text-kode01-noir",
-                    useSolidHeaderStyle ? "text-white border-white/5" : "text-kode01-noir border-black/5",
-                )}
-            >
-                <span>{t('nav.explore')}</span>
-                <ChevronDown className={cn("transition-transform", isMobileExploreOpen && "rotate-180")} size={18} />
-            </button>
+            {PUBLIC_MARKETPLACE_ENABLED ? (
+                <button
+                    onClick={() => {
+                        setIsMobileExploreOpen((current) => {
+                            const next = !current;
+                            if (!next) {
+                                clearExpandedMobileCategories();
+                            }
+                            return next;
+                        });
+                    }}
+                    className={cn(
+                        "font-bold text-lg py-3 px-2 rounded-xl border-b inline-flex items-center justify-between bg-transparent border-x-0 border-t-0 cursor-pointer transition-colors active:bg-kode01-pink active:text-kode01-noir",
+                        useSolidHeaderStyle ? "text-white border-white/5" : "text-kode01-noir border-black/5",
+                    )}
+                >
+                    <span>{t('nav.explore')}</span>
+                    <ChevronDown className={cn("transition-transform", isMobileExploreOpen && "rotate-180")} size={18} />
+                </button>
+            ) : (
+                <div
+                    aria-disabled="true"
+                    className={cn(
+                        "font-bold text-lg py-3 px-2 rounded-xl border-b cursor-default",
+                        useSolidHeaderStyle ? "text-white/35 border-white/5" : "text-kode01-noir/45 border-black/5",
+                    )}
+                >
+                    {t('nav.marketplace_coming_soon')}
+                </div>
+            )}
 
-            {isMobileExploreOpen && (
+            {PUBLIC_MARKETPLACE_ENABLED && isMobileExploreOpen && (
                 <div className={cn(
                     "ml-2 pl-4 border-l flex flex-col gap-1",
                     useSolidHeaderStyle ? "border-white/10" : "border-black/10",
@@ -442,7 +458,7 @@ export function BaseHeaderMobileMenu({
                 "pt-4 mt-2 border-t flex items-center justify-between",
                 useSolidHeaderStyle ? "border-white/10" : "border-black/5",
             )}>
-                <LanguageSwitcher isScrolled={useSolidHeaderStyle} />
+                <LanguageSwitcher isScrolled={useSolidHeaderStyle} localePathnames={localePathnames} />
                 <button
                     type="button"
                     onClick={() => {

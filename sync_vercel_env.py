@@ -58,7 +58,7 @@ def sync_vercel():
         try:
             subprocess.run(
                 build_vercel_env_args("rm", key, "production", token, ["--yes"]),
-                shell=False,
+                shell=True,
                 check=False,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE
@@ -75,7 +75,7 @@ def sync_vercel():
                 stderr=subprocess.PIPE,
                 text=True,
                 encoding="utf-8",
-                shell=False
+                shell=True
             )
             stdout, stderr = process.communicate(input=value)
             if process.returncode == 0:

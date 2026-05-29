@@ -15,8 +15,10 @@ def test_direct():
     # Nettoyage manuel au cas où
     key = key.strip()
     
+    internal_token = os.getenv("EDGE_INTERNAL_AUTH_TOKEN")
     headers = {
         "Authorization": f"Bearer {key}",
+        "x-internal-auth": internal_token,
         "Content-Type": "application/json"
     }
     

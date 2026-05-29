@@ -8,6 +8,7 @@ import {
   COOKIE_CONSENT_CHANGED_EVENT,
   hasMarketingConsentInBrowser,
 } from '@/features/cookies/lib/consent';
+import { PUBLIC_MARKETPLACE_ENABLED } from '@/config/marketplace';
 
 interface AdSenseAdProps {
   adSlot: string;
@@ -67,6 +68,7 @@ export function AdSenseAd({
   const [hasFetchedInternalAds, setHasFetchedInternalAds] = useState(false);
 
   const shouldShowAdSense = Boolean(clientId) && hasMarketingConsent;
+  const canUseInternalProductFallback = enableInternalProductFallback && PUBLIC_MARKETPLACE_ENABLED;
   const isFr = locale === 'fr';
 
   useEffect(() => {
@@ -104,8 +106,8 @@ export function AdSenseAd({
   }, [clientId, adSlot, shouldShowAdSense]);
 
   useEffect(() => {
-    if (shouldShowAdSense || !enableInternalProductFallback) {
-      if (!enableInternalProductFallback) {
+    if (shouldShowAdSense || !canUseInternalProductFallback) {
+      if (!canUseInternalProductFallback) {
         setHasFetchedInternalAds(false);
         setInternalAds([]);
       }
@@ -135,10 +137,10 @@ export function AdSenseAd({
     return () => {
       cancelled = true;
     };
-  }, [enableInternalProductFallback, shouldShowAdSense]);
+  }, [canUseInternalProductFallback, shouldShowAdSense]);
 
   if (!shouldShowAdSense) {
-    if (!enableInternalProductFallback) {
+    if (!canUseInternalProductFallback) {
       return null;
     }
 

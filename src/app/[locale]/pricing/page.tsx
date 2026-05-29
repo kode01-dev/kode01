@@ -256,7 +256,6 @@ async function PricingPageContent({ locale }: { locale: string }) {
             'Appears in normal blog feed with sponsored badge',
         ];
     const pricingFaqLinksByKey: Partial<Record<(typeof PRICING_FAQ_KEYS)[number], FaqItem['links']>> = {
-        fees: [{ href: `/${locale}/market`, label: tPricing('faq.links.market') }],
         advertising: [{ href: `/${locale}/contact`, label: tPricing('faq.links.contact') }],
         sponsoredBlog: [{ href: `/${locale}/contact`, label: tPricing('faq.links.contact') }],
     };

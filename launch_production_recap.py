@@ -2,6 +2,10 @@ import httpx
 import json
 import os
 import time
+from dotenv import load_dotenv
+
+# Load production env
+load_dotenv(".env.production")
 
 # Configuration (Project noemwcxtlibtimusldyn)
 SUPABASE_FUNCTIONS_URL = os.getenv("SUPABASE_FUNCTIONS_URL")
@@ -21,6 +25,9 @@ if not INTERNAL_TOKEN:
 
 EDGE_URL = SUPABASE_FUNCTIONS_URL.rstrip("/") + "/weekly-ai-recap-cron"
 
+def env_flag(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
 def launch_production_recap():
     print("🚀 Lancement de la synthèse RÉELLE d'article (mode build_article)...")
     headers = {
@@ -33,7 +40,7 @@ def launch_production_recap():
     payload_build = {
         "mode": "build_article",
         "trigger": "manual",
-        "force": True
+        "force": env_flag("FORCE_AI_RECAP_RUN")
     }
     
     # Using a long timeout for the initial synthesis request to handle Modal cold start

@@ -380,7 +380,7 @@ export const AboutCta = () => {
           <button
             className="about-cta-btn"
             style={{ background: '#F291C8', color: '#1A1A1A' }}
-            onClick={() => router.push('/market')}
+            onClick={() => router.push('/news')}
           >
             {t('button')}
             <ArrowRight size={20} />

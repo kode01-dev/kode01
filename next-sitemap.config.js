@@ -1,21 +1,23 @@
 /** @type {import('next-sitemap').IConfig} */
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { PUBLIC_MARKETPLACE_ENABLED } = require('./config/public-marketplace.json');
+
 const CANONICAL_SITE_URL = 'https://kode01.com';
 const LOCALES = ['en', 'fr'];
 const BLOCKED_SEGMENTS = ['admin', 'dashboard', 'buyer', 'client', 'vendor', 'settings', 'auth', 'api'];
 const PUBLIC_ASSET_EXCLUSIONS = ['/icon.png'];
 const PUBLIC_API_ALLOWLIST = ['/api/blog/rss', '/api/news/rss'];
+const MARKETPLACE_STATIC_ROUTES = PUBLIC_MARKETPLACE_ENABLED ? ['/market', '/bundles', '/creators'] : [];
 
 // Static public routes (no dynamic params) — localized
 const STATIC_ROUTES = [
     '/',
     '/about',
     '/blog',
-    '/bundles',
     '/canada-privacy',
     '/cli-faq',
     '/contact',
     '/cookies',
-    '/creators',
     '/gdpr-ccpa',
     '/how-it-works',
     '/legal',
@@ -24,7 +26,7 @@ const STATIC_ROUTES = [
     '/search',
     '/terms',
     '/news',
-    '/market',
+    ...MARKETPLACE_STATIC_ROUTES,
 ];
 
 const normalizeUrl = (url) => url.replace(/\/+$/, '');

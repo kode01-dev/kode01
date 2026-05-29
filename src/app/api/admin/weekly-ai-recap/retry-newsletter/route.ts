@@ -10,8 +10,9 @@ import {
 import { invokeEdgeFunction, toNextJsonResponse } from '@/lib/edge/invoke';
 import { getAuditContextFromRequest, logAuditEvent } from '@/lib/security/audit';
 import { isAdminRole } from '@/lib/auth/roles';
+import { getAiRecapRunBlock } from '@/lib/ai-recap/run-guard';
 
-async function isAdmin() {
+async function getAdminClient() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -25,14 +26,14 @@ async function isAdmin() {
     .eq('id', user.id)
     .maybeSingle();
 
-  return isAdminRole(profile?.role) ? user.id : null;
+  return isAdminRole(profile?.role) ? { supabase, userId: user.id } : null;
 }
 
 export async function POST(req: Request) {
   const auditContext = getAuditContextFromRequest(req);
   try {
-    const adminUserId = await isAdmin();
-    if (!adminUserId) {
+    const adminClient = await getAdminClient();
+    if (!adminClient) {
       await logAuditEvent({
         eventType: 'ai_recap.newsletter_retry.failed.forbidden',
         path: auditContext.path,
@@ -42,10 +43,36 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const { supabase, userId } = adminClient;
     const payload = await req.json().catch(() => ({}));
     const editionKey = typeof payload?.editionKey === 'string' ? payload.editionKey : undefined;
     const testEmail = typeof payload?.testEmail === 'string' ? payload.testEmail : undefined;
     const testMode = typeof payload?.testMode === 'boolean' ? payload.testMode : undefined;
+    const runBlock = await getAiRecapRunBlock(supabase);
+    if (runBlock) {
+      await logAuditEvent({
+        eventType: 'ai_recap.newsletter_retry.blocked.disabled',
+        userId,
+        path: auditContext.path,
+        ipAddress: auditContext.ipAddress,
+        userAgent: auditContext.userAgent,
+        metadata: {
+          edition_key: editionKey ?? null,
+          test_mode: testMode ?? null,
+          reason: runBlock.reason,
+        },
+      });
+      return NextResponse.json(
+        {
+          error: runBlock.message,
+          code: runBlock.code,
+          reason: runBlock.reason,
+          skipped: true,
+        },
+        { status: 409 },
+      );
+    }
+
     const executionMode = getExecutionMode();
     const runtimePayload = {
       flow: 'weekly-ai-recap' as const,
@@ -65,7 +92,7 @@ export async function POST(req: Request) {
         eventType: agentResponse.ok
           ? 'ai_recap.newsletter_retry.triggered'
           : 'ai_recap.newsletter_retry.failed.upstream',
-        userId: adminUserId,
+        userId,
         path: auditContext.path,
         ipAddress: auditContext.ipAddress,
         userAgent: auditContext.userAgent,
@@ -103,7 +130,7 @@ export async function POST(req: Request) {
       eventType: upstream.ok
         ? 'ai_recap.newsletter_retry.triggered'
         : 'ai_recap.newsletter_retry.failed.upstream',
-      userId: adminUserId,
+      userId,
       path: auditContext.path,
       ipAddress: auditContext.ipAddress,
       userAgent: auditContext.userAgent,

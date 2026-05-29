@@ -20,7 +20,7 @@ import { SeoAppJsonLd } from '@/components/seo/SeoAppJsonLd';
 import { RecapArticleSources } from '@/features/ai-recap/components/RecapArticleSources';
 import { AiNewsNewsletterCta } from '@/features/ai-recap/components/AiNewsNewsletterCta';
 import { stripTrailingGeneratedSourceCredit } from '@/features/ai-recap/lib/markdown-source-cleanup';
-import { buildNewsArticleJsonLd, resolveNewsPostLocale } from '@/features/ai-recap/lib/news-detail-seo';
+import { buildNewsArticleJsonLd, buildNewsLocalePathnames, resolveNewsPostLocale } from '@/features/ai-recap/lib/news-detail-seo';
 import {
   buildNewsArticleToc,
   getRenderableNewsArticleToc,
@@ -142,6 +142,7 @@ export default async function NewsDetailPage({
   const allTocItems = buildNewsArticleToc(articleBlocks);
   const tocItems = getRenderableNewsArticleToc(allTocItems);
   const baseUrl = getAppBaseUrl();
+  const newsLocalePathnames = buildNewsLocalePathnames(post, siblingPosts);
   const jsonLd = buildNewsArticleJsonLd({
     baseUrl,
     locale,
@@ -153,7 +154,7 @@ export default async function NewsDetailPage({
   return (
     <div className="bg-kode01-cream text-kode01-noir min-h-screen flex flex-col antialiased font-sans overflow-x-hidden">
       <SeoAppJsonLd pathname={`/news/${post.slug}`} fallbackData={jsonLd} />
-      <BaseHeader />
+      <BaseHeader localePathnames={newsLocalePathnames} />
       <main className="flex-1 min-w-0 pt-28 sm:pt-32 pb-8 sm:pb-14 mx-auto max-w-7xl px-3.5 sm:px-6 w-full overflow-hidden">
         <div className="mb-5 sm:mb-8">
           <Link

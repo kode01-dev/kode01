@@ -74,10 +74,10 @@ export default async function AuthConfirmedPage({
                 </Link>
 
                 <Link
-                  href="/market"
+                  href="/news"
                   className="rounded-full border border-black/20 px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-kode01-noir transition-colors hover:border-kode01-noir/40"
                 >
-                  {t('cta_market')}
+                  {t('cta_news')}
                 </Link>
               </div>
 

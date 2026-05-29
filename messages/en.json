@@ -16,10 +16,11 @@
       "infrastructure": "Infrastructures",
       "opensource": "Infrastructures",
       "models": "AI Models",
-      "apps": "Apps"
+      "apps": "Apps",
+      "marketplace_coming_soon": "Marketplace coming soon"
     },
     "search": {
-      "placeholder": "Search tools, products, and news...",
+      "placeholder": "Search AI news and blog updates...",
       "open": "Open search",
       "close": "Close search"
     },
@@ -55,7 +56,8 @@
         "prompt": "I'm a digital creator or builder who wants to stay current on AI, discover the right tools, and turn expertise into useful digital resources. Analyze KODE01 (https://kode01.com) as an AI intelligence platform for updates, tool discovery, practical resources, and marketplace access. Explain how to use it to follow AI news, understand key trends, discover n8n workflows, Notion systems, AI agent blueprints, and vetted digital products, then move faster from insight to execution.",
         "copied": "Prompt copied!"
       },
-      "resources": "Resources"
+      "resources": "Resources",
+      "marketplace_coming_soon": "Marketplace coming soon"
     },
     "cookie_manage": "Manage cookies"
   },
@@ -78,7 +80,7 @@
       "featured_label": "featured: premium ui kit pack",
       "featured_price": "$48",
       "badge_text": "new drop",
-      "search_placeholder": "Search tools, products, and news..."
+      "search_placeholder": "Search AI news and blog updates..."
     },
     "filters": {
       "all_assets": "all assets",
@@ -202,7 +204,8 @@
     "title": "Page not found",
     "description": "This page does not exist or may have been moved.",
     "go_home": "Go home",
-    "browse_market": "Browse marketplace"
+    "browse_market": "Browse marketplace",
+    "browse_news": "Read AI News"
   },
   "product": {
     "breadcrumb": {
@@ -315,6 +318,15 @@
   "market": {
     "meta_title": "Digital Products – Templates, AI Tools & More",
     "meta_description": "Browse and buy premium digital products. Templates, UI kits, AI workflows, and SaaS kits from creators.",
+    "coming_soon": {
+      "meta_title": "Marketplace coming soon",
+      "meta_description": "The KODE01 marketplace is being prepared for production. Follow AI News and the Blog while we finalize the public launch.",
+      "eyebrow": "Production preparation",
+      "title": "Marketplace coming soon",
+      "description": "We are keeping the marketplace attached to the platform, but public buying and marketplace browsing are not ready for production yet. Follow AI News and the Blog while we finalize the launch.",
+      "cta_news": "Read AI News",
+      "cta_blog": "Read the Blog"
+    },
     "hero": {
       "title": "explore digital products",
       "description": "Browse curated digital goods with structured categories designed for builders and creators."
@@ -510,7 +522,7 @@
       "heading_line1": "Stay current on AI.",
       "heading_line2": "Discover the tools that matter.",
       "subtitle": "",
-      "search_placeholder": "Search tools, products, and news...",
+      "search_placeholder": "Search AI news and blog updates...",
       "start_selling": "Start Selling",
       "explore_assets": "Explore",
       "proof_assets": "{count}+ AI resources and products",
@@ -526,7 +538,8 @@
       "open_shop": "Open Shop",
       "builders_label": "For Builders",
       "builders_heading": "Understand what's new. Start building.",
-      "browse_catalog": "Browse Catalog"
+      "browse_catalog": "Browse Catalog",
+      "read_ai_news": "Read AI News"
     },
     "products": {
       "title": "Resources and Updates",
@@ -799,6 +812,7 @@
       "cta_success": "Go to settings",
       "cta_error": "Back to home",
       "cta_market": "Explore marketplace",
+      "cta_news": "Read AI News",
       "support_hint": "If this keeps happening, contact support@kode01.com.",
       "cta_login": "Log in"
     }
@@ -1222,13 +1236,13 @@
     }
   },
   "global_search": {
-    "meta_title": "Search Tools, Products & AI News",
-    "meta_description": "Search AI tools, digital products, and news from one page.",
+    "meta_title": "Search AI News and Blog",
+    "meta_description": "Search AI news and KODE01 editorial updates from one page.",
     "title": "Search across kode01",
-    "subtitle": "Find AI tools, products, and news in one place.",
-    "placeholder": "Search tools, products, and news...",
+    "subtitle": "Find AI news and editorial updates in one place.",
+    "placeholder": "Search AI news and blog updates...",
     "submit": "Search",
-    "empty_prompt": "Start typing to search AI tools, products, and news.",
+    "empty_prompt": "Start typing to search AI news and blog updates.",
     "no_results": "No results found for \"{query}\".",
     "summary": "{count, plural, =0 {0 results} =1 {1 result} other {# results}}",
     "section_products": "Products",
@@ -3513,9 +3527,9 @@
     "stripe_return_error_toast": "Stripe onboarding could not be resumed. Please try opening Stripe again."
   },
   "search": {
-    "meta_description": "Search AI tools, digital products, and news from one page.",
-    "subtitle": "Find AI tools, products, and news in one place.",
-    "placeholder": "Search tools, products, and news...",
-    "empty_prompt": "Start typing to search AI tools, products, and news."
+    "meta_description": "Search AI news and KODE01 editorial updates from one page.",
+    "subtitle": "Find AI news and editorial updates in one place.",
+    "placeholder": "Search AI news and blog updates...",
+    "empty_prompt": "Start typing to search AI news and blog updates."
   }
 }

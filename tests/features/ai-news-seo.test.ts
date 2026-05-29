@@ -14,6 +14,7 @@ import {
 } from '@/features/ai-recap/lib/news-article-markdown';
 import {
   buildNewsArticleJsonLd,
+  buildNewsLocalePathnames,
   resolveNewsPostLocale,
 } from '@/features/ai-recap/lib/news-detail-seo';
 import type { RecapPostDetail } from '@/features/ai-recap/types';
@@ -88,6 +89,32 @@ test('AI News locale resolution redirects wrong-locale slugs to the canonical po
     }),
     { type: 'notFound' },
   );
+});
+
+test('AI News language switcher uses sibling slugs for alternate locales', () => {
+  assert.deepEqual(
+    buildNewsLocalePathnames(
+      makePost({ locale: 'en', slug: 'ai-weekly-recap-2026-w20-fri' }),
+      [
+        makePost({
+          id: 'post-2',
+          locale: 'fr',
+          slug: 'recap-hebdo-ia-2026-s20-ven',
+        }),
+      ],
+    ),
+    {
+      en: '/news/ai-weekly-recap-2026-w20-fri',
+      fr: '/news/recap-hebdo-ia-2026-s20-ven',
+    },
+  );
+});
+
+test('AI News detail passes alternate locale paths to the header switcher', () => {
+  const newsDetailPage = readProjectFile('src/app/[locale]/(marketing)/news/[slug]/page.tsx');
+
+  assert.match(newsDetailPage, /buildNewsLocalePathnames\(post, siblingPosts\)/);
+  assert.match(newsDetailPage, /<BaseHeader localePathnames={newsLocalePathnames} \/>/);
 });
 
 test('AI News JSON-LD fallback includes Article and BreadcrumbList', () => {

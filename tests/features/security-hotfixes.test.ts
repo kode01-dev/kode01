@@ -166,6 +166,10 @@ test('static hotfix checks cover edge paths that are not imported in node tests'
     resolve('src/features/ai-recap/lib/news-article-markdown.tsx'),
     'utf8',
   );
+  const weeklyAiRecapEdgeFunction = readFileSync(
+    resolve('supabase/functions/weekly-ai-recap-cron/index.ts'),
+    'utf8',
+  );
 
   assert.match(embeddedCheckout, /Invalid price for fixed-price product/);
   assert.match(stripeWebhook, /status: 'pending'/);
@@ -173,6 +177,11 @@ test('static hotfix checks cover edge paths that are not imported in node tests'
   assert.match(downloadRoute, /\.in\('status', \['completed', 'paid', 'fulfilled'\]\)/);
   assert.match(newsArticleMarkdown, /ALLOWED_LINK_PROTOCOLS = new Set\(\['http:', 'https:', 'mailto:'\]\)/);
   assert.match(newsArticleMarkdown, /sanitizeMarkdownHref/);
+  assert.match(weeklyAiRecapEdgeFunction, /async function blockDisabledDirectRun/);
+  assert.match(weeklyAiRecapEdgeFunction, /Deno\.env\.get\('AGENT_CRON_KILL_SWITCH'\)/);
+  assert.match(weeklyAiRecapEdgeFunction, /Deno\.env\.get\('AGENT_CRON_DISABLE_WEEKLY_RECAP'\)/);
+  assert.match(weeklyAiRecapEdgeFunction, /if \(mode === 'tick'\) return null/);
+  assert.match(weeklyAiRecapEdgeFunction, /const directRunBlock = await blockDisabledDirectRun\(mode\)/);
 });
 
 test('security remediation static checks cover async payments, RPC auth, SSRF, and samples', () => {

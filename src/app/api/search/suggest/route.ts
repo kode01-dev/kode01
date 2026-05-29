@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
+import { PUBLIC_MARKETPLACE_ENABLED } from '@/config/marketplace';
 import { createPublicServerClient } from '@/lib/supabase/server-public';
 
 const PUBLIC_CACHE_HEADERS = {
@@ -19,6 +20,10 @@ function normalizeQuery(value: string): string {
 }
 
 export async function GET(request: Request) {
+  if (!PUBLIC_MARKETPLACE_ENABLED) {
+    return NextResponse.json({ suggestions: [] }, { headers: PUBLIC_CACHE_HEADERS });
+  }
+
   const url = new URL(request.url);
   const parsed = querySchema.safeParse({
     q: url.searchParams.get('q') ?? '',

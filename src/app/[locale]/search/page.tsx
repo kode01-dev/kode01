@@ -12,6 +12,7 @@ import {
 import { scoreSearchQuery } from '@/lib/search';
 import { applySeoMetadata } from '@/lib/seo';
 import { createClient } from '@/lib/supabase/server';
+import { PUBLIC_MARKETPLACE_ENABLED } from '@/config/marketplace';
 import { Search, Newspaper, Package, Zap } from 'lucide-react';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -137,14 +138,16 @@ export default async function SearchPage({
     const query = (resolvedSearchParams.q ?? '').trim();
 
     const t = await getTranslations({ locale, namespace: 'global_search' });
-    const tMarket = await getTranslations({ locale, namespace: 'market' });
+    const tMarket = PUBLIC_MARKETPLACE_ENABLED
+        ? await getTranslations({ locale, namespace: 'market' })
+        : null;
 
     const [products, newsPosts] = await Promise.all([
-        getPublishedProductsForSearch(),
+        PUBLIC_MARKETPLACE_ENABLED ? getPublishedProductsForSearch() : Promise.resolve([]),
         getPublishedRecapPosts(200),
     ]);
 
-    const productResults: ProductSearchResult[] = query
+    const productResults: ProductSearchResult[] = PUBLIC_MARKETPLACE_ENABLED && query
         ? products
             .map((product): ProductSearchResult | null => {
                 if (!product.slug || !product.title) return null;
@@ -162,7 +165,7 @@ export default async function SearchPage({
                 const categoryLabel = categoryRef?.slug
                     ? (() => {
                         try {
-                            return tMarket(`taxonomy.categories.${categoryRef.slug}` as never);
+                            return tMarket?.(`taxonomy.categories.${categoryRef.slug}` as never) ?? categoryLabelFallback;
                         } catch {
                             return categoryLabelFallback;
                         }
@@ -174,7 +177,7 @@ export default async function SearchPage({
                 const subcategoryLabel = subcategoryRef?.slug
                     ? (() => {
                         try {
-                            return tMarket(`taxonomy.subcategories.${subcategoryRef.slug}` as never);
+                            return tMarket?.(`taxonomy.subcategories.${subcategoryRef.slug}` as never) ?? subcategoryLabelFallback;
                         } catch {
                             return subcategoryLabelFallback;
                         }
@@ -319,7 +322,7 @@ export default async function SearchPage({
                                 {t('summary', { count: totalResults })}
                             </p>
 
-                            {productResults.length > 0 && (
+                            {PUBLIC_MARKETPLACE_ENABLED && productResults.length > 0 && (
                                 <section>
                                     <div className="flex items-center gap-3 mb-6">
                                         <Package size={18} className="text-kode01-noir/50" />

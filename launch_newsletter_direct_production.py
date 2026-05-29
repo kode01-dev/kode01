@@ -5,6 +5,10 @@ import os
 import time
 import uuid
 import httpx
+from dotenv import load_dotenv
+
+# Load production env
+load_dotenv(".env.production")
 
 # Configuration (Direct to Modal - Production Project)
 MODAL_BASE_URL = os.getenv("MODAL_AGENT_API_URL")

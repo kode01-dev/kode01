@@ -1,9 +1,26 @@
 import type { RecapLocale, RecapPostDetail } from '../types';
 
+type NewsLocalePathnamePost = Pick<RecapPostDetail, 'locale' | 'slug'>;
+
 export type NewsPostLocaleResolution =
   | { type: 'render'; post: RecapPostDetail }
   | { type: 'redirect'; href: string }
   | { type: 'notFound' };
+
+export function buildNewsLocalePathnames(
+  post: NewsLocalePathnamePost,
+  siblingPosts: NewsLocalePathnamePost[],
+): Partial<Record<RecapLocale, string>> {
+  const pathnames: Partial<Record<RecapLocale, string>> = {
+    [post.locale]: `/news/${post.slug}`,
+  };
+
+  for (const siblingPost of siblingPosts) {
+    pathnames[siblingPost.locale] = `/news/${siblingPost.slug}`;
+  }
+
+  return pathnames;
+}
 
 export function resolveNewsPostLocale({
   exactPost,

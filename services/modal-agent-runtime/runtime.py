@@ -345,8 +345,10 @@ def scheduler_owner_for_flow(flow: str) -> str:
 
 def resolve_recap_execution_target() -> str:
     raw = (os.getenv("RECAP_EXECUTION_TARGET") or "modal_native").strip().lower()
-    if raw in RECAP_EXECUTION_TARGET_VALUES:
+    if raw == "modal_native":
         return raw
+    if raw in {"edge_proxy", "dual_shadow"}:
+        print(f"RECAP_EXECUTION_TARGET={raw} is ignored for weekly-ai-recap; using modal_native")
     return "modal_native"
 
 
@@ -368,6 +370,54 @@ def should_run_modal_scheduler(flow: str) -> tuple[bool, str]:
         return False, f"owner_mismatch:{owner}"
 
     return True, "enabled"
+
+
+def weekly_recap_disabled_reason() -> str | None:
+    if parse_bool(os.getenv("AGENT_CRON_KILL_SWITCH")):
+        return "kill_switch"
+
+    if parse_bool(os.getenv("AGENT_CRON_DISABLE_WEEKLY_RECAP")):
+        return "flow_disabled"
+
+    if "weekly-ai-recap" in parse_disabled_flows(os.getenv("AGENT_CRON_DISABLED_FLOWS")):
+        return "flow_disabled"
+
+    return None
+
+
+def ensure_weekly_recap_run_allowed(payload: dict[str, Any]) -> None:
+    if payload.get("flow") != "weekly-ai-recap":
+        return
+
+    env_reason = weekly_recap_disabled_reason()
+    if env_reason:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "error": "AI recap runs are disabled",
+                "code": "AI_RECAP_RUNS_DISABLED",
+                "reason": env_reason,
+            },
+        )
+
+    try:
+        from recap_repository import RecapRepository
+
+        repo = RecapRepository.from_env()
+        schedule = repo.get_schedule(os.getenv("RECAP_TIMEZONE") or "America/Toronto")
+    except Exception as exc:
+        print(f"Warning: unable to verify weekly recap schedule before enqueue: {exc}")
+        return
+
+    if not schedule.is_enabled:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "error": "AI recap schedule is disabled",
+                "code": "AI_RECAP_RUNS_DISABLED",
+                "reason": "schedule_disabled",
+            },
+        )
 
 
 def validate_flow_mode(payload: EnqueuePayload) -> None:
@@ -790,7 +840,9 @@ async def internal_enqueue(request: Request) -> dict[str, Any]:
     raw_payload = await request.json()
     payload = EnqueuePayload.model_validate(raw_payload)
     validate_flow_mode(payload)
-    return enqueue_payload(payload.model_dump(exclude_none=True))
+    normalized_payload = payload.model_dump(exclude_none=True)
+    ensure_weekly_recap_run_allowed(normalized_payload)
+    return enqueue_payload(normalized_payload)
 
 
 @web_app.get("/internal/jobs/{job_id}")

@@ -5,6 +5,10 @@ import os
 import time
 import uuid
 import httpx
+from dotenv import load_dotenv
+
+# Load production env
+load_dotenv(".env.production")
 
 # Configuration (Direct to Modal - Production Project)
 # App URL: https://simbourd--kode01-agent-runtime-sync-api.modal.run
@@ -19,13 +23,16 @@ if not MODAL_BASE_URL:
 if not SECRET:
     raise RuntimeError("Missing required environment variable: AGENT_INTERNAL_TOKEN")
 
-API_URL = MODAL_BASE_URL.rstrip("/") + "/jobs/enqueue"
+API_URL = MODAL_BASE_URL.rstrip("/") + "/internal/jobs"
+
+def env_flag(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
 
 def launch_modal_direct():
     timestamp = str(int(time.time()))
     nonce = str(uuid.uuid4())
     method = "POST"
-    path = "/jobs/enqueue"
+    path = "/internal/jobs"
     
     # Signature matching runtime.py verify_internal_auth
     signature_payload = f"{method.upper()}\n{path}\n{timestamp}\n{nonce}"
@@ -47,7 +54,7 @@ def launch_modal_direct():
         "flow": "weekly-ai-recap",
         "mode": "build_article",
         "trigger": "manual",
-        "force": True,
+        "force": env_flag("FORCE_AI_RECAP_RUN"),
         "requestId": f"prod-{nonce[:8]}",
         "idempotencyKey": f"prod-{nonce[:8]}"
     }

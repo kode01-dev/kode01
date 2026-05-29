@@ -5,17 +5,26 @@ import { usePathname, useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import { useTransition } from 'react';
 
-export function LanguageSwitcher({ isScrolled }: { isScrolled?: boolean }) {
+export type LanguageSwitcherLocalePathnames = Partial<Record<'en' | 'fr', string>>;
+
+export function LanguageSwitcher({
+    isScrolled,
+    localePathnames,
+}: {
+    isScrolled?: boolean;
+    localePathnames?: LanguageSwitcherLocalePathnames;
+}) {
     const locale = useLocale();
     const router = useRouter();
     const pathname = usePathname();
     const [isPending, startTransition] = useTransition();
 
     const nextLocale = locale === 'en' ? 'fr' : 'en';
+    const nextPathname = localePathnames?.[nextLocale] ?? pathname;
 
     const toggleLocale = () => {
         startTransition(() => {
-            router.replace(pathname, { locale: nextLocale });
+            router.replace(nextPathname, { locale: nextLocale });
         });
     };
 

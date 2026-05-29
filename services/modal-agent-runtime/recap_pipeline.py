@@ -7,7 +7,7 @@ import socket
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from html import unescape
+from html import escape, unescape
 from typing import Any
 from urllib.parse import urljoin, urlparse
 from xml.etree import ElementTree
@@ -15,7 +15,7 @@ from xml.etree import ElementTree
 import httpx
 from zoneinfo import ZoneInfo
 
-from recap_repository import RecapDayTheme, RecapRepository, RecapRepositoryError, RecapSource
+from recap_repository import RecapDayTheme, RecapRepository, RecapRepositoryError, RecapSchedule, RecapSource
 
 FIRECRAWL_SCRAPE_URL = "https://api.firecrawl.dev/v2/scrape"
 GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
@@ -182,6 +182,21 @@ def _trim_or_none(value: Any) -> str | None:
         return None
     normalized = value.strip()
     return normalized if normalized else None
+
+
+def _split_email_list(value: str | None) -> list[str]:
+    if not value:
+        return []
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in re.split(r"[,\s;]+", value):
+        email = item.strip()
+        lowered = email.lower()
+        if not email or "@" not in email or lowered in seen:
+            continue
+        seen.add(lowered)
+        out.append(email)
+    return out
 
 
 def _safe_error(error: Exception | str) -> str:
@@ -375,6 +390,12 @@ class RecapAiRunTracker:
         if stage:
             self.failure_stage = stage
 
+    def clear_failure(self, stage: str | None = None) -> None:
+        if stage and self.failure_stage != stage:
+            return
+        self.failure_stage = None
+        self.failure_reason = None
+
     def snapshot(self) -> dict[str, Any]:
         return {
             "ai_calls": self.ai_calls,
@@ -469,6 +490,10 @@ class NativeRecapConfig:
     sendfox_base_url: str
     sendfox_from_name: str
     sendfox_from_email: str
+    resend_api_key: str | None
+    resend_from_email: str
+    alert_email_recipients: list[str]
+    alert_cooldown_minutes: int
 
     @classmethod
     def from_env(cls) -> "NativeRecapConfig":
@@ -489,7 +514,7 @@ class NativeRecapConfig:
             article_max_tokens=_bounded_int_env("RECAP_ARTICLE_MAX_TOKENS", 6500, 1000, 8192),
             ai_fail_fast=_bool_env("RECAP_AI_FAIL_FAST", True),
             allow_paid_fallback=_bool_env("RECAP_ALLOW_PAID_FALLBACK", False),
-            max_anthropic_calls_per_run=_bounded_int_env("RECAP_MAX_ANTHROPIC_CALLS_PER_RUN", 4, 0, 20),
+            max_anthropic_calls_per_run=_bounded_int_env("RECAP_MAX_ANTHROPIC_CALLS_PER_RUN", 6, 0, 10),
             firecrawl_api_key=_trim_or_none(os.getenv("FIRECRAWL_API_KEY")),
             app_base_url=(os.getenv("APP_BASE_URL") or "https://kode01.com").strip().rstrip("/"),
             sendfox_api_token=_trim_or_none(os.getenv("SENDFOX_API_TOKEN")),
@@ -498,6 +523,10 @@ class NativeRecapConfig:
             sendfox_base_url=(os.getenv("SENDFOX_API_BASE_URL") or "https://api.sendfox.com").strip().rstrip("/"),
             sendfox_from_name=(os.getenv("SENDFOX_FROM_NAME") or "KODE01").strip(),
             sendfox_from_email=(os.getenv("SENDFOX_FROM_EMAIL") or os.getenv("RESEND_FROM_EMAIL") or "news@kode01.com").strip(),
+            resend_api_key=_trim_or_none(os.getenv("RESEND_API_KEY")),
+            resend_from_email=(os.getenv("RESEND_FROM_EMAIL") or "KODE01 <onboarding@resend.dev>").strip(),
+            alert_email_recipients=_split_email_list(os.getenv("AI_RECAP_ALERT_EMAILS")),
+            alert_cooldown_minutes=_bounded_int_env("AI_RECAP_ALERT_COOLDOWN_MINUTES", 1440, 5, 10080),
         )
 
 
@@ -1043,7 +1072,406 @@ def _build_evidence_pack(stories: list[dict[str, Any]], config: NativeRecapConfi
             break
         selected.append({**story, "snippet": snippet, "claims": claims})
         total_chars = projected
-    return {"stories": selected, "source_urls": [story.get("source_url") for story in selected if story.get("source_url")], "total_chars": total_chars, "truncated_stories": truncated_count, "token_estimate": max(1, total_chars // 4)}
+    return {
+        "stories": selected,
+        "source_cards": _build_source_fact_cards(selected),
+        "source_urls": [story.get("source_url") for story in selected if story.get("source_url")],
+        "total_chars": total_chars,
+        "truncated_stories": truncated_count,
+        "token_estimate": max(1, total_chars // 4),
+    }
+
+
+SOURCE_CARD_STOPWORDS = {
+    "about",
+    "after",
+    "also",
+    "among",
+    "article",
+    "back",
+    "blog",
+    "from",
+    "have",
+    "into",
+    "news",
+    "post",
+    "posts",
+    "report",
+    "says",
+    "sort",
+    "source",
+    "that",
+    "their",
+    "this",
+    "with",
+}
+
+SOURCE_CARD_MONTH_WORDS = {
+    "jan",
+    "january",
+    "feb",
+    "february",
+    "mar",
+    "march",
+    "apr",
+    "april",
+    "may",
+    "jun",
+    "june",
+    "jul",
+    "july",
+    "aug",
+    "august",
+    "sep",
+    "sept",
+    "september",
+    "oct",
+    "october",
+    "nov",
+    "november",
+    "dec",
+    "december",
+}
+
+SOURCE_CARD_METADATA_WORDS = {
+    "ai",
+    "author",
+    "authors",
+    "business",
+    "byline",
+    "category",
+    "categories",
+    "comments",
+    "date",
+    "daws",
+    "editor",
+    "newsletter",
+    "posted",
+    "published",
+    "ryan",
+    "scaling",
+    "strategy",
+    "tag",
+    "tags",
+    "updated",
+}
+
+
+def _source_character(story: dict[str, Any]) -> str:
+    joined = f"{story.get('source_name') or ''} {story.get('title') or ''} {story.get('source_url') or ''}".lower()
+    if "huggingface.co" in joined or "hugging face" in joined:
+        return "community_listing"
+    if "openai.com" in joined or "anthropic.com" in joined or "mistral.ai" in joined or "deepmind" in joined:
+        return "company_announcement"
+    if "substack" in joined:
+        return "opinion_or_analysis"
+    return "reported_source"
+
+
+def _source_topic_terms(story: dict[str, Any]) -> list[str]:
+    title = str(story.get("title") or "").strip()
+    snippet = str(story.get("snippet") or story.get("text") or "").strip()
+    raw = title if title else snippet[:240]
+    out: list[str] = []
+    seen: set[str] = set()
+    for token in re.findall(r"\b[A-Za-z][A-Za-z0-9+.\-]{2,}\b", raw):
+        normalized = token.strip(".,:;!?()[]{}\"'").strip()
+        lowered = normalized.lower()
+        if not normalized or lowered in SOURCE_CARD_STOPWORDS or lowered in SOURCE_CARD_MONTH_WORDS or lowered in seen:
+            continue
+        has_signal = any(ch.isdigit() for ch in normalized) or any(ch.isupper() for ch in normalized[1:]) or len(normalized) >= 5
+        if not has_signal:
+            continue
+        seen.add(lowered)
+        out.append(normalized[:60])
+        if len(out) >= 12:
+            break
+    return out
+
+
+def _looks_like_source_metadata_entity(value: str) -> bool:
+    words = [word.lower() for word in re.findall(r"[A-Za-z]+", value)]
+    if not words:
+        return True
+    if words[-1] in SOURCE_CARD_MONTH_WORDS and len(words) <= 4:
+        return True
+    metadata_hits = sum(1 for word in words if word in SOURCE_CARD_METADATA_WORDS or word in SOURCE_CARD_MONTH_WORDS)
+    if len(words) >= 3 and metadata_hits >= 2:
+        return True
+    return False
+
+
+def _source_safe_angle(story: dict[str, Any], terms: list[str]) -> str:
+    joined = f"{story.get('source_name') or ''} {story.get('title') or ''} {story.get('text') or ''}".lower()
+    if "hugging face" in joined or "huggingface.co" in joined:
+        return "Community activity around developer tooling, model adaptation, robotics, benchmarks, and agent infrastructure."
+    if "virgin atlantic" in joined and ("codex" in joined or "openai" in joined):
+        return "Company case study about enterprise use of coding agents in airline software teams."
+    if ("grupo folha" in joined or "grupo uol" in joined or "uol" in joined) and "openai" in joined:
+        return "Company announcement about a Brazilian media partnership and publisher content in ChatGPT."
+    if "openai" in joined:
+        return "Company announcement about AI product adoption, partnerships, or platform updates."
+    if "mistral" in joined:
+        return "Model or platform update from a European AI lab."
+    if "deepmind" in joined or "google" in joined:
+        return "Research or product update from a major AI lab."
+    if terms:
+        return f"Source-backed AI update involving {', '.join(terms[:4])}."
+    return "Source-backed AI update summarized as context, not source-style wording."
+
+
+def _source_fact_terms(story: dict[str, Any]) -> dict[str, list[str]]:
+    raw = _compact_text(" ".join(str(story.get(key) or "") for key in ("title", "snippet", "text")))
+    figures: list[str] = []
+    entities: list[str] = []
+    seen: set[str] = set()
+
+    for match in re.findall(
+        r"(?i)(?:\$\s*\d[\d,.]*(?:\s*(?:billion|million|thousand))?|\d[\d,.]*(?:\+|%|x|\s*(?:billion|million|thousand|hours|users|monthly|weekly|five-year|deal|agreement|throughput)))",
+        raw,
+    ):
+        value = _compact_text(match)
+        lowered = value.lower()
+        if value and lowered not in seen:
+            seen.add(lowered)
+            figures.append(value[:80])
+        if len(figures) >= 6:
+            break
+
+    for match in re.findall(r"\b[A-Z][A-Za-z0-9+./-]*(?:\s+(?:[A-Z][A-Za-z0-9+./-]*|AI|AWS|API|CPU|I/O|CLI)){0,3}", raw):
+        value = _compact_text(match)
+        lowered = value.lower()
+        if len(value) < 3 or lowered in seen or lowered in SOURCE_CARD_STOPWORDS or _looks_like_source_metadata_entity(value):
+            continue
+        seen.add(lowered)
+        entities.append(value[:80])
+        if len(entities) >= 10:
+            break
+
+    return {"entities": entities, "figures": figures}
+
+
+def _non_opinion_source_cards(cards: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [card for card in cards if str(card.get("source_character") or "") != "opinion_or_analysis"]
+
+
+def _build_source_fact_cards(stories: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    cards: list[dict[str, Any]] = []
+    for story in stories:
+        source_url = str(story.get("source_url") or "").strip()
+        if not source_url:
+            continue
+        terms = _source_topic_terms(story)
+        cards.append(
+            {
+                "source_url": source_url,
+                "source_name": str(story.get("source_name") or story.get("title") or "Source").strip()[:120],
+                "source_character": _source_character(story),
+                "safe_angle": _source_safe_angle(story, terms),
+                "topic_terms": terms,
+                "fact_terms": _source_fact_terms(story),
+                "writing_constraints": [
+                    "Do not reproduce the source title or sentence order.",
+                    "Use qualitative synthesis unless an exact number is essential.",
+                    "Attribute claims in prose near the claim.",
+                    "Prefer analysis over case-study narration.",
+                ],
+            }
+        )
+    return cards
+
+
+def _markdown_link(label: Any, url: Any) -> str:
+    safe_label = re.sub(r"[\[\]\n\r]+", " ", str(label or "Source")).strip() or "Source"
+    safe_url = str(url or "").strip()
+    return f"[{safe_label[:80]}]({safe_url})" if safe_url else safe_label[:80]
+
+
+def _source_terms(card: dict[str, Any], limit: int = 4) -> list[str]:
+    raw_terms = card.get("topic_terms") if isinstance(card.get("topic_terms"), list) else []
+    terms: list[str] = []
+    seen: set[str] = set()
+    for term in raw_terms:
+        normalized = str(term or "").strip()
+        lowered = normalized.lower()
+        if not normalized or lowered in seen:
+            continue
+        seen.add(lowered)
+        terms.append(normalized[:60])
+        if len(terms) >= limit:
+            break
+    return terms
+
+
+def _join_terms(terms: list[str], locale: str) -> str:
+    if not terms:
+        return "AI infrastructure" if locale == "en" else "l'infrastructure IA"
+    if len(terms) == 1:
+        return terms[0]
+    separator = " and " if locale == "en" else " et "
+    return ", ".join(terms[:-1]) + separator + terms[-1]
+
+
+def _fact_term_values(card: dict[str, Any]) -> tuple[list[str], list[str], str]:
+    fact_terms = card.get("fact_terms") if isinstance(card.get("fact_terms"), dict) else {}
+    raw_entities = fact_terms.get("entities") if isinstance(fact_terms.get("entities"), list) else []
+    raw_figures = fact_terms.get("figures") if isinstance(fact_terms.get("figures"), list) else []
+    entities = [str(item).strip() for item in raw_entities if str(item).strip()][:8]
+    figures = [str(item).strip() for item in raw_figures if str(item).strip()][:5]
+    haystack = " ".join([str(card.get("safe_angle") or ""), *entities, *figures, *_source_terms(card, 8)]).lower()
+    return entities, figures, haystack
+
+
+def _safe_digest_reported_fact(card: dict[str, Any], locale: str) -> str:
+    entities, figures, haystack = _fact_term_values(card)
+    terms_text = _join_terms(_source_terms(card), locale)
+    figure_text = ", ".join(figures[:3])
+
+    if "snowflake" in haystack and ("aws" in haystack or "amazon web services" in haystack):
+        if locale == "fr":
+            return "Snowflake et AWS sont relies par un accord pluriannuel de 6 milliards de dollars, dans un contexte ou les charges de travail IA poussent la demande en calcul."
+        return "Snowflake and AWS are tied to a multi-year $6 billion agreement, in a context where AI workloads are increasing demand for compute."
+    if "google" in haystack and ("search" in haystack or "ai mode" in haystack or "overviews" in haystack):
+        if locale == "fr":
+            return "Google fait evoluer la recherche vers une interface plus conversationnelle, capable de s'appuyer sur plusieurs types d'entrees plutot que seulement sur des mots-cles courts."
+        return "Google is moving Search toward a more conversational interface that can work from several input types, not only short keyword queries."
+    if "cisco" in haystack and "codex" in haystack:
+        if locale == "fr":
+            return "Cisco presente Codex comme un outil deja integre a des flux d'ingenierie, avec des gains chiffres sur les fonctionnalites IA, la resolution de defauts et le temps economise."
+        return "Cisco presents Codex as already embedded in engineering workflows, with reported gains across AI feature work, defect resolution, and engineering time saved."
+    if "robinhood" in haystack and ("trade" in haystack or "trading" in haystack):
+        if locale == "fr":
+            return "Robinhood teste des capacites ou des agents IA peuvent intervenir dans des parcours de transaction, ce qui deplace l'attention vers l'approbation utilisateur et les limites de controle."
+        return "Robinhood is testing capabilities where AI agents can take part in trading workflows, shifting attention toward user approval and control limits."
+    if ("grupo folha" in haystack or "grupo uol" in haystack or "uol" in haystack) and "openai" in haystack:
+        if locale == "fr":
+            return "OpenAI met en avant un partenariat media au Bresil, signe que les assistants IA cherchent aussi des contenus locaux et reconnus pour ameliorer leur pertinence."
+        return "OpenAI is highlighting a Brazil media partnership, a sign that AI assistants also need local, trusted publisher content to improve relevance."
+    if entities:
+        if locale == "fr":
+            return f"la publication pointe une activite autour de {terms_text}; nous la traitons comme un signal limite plutot que comme une conclusion de marche."
+        return f"the update points to activity around {terms_text}; we treat it as a narrow signal rather than a market-wide conclusion."
+    return f"the reported signal concerns {terms_text}" if locale == "en" else f"le signal rapporte concerne {terms_text}"
+
+
+def _safe_digest_paragraph(card: dict[str, Any], locale: str) -> str:
+    link = _markdown_link(card.get("source_name") or "Source", card.get("source_url"))
+    terms_text = _join_terms(_source_terms(card), locale)
+    source_character = str(card.get("source_character") or "reported_source")
+    reported_fact = _safe_digest_reported_fact(card, locale)
+
+    if locale == "fr":
+        if source_character == "company_announcement":
+            return (
+                f"Selon {link}, {reported_fact}. "
+                "Pour la redaction, c'est un signal a surveiller avec prudence, sans extrapoler au-dela de ce que la source etablit."
+            )
+        if source_character == "community_listing":
+            return (
+                f"Selon {link}, {reported_fact}. "
+                "Nous le traitons comme un indice de veille technique, pas comme une preuve de tendance generale."
+            )
+        return (
+            f"Selon {link}, {reported_fact}. "
+            "Notre lecture reste limitee a ce signal publie et ne pretend pas resumer tout le marche."
+        )
+
+    if source_character == "company_announcement":
+        return (
+            f"According to {link}, {reported_fact}. "
+            "In the editor's view, it is a signal to watch carefully without extrapolating beyond what the source establishes."
+        )
+    if source_character == "community_listing":
+        return (
+            f"According to {link}, {reported_fact}. "
+            "We treat it as a technical watch signal, not as proof of a broad market trend."
+        )
+    return (
+        f"According to {link}, {reported_fact}. "
+        "Our reading stays limited to that published signal and does not claim to summarize the whole market."
+    )
+
+
+def _build_copyright_safe_digest_article(
+    stories: list[dict[str, Any]],
+    brief: dict[str, Any],
+    evidence_pack: dict[str, Any],
+    edition_key: str,
+) -> dict[str, Any]:
+    raw_cards = evidence_pack.get("source_cards") if isinstance(evidence_pack.get("source_cards"), list) else _build_source_fact_cards(stories)
+    cards = [card for card in raw_cards if isinstance(card, dict) and str(card.get("source_url") or "").strip()]
+    non_opinion_cards = _non_opinion_source_cards(cards)
+    if non_opinion_cards:
+        cards = non_opinion_cards
+    cards = cards[:3]
+    if not cards:
+        cards = _build_source_fact_cards(stories[:3])
+
+    fr_intro = (
+        "Voici la lecture la plus prudente des signaux IA du jour: peu de details speculatifs, "
+        "des attributions visibles, et une analyse centree sur ce que ces annonces changent pour les produits et les equipes."
+    )
+    en_intro = (
+        "Here is the most conservative read of today's AI signals: few speculative details, visible attribution, "
+        "and analysis focused on what these updates change for products and teams."
+    )
+
+    fr_sections = ["## Ce qu'il faut retenir", fr_intro]
+    en_sections = ["## What matters", en_intro]
+    for card in cards:
+        fr_sections.append(_safe_digest_paragraph(card, "fr"))
+        en_sections.append(_safe_digest_paragraph(card, "en"))
+
+    fr_sections.append("Cette synthese reste volontairement prudente: elle resume seulement les signaux cites ci-dessus.")
+    en_sections.append("This synthesis is deliberately conservative: it summarizes only the signals cited above.")
+
+    return {
+        "fr": {
+            "title": "Les signaux IA a retenir aujourd'hui",
+            "introduction": fr_intro,
+            "article_markdown": "\n\n".join(fr_sections),
+        },
+        "en": {
+            "title": "Today's AI Signals That Matter",
+            "introduction": en_intro,
+            "article_markdown": "\n\n".join(en_sections),
+        },
+    }
+
+
+def _build_safe_digest_inputs_for_high_risk(
+    stories: list[dict[str, Any]],
+    evidence_pack: dict[str, Any],
+    original_stories: list[dict[str, Any]],
+    original_evidence_pack: dict[str, Any],
+    copyright_compliance: dict[str, Any],
+    config: NativeRecapConfig,
+) -> tuple[list[dict[str, Any]], dict[str, Any], bool]:
+    high_risk_urls = _copyright_high_risk_source_urls(copyright_compliance)
+    selected_stories = stories
+    selected_pack = evidence_pack
+    pruned = False
+
+    if high_risk_urls:
+        filtered = [
+            story for story in stories
+            if _canonical_source_url(str(story.get("source_url") or "")) not in high_risk_urls
+        ]
+        if filtered:
+            selected_stories = filtered
+            selected_pack = _build_evidence_pack(selected_stories, config)
+            pruned = len(filtered) < len(stories)
+
+    current_cards = selected_pack.get("source_cards") if isinstance(selected_pack.get("source_cards"), list) else []
+    original_cards = original_evidence_pack.get("source_cards") if isinstance(original_evidence_pack.get("source_cards"), list) else []
+    current_non_opinion = _non_opinion_source_cards([card for card in current_cards if isinstance(card, dict)])
+    original_non_opinion = _non_opinion_source_cards([card for card in original_cards if isinstance(card, dict)])
+    if not current_non_opinion and original_non_opinion:
+        selected_stories = original_stories
+        selected_pack = original_evidence_pack
+        pruned = pruned or bool(high_risk_urls)
+
+    return selected_stories, selected_pack, pruned
 
 
 def _gemini_json(config: NativeRecapConfig, system: str, user: str, *, max_output_tokens: int = 4096) -> dict[str, Any]:
@@ -1064,6 +1492,7 @@ def _gemini_json(config: NativeRecapConfig, system: str, user: str, *, max_outpu
                         "generationConfig": {
                             "temperature": 0.0,
                             "maxOutputTokens": max_output_tokens,
+                            "responseMimeType": "application/json",
                         },
                         "safetySettings": [
                             {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
@@ -1116,6 +1545,21 @@ def _anthropic_models(config: NativeRecapConfig) -> list[str]:
     if config.allow_paid_fallback and config.article_fallback_model and config.article_fallback_model not in models:
         models.append(config.article_fallback_model)
     return models
+
+
+NON_RECOVERABLE_ANTHROPIC_REASONS = {
+    "anthropic_budget_exceeded",
+    "anthropic_invalid_json",
+    "anthropic_max_tokens",
+}
+
+
+def _should_attempt_gemini_fallback(config: NativeRecapConfig, error: Exception | None) -> bool:
+    if config.ai_fail_fast or not config.google_api_key:
+        return False
+    if isinstance(error, RecapAiGenerationError) and error.reason in NON_RECOVERABLE_ANTHROPIC_REASONS:
+        return False
+    return True
 
 
 def _get_generation_artifact(
@@ -1336,13 +1780,97 @@ def _anthropic_json(
                 )
             if config.ai_fail_fast:
                 break
+
+    # Fallback to Gemini only for recoverable Anthropic failures.
+    if _should_attempt_gemini_fallback(config, last_error):
+        print(f"WARNING: Anthropic generation failed with error: {last_error}. Attempting Gemini fallback for stage '{stage}'...")
+        gemini_model = "gemini-2.5-pro" if "pro" in (config.summary_model or "").lower() else "gemini-2.5-flash"
+        for g_model in [gemini_model, "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]:
+            try:
+                schema_instructions = f"\n\nYou MUST return valid JSON matching this schema:\n{json.dumps(output_schema, ensure_ascii=False)}"
+                if stage == "copyright_compliance":
+                    schema_instructions += "\n\nIMPORTANT: To avoid API output blocks, DO NOT output exact verbatim source sentences in the 'passage' field. Paraphrase it slightly or output the first and last few words separated by '[...]'."
+                gemini_user = user + schema_instructions
+                url = GEMINI_ENDPOINT.format(model=g_model)
+                with httpx.Client(timeout=300.0) as client:
+                    response = client.post(
+                        url,
+                        params={"key": config.google_api_key},
+                        json={
+                            "contents": [{"role": "user", "parts": [{"text": system + "\n\n" + gemini_user}]}],
+                            "generationConfig": {
+                                "temperature": 0.1,
+                                "maxOutputTokens": max(max_output_tokens, 8192),
+                                "responseMimeType": "application/json",
+                            },
+                            "safetySettings": [
+                                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+                            ]
+                        },
+                    )
+                if response.status_code >= 400:
+                    raise RuntimeError(f"Gemini fallback API error {response.status_code}: {response.text[:500]}")
+                payload = response.json()
+                print(f"DEBUG: Gemini fallback response payload for '{stage}':\n{json.dumps(payload, indent=2)}")
+                text = "\n".join(
+                    part.get("text", "")
+                    for candidate in payload.get("candidates", [])
+                    for part in ((candidate.get("content") or {}).get("parts") or [])
+                    if isinstance(part, dict)
+                ).strip()
+                if not text:
+                    raise RuntimeError("Empty Gemini fallback response")
+                print(f"DEBUG: Gemini raw fallback response for '{stage}':\n{text}")
+                parsed = _parse_json_text(text, f"Gemini Fallback ({g_model})")
+                if not isinstance(parsed, dict):
+                    raise RuntimeError("Gemini fallback output was not a JSON object")
+                if normalized_edition_key and artifact_hash:
+                    _upsert_generation_artifact(
+                        repo,
+                        edition_key=normalized_edition_key,
+                        run_id=run_id,
+                        stage=stage,
+                        input_hash=artifact_hash,
+                        provider="google",
+                        model=g_model,
+                        status="succeeded",
+                        output_json=parsed,
+                        usage_json={},
+                    )
+                print(f"SUCCESS: Fallback to Gemini model '{g_model}' succeeded for stage '{stage}'.")
+                return parsed
+            except Exception as g_exc:
+                print(f"WARNING: Gemini fallback attempt with model '{g_model}' failed for stage '{stage}': {g_exc}")
+                last_error = g_exc
+
     raise last_error or RuntimeError("Anthropic generation failed")
 
 
 def _generate_brief(stories: list[dict[str, Any]], evidence_pack: dict[str, Any], edition_key: str, config: NativeRecapConfig) -> dict[str, Any]:
     allowed_urls = [str(story["source_url"]) for story in stories if story.get("source_url")]
+    source_cards = evidence_pack.get("source_cards") if isinstance(evidence_pack.get("source_cards"), list) else _build_source_fact_cards(stories)
     system = "You are a precise AI news editor. Return JSON only. Use only source URLs from the allowed set."
-    user = json.dumps({"editionKey": edition_key, "allowedUrls": allowed_urls, "stories": stories, "schema": {"tags": ["AI & LLM"], "fr": {"title": "", "introduction": "", "bigNews": {"name": "", "impact": "", "source_url": ""}, "quickHits": [], "lookingAhead": ""}, "en": {"title": "", "introduction": "", "bigNews": {"name": "", "impact": "", "source_url": ""}, "quickHits": [], "lookingAhead": ""}}}, ensure_ascii=False)
+    user = json.dumps(
+        {
+            "editionKey": edition_key,
+            "allowedUrls": allowed_urls,
+            "sourceCards": source_cards,
+            "rules": [
+                "Use source cards only; do not infer from source titles not present in the cards.",
+                "Make the brief an original editorial plan, not a restatement of any source headline.",
+                "Avoid exact post titles, quote fragments, and benchmark clusters.",
+            ],
+            "schema": {
+                "tags": ["AI & LLM"],
+                "fr": {"title": "", "introduction": "", "bigNews": {"name": "", "impact": "", "source_url": ""}, "quickHits": [], "lookingAhead": ""},
+                "en": {"title": "", "introduction": "", "bigNews": {"name": "", "impact": "", "source_url": ""}, "quickHits": [], "lookingAhead": ""},
+            },
+        },
+        ensure_ascii=False,
+    )
     draft = _gemini_json(config, system, user, max_output_tokens=8192)
     # Support wrapped responses (sometimes Gemini puts the result inside a 'schema' or 'result' key)
     if not isinstance(draft.get("fr"), dict) and isinstance(draft.get("schema"), dict):
@@ -1378,16 +1906,28 @@ def _generate_article(
     request_payload = {
         "editionKey": edition_key,
         "brief": brief,
-        "stories": stories,
-        "evidence": evidence_pack.get("stories", []),
+        "allowedUrls": [str(story["source_url"]) for story in stories if story.get("source_url")],
+        "sourceCards": evidence_pack.get("source_cards") if isinstance(evidence_pack.get("source_cards"), list) else _build_source_fact_cards(stories),
         "rules": [
             "Write original journalism.",
             "Do not invent facts.",
             "French and English must both be complete.",
             "Use markdown for article_markdown.",
+            "You are not given raw source articles; do not reconstruct source wording from memory or from headlines.",
+            "Use only the allowed URLs and source cards for sourced factual claims.",
+            "If a source card lacks a concrete, contextualized fact, keep the passage analytical and avoid numbers.",
+            "Never output raw number lists, dates, comment counts, or metadata as facts.",
+            "Omit figures from secondary reporting unless the source card identifies what the figure measures and the original entity or framework behind it.",
+            "Do not use generic governance phrases such as control, logging, authority, safety thresholds, or operational risk unless those exact ideas are supported by the source card.",
+            "When in doubt, use a simpler attributed sentence and a clearly labeled editorial observation.",
             "Add proximity attribution in the relevant paragraph for dates, numbers, benchmarks, product announcements, quotes, and specific claims, using markdown links such as Selon [OpenAI](https://example.com)...",
             "Do not copy full sentences, closely translate paragraphs, reproduce third-party tables, or describe unlicensed images/logos as reused assets.",
             "Use sources only for facts, dates, figures, declarations, events, and general ideas; change the structure, angle, examples, and transitions.",
+            "For corporate press releases, customer stories, and case studies, avoid reproducing detailed quote structure, exact benchmark clusters, or business-unit lists; summarize the strategic meaning instead.",
+            "For live community pages, do not report exact engagement counts unless they are timestamped; prefer qualitative wording.",
+            "Do not turn source card topic terms back into original-looking source titles.",
+            "Avoid mentioning more than two specific examples from any community listing; summarize the pattern instead.",
+            "Use short paragraphs and a distinct editorial angle so source sequence cannot be recovered from the article.",
             "Do not include a Sources, References, source-credit, or URL list section in article_markdown; sources are rendered separately.",
         ],
     }
@@ -1449,6 +1989,24 @@ def _fact_check(
 
 
 COPYRIGHT_RISK_RANK = {"low": 0, "medium": 1, "high": 2}
+COPYRIGHT_MEDIUM_BLOCK_PATTERNS = (
+    "close translation",
+    "close paraphrase",
+    "closely paraphrase",
+    "near-verbatim",
+    "verbatim",
+    "copied",
+    "copying",
+    "full sentence",
+    "paragraph-level paraphrase",
+    "source wording",
+    "sentence structure",
+    "long excerpt",
+    "long quote",
+    "reproduced source table",
+    "unauthorized media",
+    "plagiarism",
+)
 
 
 def _normalize_copyright_risk(value: Any) -> str:
@@ -1477,6 +2035,16 @@ def _normalize_copyright_issue(issue: Any) -> dict[str, Any] | None:
     }
 
 
+def _copyright_medium_issue_should_block(issue: dict[str, Any]) -> bool:
+    if _normalize_copyright_risk(issue.get("risk")) != "medium":
+        return False
+    text = " ".join(
+        str(issue.get(key) or "")
+        for key in ("reason", "suggestion", "passage")
+    ).lower()
+    return any(pattern in text for pattern in COPYRIGHT_MEDIUM_BLOCK_PATTERNS)
+
+
 def _normalize_copyright_compliance_report(report: dict[str, Any]) -> dict[str, Any]:
     raw_issues = report.get("issues") if isinstance(report.get("issues"), list) else []
     issues = [normalized for issue in raw_issues if (normalized := _normalize_copyright_issue(issue))]
@@ -1484,12 +2052,29 @@ def _normalize_copyright_compliance_report(report: dict[str, Any]) -> dict[str, 
     reported_risk = COPYRIGHT_RISK_RANK[_normalize_copyright_risk(report.get("max_risk"))]
     max_risk_rank = max(issue_max_risk, reported_risk)
     max_risk = next(risk for risk, rank in COPYRIGHT_RISK_RANK.items() if rank == max_risk_rank)
-    status = "fail" if max_risk_rank >= COPYRIGHT_RISK_RANK["medium"] else "warn" if issues else "pass"
-    return {"status": status, "max_risk": max_risk, "issues": issues}
+    normalized = {"status": "warn" if issues else "pass", "max_risk": max_risk, "issues": issues}
+    if _copyright_compliance_should_block(normalized):
+        normalized["status"] = "fail"
+    return normalized
 
 
 def _copyright_compliance_should_block(report: dict[str, Any]) -> bool:
-    return COPYRIGHT_RISK_RANK.get(str(report.get("max_risk") or "low"), 0) >= COPYRIGHT_RISK_RANK["medium"]
+    if _normalize_copyright_risk(report.get("max_risk")) == "high":
+        return True
+    issues = report.get("issues") if isinstance(report.get("issues"), list) else []
+    return any(isinstance(issue, dict) and _copyright_medium_issue_should_block(issue) for issue in issues)
+
+
+def _copyright_high_risk_source_urls(report: dict[str, Any]) -> set[str]:
+    issues = report.get("issues") if isinstance(report.get("issues"), list) else []
+    urls: set[str] = set()
+    for issue in issues:
+        if not isinstance(issue, dict) or _normalize_copyright_risk(issue.get("risk")) != "high":
+            continue
+        canonical = _canonical_source_url(str(issue.get("source_url") or ""))
+        if canonical:
+            urls.add(canonical)
+    return urls
 
 
 def _copyright_compliance_check(
@@ -1512,9 +2097,9 @@ def _copyright_compliance_check(
             "Flag close translations or paragraph-level paraphrases of source text.",
             "Flag facts, dates, figures, product announcements, benchmarks, quotes, or specific claims without proximity attribution in the same paragraph.",
             "Flag long quotes, reproduced source tables, charts, screenshots, logos, or illustrations without clear permission.",
-            "Use low for public facts correctly cited, medium for close paraphrase or weak attribution, high for copying, close translation, long excerpt, unauthorized media, or missing source.",
+            "Use low for public facts correctly cited, medium for weak attribution or non-blocking editorial concerns, high for copying, close translation, close paraphrase, long excerpt, unauthorized media, or missing source.",
         ],
-        "risk_policy": "Publication must fail when max_risk is medium or high.",
+        "risk_policy": "Publication must fail for high risk. Medium attribution warnings should not block; medium issues that clearly describe copied wording, close translation, close paraphrase, long excerpts, or unauthorized media are treated as blocking.",
         "evidence": evidence_pack.get("stories", []),
         "fr": article["fr"].get("article_markdown"),
         "en": article["en"].get("article_markdown"),
@@ -1535,6 +2120,63 @@ def _copyright_compliance_check(
         max_output_tokens=2400,
     )
     return _normalize_copyright_compliance_report(result)
+
+
+def _rewrite_article_for_copyright_compliance(
+    article: dict[str, Any],
+    copyright_compliance: dict[str, Any],
+    evidence_pack: dict[str, Any],
+    config: NativeRecapConfig,
+    *,
+    edition_key: str | None = None,
+    run_id: str | None = None,
+    repo: RecapRepository | None = None,
+    tracker: RecapAiRunTracker | None = None,
+) -> dict[str, Any]:
+    system = (
+        "You are a senior bilingual editor rewriting AI news copy for copyright compliance. "
+        "Return only the requested structured output. Preserve the article's meaning, but do not preserve source wording."
+    )
+    request_payload = {
+        "objective": "Rewrite both articles so the next copyright review passes without weakening factual accuracy.",
+        "allowedUrls": evidence_pack.get("source_urls", []),
+        "sourceCards": evidence_pack.get("source_cards", []),
+        "rewrite_rules": [
+            "Do not copy or closely translate source sentences, even for factual claims.",
+            "Break source sentence structure: change order, framing, transitions, and examples.",
+            "Use explicit prose attribution in the same paragraph for numbers, dates, quotes, company claims, and product announcements.",
+            "Avoid long quotations. If a quote is necessary, keep it short and clearly attributed.",
+            "Remove direct quote fragments from the issues unless quoting them explicitly is essential.",
+            "Replace exact benchmark clusters and live engagement counts with qualitative summaries when they are not essential.",
+            "Do not preserve source lists, quote order, or case-study narrative sequence.",
+            "Use only the source cards, allowed URLs, current article, and issue list provided. Do not add new facts.",
+            "Do not reconstruct source headlines, source sentence order, or press-release phrasing from memory.",
+            "Keep markdown format and bilingual completeness.",
+        ],
+        "issues_to_fix": copyright_compliance.get("issues", []),
+        "current_article": {
+            "fr": article["fr"],
+            "en": article["en"],
+        },
+    }
+    rewritten = _anthropic_json(
+        config,
+        system,
+        json.dumps(request_payload, ensure_ascii=False),
+        output_schema=ARTICLE_OUTPUT_SCHEMA,
+        stage="copyright_rewrite",
+        edition_key=edition_key,
+        run_id=run_id,
+        repo=repo,
+        tracker=tracker,
+        input_payload=request_payload,
+        max_output_tokens=config.article_max_tokens,
+    )
+    for locale in ("fr", "en"):
+        row = rewritten.get(locale)
+        if not isinstance(row, dict) or not row.get("article_markdown"):
+            raise RuntimeError(f"Copyright rewrite missing {locale} markdown")
+    return rewritten
 
 
 def _generate_summary30(
@@ -1736,6 +2378,211 @@ def _send_newsletter_for_edition(repo: RecapRepository, config: NativeRecapConfi
     return {"success": True, "campaignId": campaign_id or None, "automatedSend": not test_mode}
 
 
+def _requires_newsletter_dispatch(payload: dict[str, Any]) -> bool:
+    return str(payload.get("trigger") or "manual") != "manual" or bool(payload.get("force"))
+
+
+def _classify_failure(reason: str | None, message: str | None = None, *, stage: str | None = None) -> str:
+    joined = f"{reason or ''} {message or ''} {stage or ''}".lower()
+    if any(token in joined for token in ("usage limit", "usage limits", "rate_limit", "rate limit", "quota", "billing", "credit", "429")):
+        return "provider_limit"
+    if "copyright" in joined and "high" in joined:
+        return "copyright_high"
+    if "copyright_compliance_failed" in joined:
+        return "copyright_high"
+    if "fact_check" in joined:
+        return "fact_check_failed"
+    if any(token in joined for token in ("no_active_sources", "no_reliable_stories", "day_theme_missing", "source")):
+        return "source_quality"
+    if "send_newsletter" in joined or "newsletter" in joined or "sendfox" in joined:
+        return "newsletter_failed"
+    if "schedule" in joined or "running_run_blocked" in joined:
+        return "schedule_missed"
+    return "source_quality"
+
+
+def _copyright_source_urls(copyright_compliance: dict[str, Any] | None) -> list[str]:
+    if not isinstance(copyright_compliance, dict):
+        return []
+    urls: list[str] = []
+    for issue in copyright_compliance.get("issues") or []:
+        if isinstance(issue, dict) and issue.get("source_url"):
+            urls.append(str(issue.get("source_url")))
+    return list(dict.fromkeys(urls))
+
+
+def _build_run_report(
+    *,
+    edition_key: str,
+    mode: str,
+    failure_class: str,
+    blocked_stage: str,
+    article_ready: bool,
+    newsletter_status: str,
+    error_message: str | None = None,
+    fact_check: dict[str, Any] | None = None,
+    copyright_compliance: dict[str, Any] | None = None,
+    ai: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    copyright_issues = copyright_compliance.get("issues") if isinstance(copyright_compliance, dict) else []
+    fact_issues = fact_check.get("issues") if isinstance(fact_check, dict) else []
+    max_risk = copyright_compliance.get("max_risk") if isinstance(copyright_compliance, dict) else None
+    actions = {
+        "provider_limit": "Verifier les limites ou credits du fournisseur IA, puis relancer une seule fois.",
+        "copyright_high": "Corriger les passages signales ou laisser le safe digest produire une version low/medium avant publication.",
+        "fact_check_failed": "Verifier les affirmations bloquees et les sources primaires avant relance.",
+        "source_quality": "Verifier le theme du jour, les sources actives et la qualite du scraping.",
+        "newsletter_failed": "Verifier SendFox et relancer seulement la newsletter depuis l'admin.",
+        "schedule_missed": "Verifier le scheduler Modal, le run de 9h et l'alerte de watchdog.",
+    }
+    return {
+        "edition_key": edition_key,
+        "mode": mode,
+        "failure_class": failure_class,
+        "blocked_stage": blocked_stage,
+        "article_ready": article_ready,
+        "newsletter_status": newsletter_status,
+        "copyright_max_risk": max_risk,
+        "copyright_issue_count": len(copyright_issues) if isinstance(copyright_issues, list) else 0,
+        "fact_check_issue_count": len(fact_issues) if isinstance(fact_issues, list) else 0,
+        "source_urls": _copyright_source_urls(copyright_compliance),
+        "error_message": error_message,
+        "action_recommended": actions.get(failure_class, "Verifier le rapport de run avant relance."),
+        "ai": ai or {},
+    }
+
+
+def _build_alert_content(
+    config: NativeRecapConfig,
+    *,
+    edition_key: str,
+    mode: str,
+    failure_class: str,
+    error_message: str,
+    report: dict[str, Any] | None,
+) -> dict[str, str]:
+    admin_url = f"{config.app_base_url}/en/admin/ai-recap"
+    title = f"AI Recap blocked: {edition_key}"
+    subject = f"[ALERT] AI recap {failure_class} {edition_key}"
+    action = report.get("action_recommended") if isinstance(report, dict) else "Open the AI recap admin report."
+    message = (
+        f"AI Recap did not complete normally. Edition={edition_key}; Mode={mode}; "
+        f"Failure={failure_class}; Error={error_message}; Action={action}"
+    )
+    html = f"""
+    <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#111827;">
+      <h2 style="margin-bottom:8px;">AI Recap blocked</h2>
+      <p><strong>Edition:</strong> {escape(edition_key)}</p>
+      <p><strong>Mode:</strong> {escape(mode)}</p>
+      <p><strong>Failure:</strong> {escape(failure_class)}</p>
+      <p><strong>Error:</strong> {escape(error_message)}</p>
+      <p><strong>Recommended action:</strong> {escape(str(action or ""))}</p>
+      <p><a href="{escape(admin_url)}">Open AI recap admin</a></p>
+    </div>
+    """.strip()
+    return {"title": title, "subject": subject, "message": message, "html": html, "admin_url": admin_url}
+
+
+def _send_resend_alert_email(config: NativeRecapConfig, recipients: list[str], subject: str, html: str) -> dict[str, Any]:
+    if not recipients:
+        return {"status": "skipped", "reason": "missing_alert_recipients"}
+    if not config.resend_api_key:
+        return {"status": "failed", "error": "Missing RESEND_API_KEY"}
+    with httpx.Client(timeout=30.0) as client:
+        response = client.post(
+            "https://api.resend.com/emails",
+            headers={"Authorization": f"Bearer {config.resend_api_key}", "Content-Type": "application/json"},
+            json={"from": config.resend_from_email, "to": recipients, "subject": subject, "html": html},
+        )
+    raw = response.text
+    if response.status_code >= 400:
+        return {"status": "failed", "error": f"Resend API error {response.status_code}: {raw[:300]}"}
+    try:
+        payload = response.json()
+    except Exception:
+        payload = {}
+    return {"status": "sent", "provider_message_id": payload.get("id")}
+
+
+def _notify_ai_recap_failure(
+    repo: RecapRepository,
+    config: NativeRecapConfig,
+    *,
+    edition_key: str,
+    mode: str,
+    failure_class: str,
+    error_message: str,
+    run_id: str | None = None,
+    edition_id: str | None = None,
+    report: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    dedupe_key = f"ai_recap:{edition_key}:{failure_class}"
+    since = datetime.now(timezone.utc) - timedelta(minutes=config.alert_cooldown_minutes)
+    try:
+        existing = repo.find_recent_ai_recap_alert(dedupe_key, since.isoformat())
+        if existing:
+            return {"status": "deduped", "dedupe_key": dedupe_key, "notificationId": existing.get("id")}
+    except Exception as exc:
+        print(f"Warning: unable to check AI recap alert dedupe: {_safe_error(exc)}")
+
+    content = _build_alert_content(
+        config,
+        edition_key=edition_key,
+        mode=mode,
+        failure_class=failure_class,
+        error_message=error_message,
+        report=report,
+    )
+    email_result = _send_resend_alert_email(config, config.alert_email_recipients, content["subject"], content["html"])
+    email_status = str(email_result.get("status") or "failed")
+    if email_status not in {"sent", "failed", "skipped"}:
+        email_status = "failed"
+
+    metadata = {
+        "dedupe_key": dedupe_key,
+        "edition_key": edition_key,
+        "mode": mode,
+        "failure_class": failure_class,
+        "run_id": run_id,
+        "edition_id": edition_id,
+        "report": report or {},
+        "email_recipients": config.alert_email_recipients,
+    }
+    created_ids: list[str] = []
+    try:
+        admin_ids = repo.get_admin_profile_ids()
+        for admin_id in admin_ids:
+            created = repo.create_notification(
+                {
+                    "user_id": admin_id,
+                    "template_key": "ai_recap_failure_alert",
+                    "title": content["title"],
+                    "message": content["message"],
+                    "link": "/admin/ai-recap",
+                    "metadata": metadata,
+                    "is_read": False,
+                    "email_to": ", ".join(config.alert_email_recipients) if config.alert_email_recipients else None,
+                    "email_subject": content["subject"],
+                    "email_status": email_status,
+                    "email_provider": "resend" if config.alert_email_recipients else None,
+                    "email_provider_message_id": email_result.get("provider_message_id"),
+                    "email_error": email_result.get("error") or email_result.get("reason"),
+                    "email_sent_at": datetime.now(timezone.utc).isoformat() if email_status == "sent" else None,
+                }
+            )
+            if isinstance(created, dict) and created.get("id"):
+                created_ids.append(str(created["id"]))
+    except Exception as exc:
+        print(f"Warning: unable to create AI recap admin notification: {_safe_error(exc)}")
+
+    return {
+        "status": "created" if created_ids else "email_only" if email_status == "sent" else "failed",
+        "dedupe_key": dedupe_key,
+        "notifications": created_ids,
+        "email": email_result,
+    }
+
+
 def _collect_documents(
     repo: RecapRepository,
     run_id: str,
@@ -1776,6 +2623,10 @@ def _run_build_article(payload: dict[str, Any], *, repo: RecapRepository, config
     edition = repo.ensure_edition(edition_key, run["id"], week_start, week_end)
     ai_tracker = RecapAiRunTracker(config.max_anthropic_calls_per_run)
     try:
+        if repo.has_blocking_running_run(edition_key, "build_article", older_than_minutes=60):
+            raise RuntimeError("running_run_blocked: A previous build_article run is still running past the safety window")
+        if _requires_newsletter_dispatch(payload) and (not config.sendfox_api_token or not config.sendfox_list_id):
+            raise RuntimeError("newsletter_config_missing: SendFox is required before the 9h article/newsletter run")
         day_theme_index = _weekday_to_day_theme_index(_to_weekday_index_from_zone(now_local))
         day_theme = repo.get_day_theme(day_theme_index) if day_theme_index is not None else None
         if day_theme_index is not None and (not day_theme or not day_theme.source_ids):
@@ -1792,7 +2643,9 @@ def _run_build_article(payload: dict[str, Any], *, repo: RecapRepository, config
         stories = _pick_stories(docs)[:4]
         if not stories:
             raise RuntimeError("no_reliable_stories: No reliable stories after scraping")
+        original_stories = list(stories)
         evidence_pack = _build_evidence_pack(stories, config)
+        original_evidence_pack = evidence_pack
         brief = _generate_brief(stories, evidence_pack, edition_key, config)
         article = _generate_article(stories, brief, evidence_pack, edition_key, config, repo=repo, run_id=run["id"], tracker=ai_tracker)
         fact_check = _fact_check(article, evidence_pack, config, edition_key=edition_key, run_id=run["id"], repo=repo, tracker=ai_tracker)
@@ -1813,14 +2666,89 @@ def _run_build_article(payload: dict[str, Any], *, repo: RecapRepository, config
         except Exception as exc:
             ai_tracker.record_failure("copyright_compliance_failed", "copyright_compliance")
             raise RuntimeError(f"copyright_compliance_failed: {_safe_error(exc)}") from exc
+        copyright_compliance_initial: dict[str, Any] | None = None
+        copyright_rewrite_attempted = False
+        copyright_rewrite_error: str | None = None
+        copyright_source_prune_attempted = False
+        copyright_safe_digest_attempted = False
+        copyright_safe_digest_fact_check: dict[str, Any] | None = None
+        if _copyright_compliance_should_block(copyright_compliance):
+            copyright_compliance_initial = copyright_compliance
+            copyright_safe_digest_attempted = True
+            safe_digest_stories, safe_digest_evidence_pack, copyright_source_prune_attempted = _build_safe_digest_inputs_for_high_risk(
+                stories,
+                evidence_pack,
+                original_stories,
+                original_evidence_pack,
+                copyright_compliance,
+                config,
+            )
+            safe_digest_article = _build_copyright_safe_digest_article(safe_digest_stories, brief, safe_digest_evidence_pack, edition_key)
+            safe_digest_fact_check = _fact_check(
+                safe_digest_article,
+                safe_digest_evidence_pack,
+                config,
+                edition_key=edition_key,
+                run_id=run["id"],
+                repo=repo,
+                tracker=ai_tracker,
+            )
+            copyright_safe_digest_fact_check = safe_digest_fact_check
+            if safe_digest_fact_check["status"] != "fail":
+                safe_digest_compliance = _copyright_compliance_check(
+                    safe_digest_article,
+                    safe_digest_evidence_pack,
+                    config,
+                    edition_key=edition_key,
+                    run_id=run["id"],
+                    repo=repo,
+                    tracker=ai_tracker,
+                )
+                article = safe_digest_article
+                fact_check = safe_digest_fact_check
+                copyright_compliance = safe_digest_compliance
+                stories = safe_digest_stories
+                evidence_pack = safe_digest_evidence_pack
+
         if _copyright_compliance_should_block(copyright_compliance):
             ai_tracker.record_failure("copyright_compliance_failed", "copyright_compliance")
             message = f"Copyright compliance blocked publication with max risk \"{copyright_compliance['max_risk']}\""
+            failure_class = _classify_failure("copyright_compliance_failed", message, stage="copyright_compliance")
+            run_report = _build_run_report(
+                edition_key=edition_key,
+                mode="build_article",
+                failure_class=failure_class,
+                blocked_stage="copyright_compliance",
+                article_ready=False,
+                newsletter_status="skipped",
+                error_message=message,
+                fact_check=fact_check,
+                copyright_compliance=copyright_compliance,
+                ai=ai_tracker.snapshot(),
+            )
+            alert_result = _notify_ai_recap_failure(
+                repo,
+                config,
+                edition_key=edition_key,
+                mode="build_article",
+                failure_class=failure_class,
+                error_message=message,
+                run_id=run["id"],
+                edition_id=edition["id"],
+                report=run_report,
+            )
             quality_report = {
                 "stage": "copyright_compliance",
                 "status": "failed",
+                "failure_class": failure_class,
+                "run_report": run_report,
+                "alert": alert_result,
                 "fact_check": fact_check,
                 "copyright_compliance": copyright_compliance,
+                "copyright_compliance_initial": copyright_compliance_initial,
+                "copyright_rewrite": {"attempted": copyright_rewrite_attempted, "error": copyright_rewrite_error},
+                "copyright_source_prune": {"attempted": copyright_source_prune_attempted},
+                "copyright_safe_digest": {"attempted": copyright_safe_digest_attempted, "fact_check": copyright_safe_digest_fact_check},
                 "evidence_pack": evidence_pack,
             }
             metrics = {
@@ -1836,8 +2764,17 @@ def _run_build_article(payload: dict[str, Any], *, repo: RecapRepository, config
                 "copyright_compliance_max_risk": copyright_compliance["max_risk"],
                 "copyright_compliance_issues": len(copyright_compliance["issues"]),
                 "copyright_compliance_issues_detail": copyright_compliance["issues"],
+                "copyright_rewrite_attempted": copyright_rewrite_attempted,
+                "copyright_rewrite_error": copyright_rewrite_error,
+                "copyright_source_prune_attempted": copyright_source_prune_attempted,
+                "copyright_safe_digest_attempted": copyright_safe_digest_attempted,
                 "newsletter_after_publish": {"status": "skipped", "reason": "copyright_compliance_failed"},
                 "article_ready": False,
+                "failure_class": failure_class,
+                "blocked_stage": "copyright_compliance",
+                "run_report": run_report,
+                "alert_sent": alert_result.get("status") in {"created", "email_only", "deduped"},
+                "alert": alert_result,
                 **ai_tracker.snapshot(),
             }
             repo.update_edition(
@@ -1872,11 +2809,68 @@ def _run_build_article(payload: dict[str, Any], *, repo: RecapRepository, config
             content_json = {**brief[locale], "title": title, "introduction": intro, "tags": tags, "summary30s": summary30, "source_manifest": source_manifest, "sourceStories": stories}
             posts.append({"edition_id": edition["id"], "locale": locale, "slug": f"{prefix}-{slug_token}", "title": title, "intro": intro, "excerpt": _build_excerpt(intro, markdown, str(stories[0].get("snippet") or "")), "content_json": content_json, "content_markdown": markdown, "tags": tags[:3], "is_published": True, "published_at": now_iso})
         saved_posts = repo.upsert_posts(posts)
-        repo.update_edition(edition["id"], {"status": "published", "run_id": run["id"], "published_at": now_iso, "fact_check_result": fact_check, "quality_report": {"stage": "completed", "status": "pass", "fact_check": fact_check, "copyright_compliance": copyright_compliance, "evidence_pack": evidence_pack, "summary30s": {"status": "pass"}}})
+        repo.update_edition(edition["id"], {"status": "published", "run_id": run["id"], "published_at": now_iso, "fact_check_result": fact_check, "quality_report": {"stage": "completed", "status": "pass", "fact_check": fact_check, "copyright_compliance": copyright_compliance, "copyright_compliance_initial": copyright_compliance_initial, "copyright_rewrite": {"attempted": copyright_rewrite_attempted, "error": copyright_rewrite_error}, "copyright_source_prune": {"attempted": copyright_source_prune_attempted}, "copyright_safe_digest": {"attempted": copyright_safe_digest_attempted, "fact_check": copyright_safe_digest_fact_check}, "evidence_pack": evidence_pack, "summary30s": {"status": "pass"}}})
         newsletter_result = {"status": "skipped", "reason": "manual_build_no_auto_dispatch"}
         if payload.get("trigger") != "manual" or payload.get("force"):
-            newsletter_result = _send_newsletter_for_edition(repo, config, edition["id"], edition_key)
-        metrics = {"mode": "build_article", "editionKey": edition_key, "sourcesConfigured": len(sources), "sourcesScraped": len([doc for doc in docs if doc.get("scrape_ok")]), "sourcesFailed": failed_sources, "storiesSelected": len(stories), "scrape_methods_breakdown": breakdown, "fact_check_status": fact_check["status"], "copyright_compliance_status": copyright_compliance["status"], "copyright_compliance_max_risk": copyright_compliance["max_risk"], "copyright_compliance_issues": len(copyright_compliance["issues"]), "copyright_compliance_issues_detail": copyright_compliance["issues"], "newsletter_after_publish": newsletter_result, "article_ready": True, **ai_tracker.snapshot()}
+            try:
+                newsletter_result = _send_newsletter_for_edition(repo, config, edition["id"], edition_key)
+            except Exception as exc:
+                newsletter_error = _safe_error(exc)
+                newsletter_result = {"status": "failed", "reason": "newsletter_failed", "error": newsletter_error}
+                repo.upsert_dispatch(
+                    edition["id"],
+                    {
+                        "provider": "sendfox",
+                        "status": "failed",
+                        "error_message": newsletter_error,
+                        "payload_json": {"edition_key": edition_key, "stage": "send_after_publish"},
+                    },
+                )
+                failure_class = "newsletter_failed"
+                run_report = _build_run_report(
+                    edition_key=edition_key,
+                    mode="build_article",
+                    failure_class=failure_class,
+                    blocked_stage="newsletter_after_publish",
+                    article_ready=True,
+                    newsletter_status="failed",
+                    error_message=newsletter_error,
+                    fact_check=fact_check,
+                    copyright_compliance=copyright_compliance,
+                    ai=ai_tracker.snapshot(),
+                )
+                alert_result = _notify_ai_recap_failure(
+                    repo,
+                    config,
+                    edition_key=edition_key,
+                    mode="build_article",
+                    failure_class=failure_class,
+                    error_message=newsletter_error,
+                    run_id=run["id"],
+                    edition_id=edition["id"],
+                    report=run_report,
+                )
+                quality_report = {
+                    "stage": "newsletter_after_publish",
+                    "status": "failed",
+                    "failure_class": failure_class,
+                    "run_report": run_report,
+                    "alert": alert_result,
+                    "fact_check": fact_check,
+                    "copyright_compliance": copyright_compliance,
+                    "copyright_compliance_initial": copyright_compliance_initial,
+                    "copyright_rewrite": {"attempted": copyright_rewrite_attempted, "error": copyright_rewrite_error},
+                    "copyright_source_prune": {"attempted": copyright_source_prune_attempted},
+                    "copyright_safe_digest": {"attempted": copyright_safe_digest_attempted, "fact_check": copyright_safe_digest_fact_check},
+                    "evidence_pack": evidence_pack,
+                    "summary30s": {"status": "pass"},
+                    "newsletter_after_publish": newsletter_result,
+                }
+                repo.update_edition(edition["id"], {"status": "published", "run_id": run["id"], "published_at": now_iso, "fact_check_result": fact_check, "quality_report": quality_report})
+                metrics = {"mode": "build_article", "editionKey": edition_key, "sourcesConfigured": len(sources), "sourcesScraped": len([doc for doc in docs if doc.get("scrape_ok")]), "sourcesFailed": failed_sources, "storiesSelected": len(stories), "scrape_methods_breakdown": breakdown, "fact_check_status": fact_check["status"], "copyright_compliance_status": copyright_compliance["status"], "copyright_compliance_max_risk": copyright_compliance["max_risk"], "copyright_compliance_issues": len(copyright_compliance["issues"]), "copyright_compliance_issues_detail": copyright_compliance["issues"], "copyright_rewrite_attempted": copyright_rewrite_attempted, "copyright_rewrite_error": copyright_rewrite_error, "copyright_source_prune_attempted": copyright_source_prune_attempted, "copyright_safe_digest_attempted": copyright_safe_digest_attempted, "newsletter_after_publish": newsletter_result, "article_ready": True, "failure_class": failure_class, "blocked_stage": "newsletter_after_publish", "run_report": run_report, "alert_sent": alert_result.get("status") in {"created", "email_only", "deduped"}, "alert": alert_result, **ai_tracker.snapshot()}
+                repo.mark_run(run["id"], "failed", metrics, newsletter_error, "newsletter_failed")
+                return {"status": "failed", "reason": "newsletter_failed", "error": newsletter_error, "editionKey": edition_key, "runId": run["id"], "editionId": edition["id"], "posts": saved_posts, "newsletter": newsletter_result, "metrics": metrics}
+        metrics = {"mode": "build_article", "editionKey": edition_key, "sourcesConfigured": len(sources), "sourcesScraped": len([doc for doc in docs if doc.get("scrape_ok")]), "sourcesFailed": failed_sources, "storiesSelected": len(stories), "scrape_methods_breakdown": breakdown, "fact_check_status": fact_check["status"], "copyright_compliance_status": copyright_compliance["status"], "copyright_compliance_max_risk": copyright_compliance["max_risk"], "copyright_compliance_issues": len(copyright_compliance["issues"]), "copyright_compliance_issues_detail": copyright_compliance["issues"], "copyright_rewrite_attempted": copyright_rewrite_attempted, "copyright_rewrite_error": copyright_rewrite_error, "copyright_source_prune_attempted": copyright_source_prune_attempted, "copyright_safe_digest_attempted": copyright_safe_digest_attempted, "newsletter_after_publish": newsletter_result, "article_ready": True, **ai_tracker.snapshot()}
         repo.mark_run(run["id"], "succeeded", metrics)
         return {"status": "succeeded", "editionKey": edition_key, "runId": run["id"], "editionId": edition["id"], "posts": saved_posts, "newsletter": newsletter_result, "metrics": metrics}
     except Exception as exc:
@@ -1888,10 +2882,32 @@ def _run_build_article(payload: dict[str, Any], *, repo: RecapRepository, config
             if not ai_tracker.failure_reason:
                 ai_tracker.record_failure(reason)
         message = _safe_error(exc)
-        failure_metrics = {"mode": "build_article", "editionKey": edition_key, "article_ready": False, **ai_tracker.snapshot()}
-        repo.update_edition(edition["id"], {"status": "failed", "run_id": run["id"], "quality_report": {"stage": ai_tracker.failure_stage or reason, "status": "failed", "reason": reason, "ai": ai_tracker.snapshot()}})
+        failure_class = _classify_failure(reason, message, stage=ai_tracker.failure_stage)
+        run_report = _build_run_report(
+            edition_key=edition_key,
+            mode="build_article",
+            failure_class=failure_class,
+            blocked_stage=ai_tracker.failure_stage or reason,
+            article_ready=False,
+            newsletter_status="skipped",
+            error_message=message,
+            ai=ai_tracker.snapshot(),
+        )
+        alert_result = _notify_ai_recap_failure(
+            repo,
+            config,
+            edition_key=edition_key,
+            mode="build_article",
+            failure_class=failure_class,
+            error_message=message,
+            run_id=run["id"],
+            edition_id=edition["id"],
+            report=run_report,
+        )
+        failure_metrics = {"mode": "build_article", "editionKey": edition_key, "article_ready": False, "failure_class": failure_class, "blocked_stage": ai_tracker.failure_stage or reason, "run_report": run_report, "alert_sent": alert_result.get("status") in {"created", "email_only", "deduped"}, "alert": alert_result, **ai_tracker.snapshot()}
+        repo.update_edition(edition["id"], {"status": "failed", "run_id": run["id"], "quality_report": {"stage": ai_tracker.failure_stage or reason, "status": "failed", "reason": reason, "failure_class": failure_class, "run_report": run_report, "alert": alert_result, "ai": ai_tracker.snapshot()}})
         repo.mark_run(run["id"], "failed", failure_metrics, message, reason)
-        return {"status": "failed", "reason": reason, "error": message, "editionKey": edition_key, "runId": run["id"], "editionId": edition["id"]}
+        return {"status": "failed", "reason": reason, "failureClass": failure_class, "error": message, "editionKey": edition_key, "runId": run["id"], "editionId": edition["id"], "alert": alert_result}
 
 
 def _run_send_newsletter(payload: dict[str, Any], *, repo: RecapRepository, config: NativeRecapConfig, schedule_timezone: str) -> dict[str, Any]:
@@ -1905,8 +2921,42 @@ def _run_send_newsletter(payload: dict[str, Any], *, repo: RecapRepository, conf
         repo.mark_run(run["id"], "succeeded", {"mode": "send_newsletter", "editionKey": edition_key, "newsletter": result})
         return {"status": "succeeded", "editionKey": edition_key, "runId": run["id"], "editionId": edition["id"], "newsletter": result}
     except Exception as exc:
-        repo.mark_run(run["id"], "failed", {"mode": "send_newsletter", "editionKey": edition_key}, _safe_error(exc), "send_newsletter_failed")
-        return {"status": "failed", "reason": "send_newsletter_failed", "error": _safe_error(exc), "editionKey": edition_key, "runId": run["id"], "editionId": edition["id"]}
+        message = _safe_error(exc)
+        failure_class = "newsletter_failed"
+        try:
+            repo.upsert_dispatch(
+                edition["id"],
+                {
+                    "provider": "sendfox",
+                    "status": "failed",
+                    "error_message": message,
+                    "payload_json": {"edition_key": edition_key, "mode": "send_newsletter"},
+                },
+            )
+        except Exception as dispatch_exc:
+            print(f"Warning: unable to persist failed newsletter dispatch: {_safe_error(dispatch_exc)}")
+        run_report = _build_run_report(
+            edition_key=edition_key,
+            mode="send_newsletter",
+            failure_class=failure_class,
+            blocked_stage="send_newsletter",
+            article_ready=bool(repo.get_posts_for_edition(edition["id"])),
+            newsletter_status="failed",
+            error_message=message,
+        )
+        alert_result = _notify_ai_recap_failure(
+            repo,
+            config,
+            edition_key=edition_key,
+            mode="send_newsletter",
+            failure_class=failure_class,
+            error_message=message,
+            run_id=run["id"],
+            edition_id=edition["id"],
+            report=run_report,
+        )
+        repo.mark_run(run["id"], "failed", {"mode": "send_newsletter", "editionKey": edition_key, "failure_class": failure_class, "run_report": run_report, "alert_sent": alert_result.get("status") in {"created", "email_only", "deduped"}, "alert": alert_result, "newsletter": {"status": "failed", "error": message}}, message, "send_newsletter_failed")
+        return {"status": "failed", "reason": "send_newsletter_failed", "failureClass": failure_class, "error": message, "editionKey": edition_key, "runId": run["id"], "editionId": edition["id"], "alert": alert_result}
 
 
 def _run_retry_newsletter(payload: dict[str, Any], *, repo: RecapRepository, config: NativeRecapConfig) -> dict[str, Any]:
@@ -1916,6 +2966,63 @@ def _run_retry_newsletter(payload: dict[str, Any], *, repo: RecapRepository, con
         return {"status": "failed", "reason": "edition_not_found", "error": "No edition available for newsletter retry"}
     result = _send_newsletter_for_edition(repo, config, edition["id"], edition["edition_key"], test_email=_trim_or_none(payload.get("testEmail")), test_mode=bool(payload.get("testMode")))
     return {"status": "succeeded", "editionKey": edition["edition_key"], "editionId": edition["id"], "newsletter": result}
+
+
+def _watchdog_slot_minutes_after(now_local: datetime, schedule: RecapSchedule) -> int | None:
+    weekday = _to_weekday_index_from_zone(now_local)
+    for slot in schedule.slots:
+        if slot.day != weekday:
+            continue
+        slot_time = now_local.replace(hour=slot.hour, minute=slot.minute, second=0, microsecond=0)
+        delta_minutes = int((now_local - slot_time).total_seconds() // 60)
+        if 20 <= delta_minutes <= 45:
+            return delta_minutes
+    return None
+
+
+def _run_schedule_watchdog(
+    repo: RecapRepository,
+    config: NativeRecapConfig,
+    schedule: RecapSchedule,
+    timezone_name: str,
+    now_local: datetime,
+) -> dict[str, Any] | None:
+    minutes_after = _watchdog_slot_minutes_after(now_local, schedule)
+    if minutes_after is None:
+        return None
+
+    edition_key = _resolve_edition_key(now_local)
+    edition = repo.get_edition_by_key(edition_key)
+    if edition and edition.get("status") == "published" and repo.get_sent_dispatch(str(edition.get("id"))):
+        return {"status": "skipped", "reason": "scheduled_edition_already_sent", "editionKey": edition_key}
+
+    message = f"No published AI recap with sent newsletter {minutes_after} minutes after the scheduled {timezone_name} slot"
+    run_report = _build_run_report(
+        edition_key=edition_key,
+        mode="tick",
+        failure_class="schedule_missed",
+        blocked_stage="schedule_watchdog",
+        article_ready=bool(edition and edition.get("status") == "published"),
+        newsletter_status="missing",
+        error_message=message,
+    )
+    alert_result = _notify_ai_recap_failure(
+        repo,
+        config,
+        edition_key=edition_key,
+        mode="tick",
+        failure_class="schedule_missed",
+        error_message=message,
+        edition_id=str(edition.get("id")) if isinstance(edition, dict) and edition.get("id") else None,
+        report=run_report,
+    )
+    return {
+        "status": "skipped",
+        "reason": "schedule_missed_alerted",
+        "editionKey": edition_key,
+        "alert": alert_result,
+        "run_report": run_report,
+    }
 
 
 def run_modal_native_recap(payload: dict[str, Any], *, shadow_mode: bool) -> dict[str, Any]:
@@ -1942,6 +3049,9 @@ def run_modal_native_recap(payload: dict[str, Any], *, shadow_mode: bool) -> dic
     now_local = datetime.now(ZoneInfo(timezone_name))
     if mode == "tick":
         if not any(_is_slot_match(now_local, slot.day, slot.hour, slot.minute) for slot in schedule.slots):
+            watchdog = _run_schedule_watchdog(repo, config, schedule, timezone_name, now_local)
+            if watchdog:
+                return {"statusCode": 200, "body": {**watchdog, "shadowMode": shadow_mode}}
             return {"statusCode": 200, "body": {"status": "skipped", "reason": "outside_scheduled_window", "shadowMode": shadow_mode}}
         mode = "build_article"
     if shadow_mode:

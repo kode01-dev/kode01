@@ -21,10 +21,10 @@ export default async function LocaleNotFoundPage() {
 
                 <div className="mt-8 flex flex-wrap gap-3">
                     <Link
-                        href="/market"
+                        href="/news"
                         className="rounded-full bg-kode01-noir px-6 py-3 text-sm font-bold uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90"
                     >
-                        {t('browse_market')}
+                        {t('browse_news')}
                     </Link>
                     <Link
                         href="/"

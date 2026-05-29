@@ -10,8 +10,9 @@ import {
 import { invokeEdgeFunction, toNextJsonResponse } from '@/lib/edge/invoke';
 import { getAuditContextFromRequest, logAuditEvent } from '@/lib/security/audit';
 import { isAdminRole } from '@/lib/auth/roles';
+import { getAiRecapRunBlock } from '@/lib/ai-recap/run-guard';
 
-async function isAdmin() {
+async function getAdminClient() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -25,15 +26,15 @@ async function isAdmin() {
     .eq('id', user.id)
     .maybeSingle();
 
-  return isAdminRole(profile?.role) ? user.id : null;
+  return isAdminRole(profile?.role) ? { supabase, userId: user.id } : null;
 }
 
 export async function POST(req: Request) {
   const auditContext = getAuditContextFromRequest(req);
   try {
-    const adminUserId = await isAdmin();
+    const adminClient = await getAdminClient();
 
-    if (!adminUserId) {
+    if (!adminClient) {
       await logAuditEvent({
         eventType: 'ai_recap.run.failed.forbidden',
         path: auditContext.path,
@@ -43,8 +44,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const { supabase, userId } = adminClient;
     const authMode = 'admin';
-    const userId = adminUserId;
     console.info('Manual AI recap run auth:', { authMode, userId });
 
     const payload = await req.json().catch(() => ({}));
@@ -58,6 +59,34 @@ export async function POST(req: Request) {
     const explicitTestMode = typeof payload?.testMode === 'boolean' ? payload.testMode : undefined;
     // Manual send_newsletter runs are test sends by default unless explicitly overridden.
     const testMode = mode === 'send_newsletter' ? (explicitTestMode ?? true) : Boolean(explicitTestMode);
+    const runBlock = await getAiRecapRunBlock(supabase);
+    if (runBlock) {
+      await logAuditEvent({
+        eventType: 'ai_recap.run.blocked.disabled',
+        userId,
+        path: auditContext.path,
+        ipAddress: auditContext.ipAddress,
+        userAgent: auditContext.userAgent,
+        metadata: {
+          auth_mode: authMode,
+          mode,
+          force,
+          edition_key: editionKey ?? null,
+          test_mode: testMode,
+          reason: runBlock.reason,
+        },
+      });
+      return NextResponse.json(
+        {
+          error: runBlock.message,
+          code: runBlock.code,
+          reason: runBlock.reason,
+          skipped: true,
+        },
+        { status: 409 },
+      );
+    }
+
     const executionMode = getExecutionMode();
     const runtimePayload = {
       flow: 'weekly-ai-recap' as const,

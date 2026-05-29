@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { ChevronDown, Search, X } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { PUBLIC_MARKETPLACE_ENABLED } from '@/config/marketplace';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -63,91 +64,105 @@ export function BaseHeaderDesktopNav({
         <div className="hidden xl:flex items-center gap-10 flex-1 justify-center">
             {!isSearchOpen ? (
                 <>
-                    <DropdownMenu
-                        modal={false}
-                        open={isDesktopExploreOpen}
-                        onOpenChange={setIsDesktopExploreOpen}
-                    >
-                        <DropdownMenuTrigger asChild>
-                            <button
-                                className={cn(
-                                    "font-bold text-sm transition-all no-underline font-sans inline-flex items-center gap-1.5 bg-transparent border-none cursor-pointer",
-                                    useSolidHeaderStyle ? "text-white/70 hover:text-white" : "text-kode01-noir/70 hover:text-kode01-noir",
-                                )}
-                            >
-                                <span>{t('nav.explore')}</span>
-                                <ChevronDown size={16} />
-                            </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                            align="center"
-                            className="w-[320px] max-h-[70vh] overflow-y-auto rounded-2xl border-black/10 bg-white p-2 shadow-2xl"
+                    {PUBLIC_MARKETPLACE_ENABLED ? (
+                        <DropdownMenu
+                            modal={false}
+                            open={isDesktopExploreOpen}
+                            onOpenChange={setIsDesktopExploreOpen}
                         >
-                            <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5">
-                                <Link
-                                    href="/market"
-                                    prefetch={false}
-                                    onClick={preventRedundantNavigation('/market')}
-                                    className="w-full no-underline font-bold text-sm text-kode01-noir/90 hover:text-kode01-noir"
+                            <DropdownMenuTrigger asChild>
+                                <button
+                                    className={cn(
+                                        "font-bold text-sm transition-all no-underline font-sans inline-flex items-center gap-1.5 bg-transparent border-none cursor-pointer",
+                                        useSolidHeaderStyle ? "text-white/70 hover:text-white" : "text-kode01-noir/70 hover:text-kode01-noir",
+                                    )}
                                 >
-                                    {t('nav.explore')}
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5">
-                                <Link
-                                    href="/bundles"
-                                    prefetch={false}
-                                    onClick={preventRedundantNavigation('/bundles')}
-                                    className="w-full no-underline font-bold text-sm text-kode01-noir/90 hover:text-kode01-noir"
-                                >
-                                    {t('nav.bundles')}
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5">
-                                <Link
-                                    href="/creators"
-                                    prefetch={false}
-                                    onClick={preventRedundantNavigation('/creators')}
-                                    className="w-full no-underline font-bold text-sm text-kode01-noir/90 hover:text-kode01-noir"
-                                >
-                                    {t('nav.creators')}
-                                </Link>
-                            </DropdownMenuItem>
-                            {menuCategories.map((category) => {
-                                const subcategories = subcategoriesByCategoryId.get(category.id) ?? [];
-                                const categoryHref = buildCategoryHref(category.slug);
-                                return (
-                                    <div key={category.id} className="mb-1 last:mb-0">
-                                        <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5">
-                                            <Link
-                                                href={categoryHref}
-                                                prefetch={false}
-                                                onClick={preventRedundantNavigation(categoryHref)}
-                                                className="w-full no-underline font-bold text-sm text-kode01-noir/90 hover:text-kode01-noir"
-                                            >
-                                                {getLocalizedTaxonomyLabel(category)}
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        {subcategories.map((subcategory) => {
-                                            const subcategoryHref = buildSubcategoryHref(category.slug, subcategory.slug);
-                                            return (
-                                                <DropdownMenuItem key={subcategory.id} asChild className="rounded-xl px-3 py-2">
-                                                    <Link
-                                                        href={subcategoryHref}
-                                                        prefetch={false}
-                                                        onClick={preventRedundantNavigation(subcategoryHref)}
-                                                        className="w-full no-underline text-xs font-medium text-kode01-noir/70 hover:text-kode01-noir pl-4"
-                                                    >
-                                                        {getLocalizedTaxonomyLabel(subcategory)}
-                                                    </Link>
-                                                </DropdownMenuItem>
-                                            );
-                                        })}
-                                    </div>
-                                );
-                            })}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                                    <span>{t('nav.explore')}</span>
+                                    <ChevronDown size={16} />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                align="center"
+                                className="w-[320px] max-h-[70vh] overflow-y-auto rounded-2xl border-black/10 bg-white p-2 shadow-2xl"
+                            >
+                                <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5">
+                                    <Link
+                                        href="/market"
+                                        prefetch={false}
+                                        onClick={preventRedundantNavigation('/market')}
+                                        className="w-full no-underline font-bold text-sm text-kode01-noir/90 hover:text-kode01-noir"
+                                    >
+                                        {t('nav.explore')}
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5">
+                                    <Link
+                                        href="/bundles"
+                                        prefetch={false}
+                                        onClick={preventRedundantNavigation('/bundles')}
+                                        className="w-full no-underline font-bold text-sm text-kode01-noir/90 hover:text-kode01-noir"
+                                    >
+                                        {t('nav.bundles')}
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5">
+                                    <Link
+                                        href="/creators"
+                                        prefetch={false}
+                                        onClick={preventRedundantNavigation('/creators')}
+                                        className="w-full no-underline font-bold text-sm text-kode01-noir/90 hover:text-kode01-noir"
+                                    >
+                                        {t('nav.creators')}
+                                    </Link>
+                                </DropdownMenuItem>
+                                {menuCategories.map((category) => {
+                                    const subcategories = subcategoriesByCategoryId.get(category.id) ?? [];
+                                    const categoryHref = buildCategoryHref(category.slug);
+                                    return (
+                                        <div key={category.id} className="mb-1 last:mb-0">
+                                            <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5">
+                                                <Link
+                                                    href={categoryHref}
+                                                    prefetch={false}
+                                                    onClick={preventRedundantNavigation(categoryHref)}
+                                                    className="w-full no-underline font-bold text-sm text-kode01-noir/90 hover:text-kode01-noir"
+                                                >
+                                                    {getLocalizedTaxonomyLabel(category)}
+                                                </Link>
+                                            </DropdownMenuItem>
+                                            {subcategories.map((subcategory) => {
+                                                const subcategoryHref = buildSubcategoryHref(category.slug, subcategory.slug);
+                                                return (
+                                                    <DropdownMenuItem key={subcategory.id} asChild className="rounded-xl px-3 py-2">
+                                                        <Link
+                                                            href={subcategoryHref}
+                                                            prefetch={false}
+                                                            onClick={preventRedundantNavigation(subcategoryHref)}
+                                                            className="w-full no-underline text-xs font-medium text-kode01-noir/70 hover:text-kode01-noir pl-4"
+                                                        >
+                                                            {getLocalizedTaxonomyLabel(subcategory)}
+                                                        </Link>
+                                                    </DropdownMenuItem>
+                                                );
+                                            })}
+                                        </div>
+                                    );
+                                })}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <span
+                            aria-disabled="true"
+                            className={cn(
+                                "font-bold text-sm no-underline font-sans inline-flex items-center rounded-full border px-3 py-1.5 cursor-default",
+                                useSolidHeaderStyle
+                                    ? "border-white/10 text-white/35"
+                                    : "border-kode01-noir/10 text-kode01-noir/45",
+                            )}
+                        >
+                            {t('nav.marketplace_coming_soon')}
+                        </span>
+                    )}
 
                     {desktopLinks.map((link) => (
                         <Link

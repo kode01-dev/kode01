@@ -10,6 +10,7 @@ import {
     HOMEPAGE_INLINE_STYLES,
     renderHomepageSection,
 } from '@/features/homepage/components/HomePageSections';
+import { PUBLIC_MARKETPLACE_ENABLED } from '@/config/marketplace';
 import type { HomepageTopDealItem } from '@/features/homepage-layout/types';
 import type { HomeProductsApiItem } from '@/features/homepage/components/homepage-sections/sections/ProductsSection';
 
@@ -47,7 +48,7 @@ export default function HomePageClient({ header, footer, sections, initialData }
     };
 
     const handleBrowseMarketplace = () => {
-        router.push('/market');
+        router.push(PUBLIC_MARKETPLACE_ENABLED ? '/market' : '/news');
     };
 
 

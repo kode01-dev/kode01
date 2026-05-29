@@ -395,6 +395,84 @@ class RecapRepository:
             extra_headers={"Prefer": "return=minimal"},
         )
 
+    def has_blocking_running_run(self, edition_key: str, mode: str, *, older_than_minutes: int = 60) -> bool:
+        cutoff = datetime.now(timezone.utc).timestamp() - max(1, older_than_minutes) * 60
+        rows = self._request(
+            "GET",
+            "/rest/v1/ai_recap_runs",
+            query={
+                "select": "id,started_at",
+                "edition_key": f"eq.{edition_key.strip().upper()}",
+                "mode": f"eq.{mode}",
+                "status": "eq.running",
+                "order": "started_at.desc",
+                "limit": "10",
+            },
+        )
+        if not isinstance(rows, list):
+            return False
+        for row in rows:
+            started_at = str(row.get("started_at") or "")
+            try:
+                started_ts = datetime.fromisoformat(started_at.replace("Z", "+00:00")).timestamp()
+            except Exception:
+                continue
+            if started_ts <= cutoff:
+                return True
+        return False
+
+    def get_admin_profile_ids(self, *, limit: int = 50) -> list[str]:
+        rows = self._request(
+            "GET",
+            "/rest/v1/profiles",
+            query={
+                "select": "id",
+                "role": "eq.admin",
+                "limit": str(max(1, min(limit, 200))),
+            },
+        )
+        if not isinstance(rows, list):
+            return []
+        return [str(row.get("id")) for row in rows if isinstance(row, dict) and row.get("id")]
+
+    def find_recent_ai_recap_alert(self, dedupe_key: str, since_iso: str) -> dict[str, Any] | None:
+        rows = self._request(
+            "GET",
+            "/rest/v1/notifications",
+            query={
+                "select": "id,metadata,created_at,email_status",
+                "template_key": "eq.ai_recap_failure_alert",
+                "created_at": f"gte.{since_iso}",
+                "order": "created_at.desc",
+                "limit": "100",
+            },
+        )
+        if not isinstance(rows, list):
+            return None
+        for row in rows:
+            metadata = row.get("metadata") if isinstance(row, dict) else None
+            if isinstance(metadata, dict) and metadata.get("dedupe_key") == dedupe_key:
+                return row
+        return None
+
+    def create_notification(self, fields: dict[str, Any]) -> dict[str, Any] | None:
+        inserted = self._request(
+            "POST",
+            "/rest/v1/notifications",
+            json_body=fields,
+            extra_headers={"Prefer": "return=representation"},
+        )
+        return inserted[0] if isinstance(inserted, list) and inserted else None
+
+    def update_notification(self, notification_id: str, fields: dict[str, Any]) -> None:
+        self._request(
+            "PATCH",
+            "/rest/v1/notifications",
+            query={"id": f"eq.{notification_id}"},
+            json_body=fields,
+            extra_headers={"Prefer": "return=minimal"},
+        )
+
     def ensure_edition(self, edition_key: str, run_id: str, week_start: str, week_end: str) -> dict[str, Any]:
         normalized = edition_key.strip().upper()
         rows = self._request(
@@ -474,7 +552,7 @@ class RecapRepository:
         rows = self._request(
             "GET",
             "/rest/v1/ai_recap_editions",
-            query={"select": "id,edition_key,status", "edition_key": f"eq.{edition_key.strip().upper()}", "limit": "1"},
+            query={"select": "id,edition_key,status,published_at,run_id", "edition_key": f"eq.{edition_key.strip().upper()}", "limit": "1"},
         )
         return rows[0] if isinstance(rows, list) and rows else None
 

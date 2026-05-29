@@ -126,6 +126,8 @@ test('robots and sitemap config allow public crawl while excluding private surfa
 
   assert.match(sitemapConfig, /BLOCKED_SEGMENTS = \['admin', 'dashboard', 'buyer', 'client', 'vendor', 'settings', 'auth', 'api'\]/);
   assert.match(sitemapConfig, /PUBLIC_ASSET_EXCLUSIONS = \['\/icon\.png'\]/);
+  assert.match(sitemapConfig, /PUBLIC_MARKETPLACE_ENABLED/);
+  assert.match(sitemapConfig, /MARKETPLACE_STATIC_ROUTES = PUBLIC_MARKETPLACE_ENABLED \? \['\/market', '\/bundles', '\/creators'\] : \[\]/);
   assert.doesNotMatch(sitemapConfig, /'\/products'/);
 });
 

@@ -61,8 +61,6 @@ export default async function HowItWorksPage({
   const baseUrl = getAppBaseUrl();
 
   const faqLinksByKey: Partial<Record<(typeof FAQ_KEYS)[number], FaqItem['links']>> = {
-    q2: [{ href: '/market', label: t('faq.links.market') }],
-    q3: [{ href: '/market', label: t('faq.links.market') }],
     q5: [{ href: '/contact', label: t('faq.links.contact') }],
     q7: [{ href: '/pricing', label: t('faq.links.pricing') }],
     q8: [{ href: '/contact', label: t('faq.links.contact') }],

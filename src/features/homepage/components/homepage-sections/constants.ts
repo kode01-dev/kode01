@@ -1,4 +1,5 @@
 import type { HomepageSectionType } from '@/features/homepage-layout/types';
+import { PUBLIC_MARKETPLACE_ENABLED } from '@/config/marketplace';
 
 export const HOMEPAGE_INLINE_STYLES = `
 body {
@@ -66,8 +67,7 @@ body {
 `;
 
 export const HOMEPAGE_LAZY_SECTION_TYPES = new Set<HomepageSectionType>([
-    'products_latest',
-    'top_deals',
+    ...(PUBLIC_MARKETPLACE_ENABLED ? (['products_latest', 'top_deals'] as const) : []),
     'news_latest',
     'stats',
 ]);

@@ -55,10 +55,7 @@ export default async function CliFaqPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'cli_faq' });
 
-  const faqLinksByKey: Partial<Record<(typeof FAQ_KEYS)[number], FaqItem['links']>> = {
-    q3: [{ href: '/market', label: t('links.market') }],
-    q10: [{ href: '/market', label: t('links.ai_tools') }],
-  };
+  const faqLinksByKey: Partial<Record<(typeof FAQ_KEYS)[number], FaqItem['links']>> = {};
 
   const faqItems: FaqItem[] = FAQ_KEYS.map((key) => ({
     question: t(`${key}.question`),
@@ -120,7 +117,7 @@ export default async function CliFaqPage({
             </h3>
             <p className="text-kode01-noir/60 mb-6">{t('cta_text')}</p>
             <Link
-              href="/market"
+              href="/news"
               className="inline-block bg-kode01-pink text-kode01-noir font-black uppercase tracking-widest px-8 py-4 hover:bg-kode01-noir hover:text-white transition-colors no-underline"
             >
               {t('cta_button')}

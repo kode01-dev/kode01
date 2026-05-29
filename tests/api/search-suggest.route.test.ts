@@ -33,50 +33,19 @@ test('GET /api/search/suggest returns an empty cached result for missing query',
   assert.equal(createClientMock.mock.callCount(), 0);
 });
 
-test('GET /api/search/suggest normalizes input, deduplicates titles, and limits results', async () => {
-  const rpcMock = mock.fn(async () => ({
-    data: [
-      { title: ' Alpha ' },
-      { title: 'Alpha' },
-      { title: 'Beta' },
-      { title: 123 },
-      { title: 'Gamma' },
-      { title: 'Delta' },
-      { title: 'Epsilon' },
-      { title: 'Zeta' },
-    ],
-    error: null,
+test('GET /api/search/suggest returns empty suggestions while public marketplace is disabled', async () => {
+  const createClientMock = mock.fn(() => ({
+    rpc: async () => ({ data: [{ title: 'Alpha' }], error: null }),
   }));
-  createPublicServerClientImpl = () => ({ rpc: rpcMock });
+  createPublicServerClientImpl = createClientMock;
 
-  const GET = await loadGetHandler('success');
+  const GET = await loadGetHandler('marketplace-disabled');
   const response = await GET(
     new Request('http://localhost/api/search/suggest?q=%20alpha,%25%20%20beta%20'),
   );
 
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), {
-    suggestions: ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'],
-  });
-  assert.equal(rpcMock.mock.callCount(), 1);
-  assert.deepEqual(rpcMock.mock.calls[0]?.arguments, [
-    'suggest_product_titles',
-    { p_query: 'alpha beta', p_limit: 5 },
-  ]);
-});
-
-test('GET /api/search/suggest returns 500 with an empty cached result when RPC fails', async () => {
-  createPublicServerClientImpl = () => ({
-    rpc: async () => ({ data: null, error: { message: 'rpc failed' } }),
-  });
-
-  const consoleErrorMock = mock.method(console, 'error', () => {});
-  const GET = await loadGetHandler('rpc-error');
-  const response = await GET(new Request('http://localhost/api/search/suggest?q=templates'));
-
-  assert.equal(response.status, 500);
   assert.deepEqual(await response.json(), { suggestions: [] });
   assert.equal(response.headers.get('cache-control'), 'public, max-age=15, s-maxage=30, stale-while-revalidate=120');
-  assert.equal(consoleErrorMock.mock.callCount(), 1);
-  consoleErrorMock.mock.restore();
+  assert.equal(createClientMock.mock.callCount(), 0);
 });

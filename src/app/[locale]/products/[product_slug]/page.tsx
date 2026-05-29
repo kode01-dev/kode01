@@ -23,6 +23,7 @@ import { ReportProductButton } from '@/features/moderation/components/ReportProd
 import { VendorBadges } from '@/features/vendor-badges/components/VendorBadges';
 import { applySeoMetadata } from '@/lib/seo';
 import { SeoAppJsonLd } from '@/components/seo/SeoAppJsonLd';
+import { PUBLIC_MARKETPLACE_ENABLED } from '@/config/marketplace';
 
 
 export async function generateMetadata({ params }: { params: Promise<{ product_slug: string, locale: string }> }): Promise<Metadata> {
@@ -105,18 +106,30 @@ export default async function ProductPage({
                 <div className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-12">
                     {/* Breadcrumbs – desktop: full path, mobile: Market > … > Title */}
                     <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 sm:gap-2.5 text-xs sm:text-sm text-kode01-noir/40 mb-4 md:mb-10 font-bold uppercase tracking-widest overflow-hidden">
-                        <Link href={`/${locale}/market`} className="shrink-0 hover:text-kode01-noir transition-colors">{t('breadcrumb.market')}</Link>
+                        {PUBLIC_MARKETPLACE_ENABLED ? (
+                            <Link href={`/${locale}/market`} className="shrink-0 hover:text-kode01-noir transition-colors">{t('breadcrumb.market')}</Link>
+                        ) : (
+                            <span className="shrink-0 text-kode01-noir/35">{t('breadcrumb.market')}</span>
+                        )}
                         {/* Middle segments – hidden on mobile, replaced by ellipsis */}
                         {product.categorySlug && (
                             <>
                                 <ChevronRight size={12} className="shrink-0 hidden sm:block" />
-                                <Link href={`/${locale}/market?category=${product.categorySlug}`} className="hidden sm:block shrink-0 hover:text-kode01-noir transition-colors">{product.categoryLabel}</Link>
+                                {PUBLIC_MARKETPLACE_ENABLED ? (
+                                    <Link href={`/${locale}/market?category=${product.categorySlug}`} className="hidden sm:block shrink-0 hover:text-kode01-noir transition-colors">{product.categoryLabel}</Link>
+                                ) : (
+                                    <span className="hidden sm:block shrink-0 text-kode01-noir/35">{product.categoryLabel}</span>
+                                )}
                             </>
                         )}
                         {product.subcategorySlug && product.subcategoryLabel && (
                             <>
                                 <ChevronRight size={12} className="shrink-0 hidden sm:block" />
-                                <Link href={`/${locale}/market?category=${product.categorySlug}&subcategory=${product.subcategorySlug}`} className="hidden sm:block shrink-0 hover:text-kode01-noir transition-colors">{product.subcategoryLabel}</Link>
+                                {PUBLIC_MARKETPLACE_ENABLED ? (
+                                    <Link href={`/${locale}/market?category=${product.categorySlug}&subcategory=${product.subcategorySlug}`} className="hidden sm:block shrink-0 hover:text-kode01-noir transition-colors">{product.subcategoryLabel}</Link>
+                                ) : (
+                                    <span className="hidden sm:block shrink-0 text-kode01-noir/35">{product.subcategoryLabel}</span>
+                                )}
                             </>
                         )}
                         {/* Mobile ellipsis for collapsed middle segments */}

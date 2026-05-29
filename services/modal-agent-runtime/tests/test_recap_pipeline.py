@@ -117,6 +117,10 @@ def make_config(**overrides):
         "sendfox_base_url": "https://sendfox.test",
         "sendfox_from_name": "KODE01",
         "sendfox_from_email": "news@kode01.test",
+        "resend_api_key": None,
+        "resend_from_email": "alerts@kode01.test",
+        "alert_email_recipients": [],
+        "alert_cooldown_minutes": 60,
     }
     values.update(overrides)
     return pipeline.NativeRecapConfig(**values)
@@ -167,7 +171,7 @@ def make_summary():
 def make_copyright_compliance(max_risk="low", issues=None):
     issues = issues if issues is not None else []
     return {
-        "status": "fail" if max_risk in {"medium", "high"} else "warn" if issues else "pass",
+        "status": "fail" if max_risk == "high" else "warn" if issues else "pass",
         "max_risk": max_risk,
         "issues": issues,
     }
@@ -186,6 +190,8 @@ class FakeRepo:
         self.artifacts = {}
         self.artifact_upserts = []
         self.published_source_urls_by_edition = {}
+        self.notifications = []
+        self.admin_profile_ids = ["admin_1"]
 
     def get_schedule(self, timezone_name):
         return RecapSchedule(is_enabled=True, timezone=timezone_name, slots=[RecapScheduleSlot(day=99, hour=0, minute=0)])
@@ -193,6 +199,9 @@ class FakeRepo:
     def create_run(self, edition_key, trigger_type, mode):
         self.run = {"id": f"run_{len(self.run_marks) + 1}", "attempt": 1}
         return self.run
+
+    def has_blocking_running_run(self, edition_key, mode, older_than_minutes=60):
+        return False
 
     def ensure_edition(self, edition_key, run_id, week_start, week_end):
         self.edition = {**self.edition, "edition_key": edition_key}
@@ -259,6 +268,26 @@ class FakeRepo:
             urls.extend(edition_urls)
         return urls
 
+    def get_admin_profile_ids(self, limit=50):
+        return self.admin_profile_ids[:limit]
+
+    def find_recent_ai_recap_alert(self, dedupe_key, since_iso):
+        for notification in reversed(self.notifications):
+            metadata = notification.get("metadata")
+            if isinstance(metadata, dict) and metadata.get("dedupe_key") == dedupe_key:
+                return notification
+        return None
+
+    def create_notification(self, fields):
+        notification = {"id": f"notif_{len(self.notifications) + 1}", **fields}
+        self.notifications.append(notification)
+        return notification
+
+    def update_notification(self, notification_id, fields):
+        for notification in self.notifications:
+            if notification.get("id") == notification_id:
+                notification.update(fields)
+
 
 class RecapPipelineScraplingTests(unittest.TestCase):
     def setUp(self):
@@ -272,8 +301,10 @@ class RecapPipelineScraplingTests(unittest.TestCase):
         self.original_generate_article = pipeline._generate_article
         self.original_fact_check = pipeline._fact_check
         self.original_copyright_compliance_check = pipeline._copyright_compliance_check
+        self.original_rewrite_article_for_copyright_compliance = pipeline._rewrite_article_for_copyright_compliance
         self.original_generate_summary30 = pipeline._generate_summary30
         self.original_sendfox_request = pipeline._sendfox_request
+        self.original_send_resend_alert_email = pipeline._send_resend_alert_email
         self.original_repository = pipeline.RecapRepository
         self.original_httpx_client = pipeline.httpx.Client
 
@@ -287,8 +318,10 @@ class RecapPipelineScraplingTests(unittest.TestCase):
         pipeline._generate_article = self.original_generate_article
         pipeline._fact_check = self.original_fact_check
         pipeline._copyright_compliance_check = self.original_copyright_compliance_check
+        pipeline._rewrite_article_for_copyright_compliance = self.original_rewrite_article_for_copyright_compliance
         pipeline._generate_summary30 = self.original_generate_summary30
         pipeline._sendfox_request = self.original_sendfox_request
+        pipeline._send_resend_alert_email = self.original_send_resend_alert_email
         pipeline.RecapRepository = self.original_repository
         pipeline.httpx.Client = self.original_httpx_client
 
@@ -610,6 +643,246 @@ class RecapPipelineScraplingTests(unittest.TestCase):
 
         self.assertEqual(repo.get_published_source_urls(exclude_edition_key="AI-2026-W18"), ["https://example.com/old"])
 
+    def test_source_fact_cards_do_not_include_raw_titles(self):
+        cards = pipeline._build_source_fact_cards(
+            [
+                {
+                    "source_url": "https://huggingface.co/blog/community",
+                    "source_name": "Hugging Face Blog",
+                    "title": "LeRobot Humanoid: An Open, Low-Cost, 3D-Printed Humanoid for Robot Learning",
+                    "snippet": "LeRobot Humanoid: An Open, Low-Cost, 3D-Printed Humanoid for Robot Learning",
+                    "text": "LeRobot Humanoid: An Open, Low-Cost, 3D-Printed Humanoid for Robot Learning",
+                }
+            ]
+        )
+
+        serialized = json.dumps(cards)
+        self.assertEqual(cards[0]["source_character"], "community_listing")
+        self.assertNotIn("An Open, Low-Cost, 3D-Printed Humanoid for Robot Learning", serialized)
+        self.assertIn("LeRobot", cards[0]["topic_terms"])
+
+    def test_generate_article_uses_source_cards_not_raw_evidence(self):
+        repo = FakeRepo()
+        tracker = pipeline.RecapAiRunTracker(max_anthropic_calls=3)
+        FakeAnthropicClient.requests = []
+        FakeAnthropicClient.responses = [FakeResponse(make_anthropic_payload(make_article()))]
+        pipeline.httpx.Client = FakeAnthropicClient
+
+        pipeline._generate_article(
+            [
+                {
+                    "source_url": "https://example.com/story",
+                    "source_name": "Source",
+                    "title": "Exact Source Title That Must Not Be Sent",
+                    "text": "COPY THIS SOURCE SENTENCE VERBATIM.",
+                }
+            ],
+            make_brief(),
+            {
+                "source_cards": [
+                    {
+                        "source_url": "https://example.com/story",
+                        "source_name": "Source",
+                        "source_character": "reported_source",
+                        "safe_angle": "Original high-level synthesis.",
+                        "topic_terms": ["Synthesis"],
+                        "writing_constraints": ["Do not reproduce source wording."],
+                    }
+                ],
+                "stories": [{"text": "COPY THIS SOURCE SENTENCE VERBATIM."}],
+            },
+            "AI-2026-W18",
+            make_config(),
+            repo=repo,
+            run_id="run_1",
+            tracker=tracker,
+        )
+
+        user_payload = FakeAnthropicClient.requests[0]["json"]["messages"][0]["content"]
+        self.assertNotIn("COPY THIS SOURCE SENTENCE VERBATIM", user_payload)
+        self.assertNotIn("Exact Source Title That Must Not Be Sent", user_payload)
+        self.assertIn("sourceCards", user_payload)
+        self.assertIn("Omit figures from secondary reporting", user_payload)
+        self.assertIn("Do not use generic governance phrases", user_payload)
+
+    def test_copyright_rewrite_uses_source_cards_not_raw_evidence(self):
+        repo = FakeRepo()
+        tracker = pipeline.RecapAiRunTracker(max_anthropic_calls=3)
+        FakeAnthropicClient.requests = []
+        FakeAnthropicClient.responses = [FakeResponse(make_anthropic_payload(make_article()))]
+        pipeline.httpx.Client = FakeAnthropicClient
+
+        pipeline._rewrite_article_for_copyright_compliance(
+            make_article(),
+            make_copyright_compliance("high", [{"risk": "high", "passage": "Copied", "source_url": "https://example.com/story"}]),
+            {
+                "source_urls": ["https://example.com/story"],
+                "source_cards": [
+                    {
+                        "source_url": "https://example.com/story",
+                        "source_name": "Source",
+                        "source_character": "reported_source",
+                        "safe_angle": "Original high-level synthesis.",
+                        "topic_terms": ["Synthesis"],
+                        "writing_constraints": ["Do not reproduce source wording."],
+                    }
+                ],
+                "stories": [{"text": "COPY THIS SOURCE SENTENCE VERBATIM."}],
+            },
+            make_config(),
+            edition_key="AI-2026-W18",
+            run_id="run_1",
+            repo=repo,
+            tracker=tracker,
+        )
+
+        user_payload = FakeAnthropicClient.requests[0]["json"]["messages"][0]["content"]
+        self.assertNotIn("COPY THIS SOURCE SENTENCE VERBATIM", user_payload)
+        self.assertIn("sourceCards", user_payload)
+
+    def test_copyright_safe_digest_uses_attributed_original_template(self):
+        article = pipeline._build_copyright_safe_digest_article(
+            [
+                {
+                    "source_url": "https://techcrunch.com/story",
+                    "source_name": "TechCrunch",
+                    "title": "Robinhood now lets your AI agents trade stocks",
+                    "text": "The company said it is launching support for AI agentic trading.",
+                }
+            ],
+            make_brief(),
+            {
+                "source_cards": [
+                    {
+                        "source_url": "https://techcrunch.com/story",
+                        "source_name": "TechCrunch",
+                        "source_character": "reported_source",
+                        "safe_angle": "Source-backed AI update involving Robinhood and agentic trading.",
+                        "topic_terms": ["Robinhood", "agentic", "trading"],
+                        "writing_constraints": ["Do not reproduce source wording."],
+                    }
+                ]
+            },
+            "AI-2026-W18",
+        )
+
+        serialized = json.dumps(article)
+        self.assertIn("Selon [TechCrunch](https://techcrunch.com/story)", serialized)
+        self.assertIn("According to [TechCrunch](https://techcrunch.com/story)", serialized)
+        self.assertNotIn("now lets your AI agents trade stocks", serialized)
+        self.assertNotIn("launching support for AI agentic trading", serialized)
+
+    def test_source_fact_terms_ignore_bare_dates_and_counts(self):
+        terms = pipeline._source_fact_terms(
+            {
+                "title": "What Happens Next After The Decline",
+                "source_name": "Gary Marcus Substack",
+                "text": "May 29, 2026. Comments 60. This is an opinion essay about AI predictions.",
+            }
+        )
+
+        self.assertNotIn("29", terms["figures"])
+        self.assertNotIn("2026", terms["figures"])
+        self.assertNotIn("60", terms["figures"])
+
+    def test_source_fact_terms_filter_source_metadata_entities(self):
+        terms = pipeline._source_fact_terms(
+            {
+                "title": "Scaling safe enterprise AI with OpenAI governance frameworks",
+                "source_name": "Artificial Intelligence News",
+                "text": "AI Business Strategy Scaling. Ryan Daws May 29, 2026. OpenAI published governance framework details.",
+            }
+        )
+
+        self.assertIn("OpenAI", terms["entities"])
+        self.assertNotIn("AI Business Strategy Scaling", terms["entities"])
+        self.assertNotIn("Ryan Daws May", terms["entities"])
+
+    def test_copyright_safe_digest_prefers_non_opinion_sources(self):
+        article = pipeline._build_copyright_safe_digest_article(
+            [],
+            make_brief(),
+            {
+                "source_cards": [
+                    {
+                        "source_url": "https://garymarcus.substack.com/p/example",
+                        "source_name": "Gary Marcus Substack",
+                        "source_character": "opinion_or_analysis",
+                        "safe_angle": "Opinion analysis about AI forecasts.",
+                        "topic_terms": ["Marcus", "Substack", "decline"],
+                        "fact_terms": {"entities": ["Marcus", "Substack"], "figures": ["29", "2026", "60"]},
+                    },
+                    {
+                        "source_url": "https://openai.com/index/example",
+                        "source_name": "OpenAI",
+                        "source_character": "company_announcement",
+                        "safe_angle": "Company announcement about enterprise AI adoption.",
+                        "topic_terms": ["OpenAI", "enterprise", "AI"],
+                        "fact_terms": {"entities": ["OpenAI", "Enterprise"], "figures": []},
+                    },
+                ]
+            },
+            "AI-2026-W18",
+        )
+
+        serialized = json.dumps(article)
+        self.assertIn("openai.com/index/example", serialized)
+        self.assertNotIn("garymarcus.substack.com", serialized)
+        self.assertNotIn("29, 2026, 60", serialized)
+
+    def test_copyright_safe_digest_omits_uncontextualized_secondary_figures(self):
+        article = pipeline._build_copyright_safe_digest_article(
+            [],
+            make_brief(),
+            {
+                "source_cards": [
+                    {
+                        "source_url": "https://www.artificialintelligence-news.com/news/scaling-safe-enterprise-ai-openai-governance-frameworks/",
+                        "source_name": "Artificial Intelligence News",
+                        "source_character": "reported_source",
+                        "safe_angle": "Reported source about enterprise AI governance.",
+                        "topic_terms": ["Artificial", "Intelligence", "Scaling", "enterprise"],
+                        "fact_terms": {"entities": ["Artificial", "Intelligence"], "figures": ["$1 billion"]},
+                    }
+                ]
+            },
+            "AI-2026-W18",
+        )
+
+        serialized = json.dumps(article)
+        self.assertNotIn("$1 billion", serialized)
+        self.assertNotIn("reported figures", serialized)
+        self.assertNotIn("who controls the action", serialized)
+        self.assertNotIn("comment elle est tracee", serialized)
+
+    def test_copyright_safe_digest_omits_metadata_entities(self):
+        article = pipeline._build_copyright_safe_digest_article(
+            [],
+            make_brief(),
+            {
+                "source_cards": [
+                    {
+                        "source_url": "https://www.artificialintelligence-news.com/news/scaling-safe-enterprise-ai-openai-governance-frameworks/",
+                        "source_name": "Artificial Intelligence News",
+                        "source_character": "reported_source",
+                        "safe_angle": "Reported source about enterprise AI governance.",
+                        "topic_terms": ["OpenAI", "enterprise", "governance"],
+                        "fact_terms": {
+                            "entities": ["Scaling", "OpenAI", "AI Business Strategy Scaling", "Ryan Daws May"],
+                            "figures": [],
+                        },
+                    }
+                ]
+            },
+            "AI-2026-W18",
+        )
+
+        serialized = json.dumps(article)
+        self.assertNotIn("AI Business Strategy Scaling", serialized)
+        self.assertNotIn("Ryan Daws May", serialized)
+        self.assertNotIn("the story connects", serialized)
+        self.assertNotIn("le dossier relie", serialized)
+
     def test_shadow_mode_is_non_mutating(self):
         result = pipeline.run_modal_native_recap({"mode": "build_article"}, shadow_mode=True)
 
@@ -668,7 +941,7 @@ class RecapPipelineScraplingTests(unittest.TestCase):
         self.assertEqual(repo.run_marks[-1]["metrics"]["copyright_compliance_status"], "pass")
         self.assertEqual(repo.run_marks[-1]["status"], "succeeded")
 
-    def test_copyright_compliance_medium_risk_blocks_publication_and_newsletter(self):
+    def test_copyright_compliance_medium_attribution_warning_publishes_and_sends_newsletter(self):
         repo = FakeRepo()
         pipeline._scrape_source = lambda source, config, seen_source_urls=None: {
             "source_url": "https://example.com/story",
@@ -682,10 +955,11 @@ class RecapPipelineScraplingTests(unittest.TestCase):
         }
         pipeline._generate_brief = lambda stories, evidence_pack, edition_key, config: make_brief()
         pipeline._generate_article = lambda stories, brief, evidence_pack, edition_key, config, **kwargs: make_article()
+        pipeline._rewrite_article_for_copyright_compliance = lambda article, copyright_compliance, evidence_pack, config, **kwargs: article
         pipeline._fact_check = lambda article, evidence_pack, config, **kwargs: {"status": "pass", "issues": []}
-        pipeline._copyright_compliance_check = lambda article, evidence_pack, config, **kwargs: make_copyright_compliance(
-            "medium",
-            [
+        compliance = pipeline._normalize_copyright_compliance_report({
+            "max_risk": "medium",
+            "issues": [
                 {
                     "risk": "medium",
                     "rule_ids": ["5", "6"],
@@ -697,7 +971,58 @@ class RecapPipelineScraplingTests(unittest.TestCase):
                     "requires_external_verification": False,
                 }
             ],
+        })
+        pipeline._copyright_compliance_check = lambda article, evidence_pack, config, **kwargs: compliance
+        pipeline._generate_summary30 = lambda *args, **kwargs: make_summary()
+        pipeline._sendfox_request = lambda config, path, payload, method="POST": {"id": "campaign_medium"}
+
+        result = pipeline._run_build_article(
+            {"trigger": "cron", "editionKey": "AI-2026-W18", "force": True},
+            repo=repo,
+            config=make_config(),
+            schedule_timezone="America/Toronto",
         )
+
+        self.assertEqual(result["status"], "succeeded")
+        self.assertEqual(set(repo.posts.keys()), {"fr", "en"})
+        self.assertEqual(repo.dispatch["status"], "sent")
+        self.assertEqual(result["newsletter"]["campaignId"], "campaign_medium")
+        self.assertEqual(repo.edition["quality_report"]["copyright_compliance"]["max_risk"], "medium")
+        self.assertEqual(repo.edition["quality_report"]["copyright_compliance"]["status"], "warn")
+        self.assertEqual(repo.run_marks[-1]["metrics"]["copyright_compliance_status"], "warn")
+
+    def test_copyright_compliance_medium_close_paraphrase_still_blocks_publication(self):
+        repo = FakeRepo()
+        pipeline._scrape_source = lambda source, config, seen_source_urls=None: {
+            "source_url": "https://example.com/story",
+            "title": "Enterprise AI story",
+            "text": ("Verified enterprise AI source text 2026. " * 20).strip(),
+            "snippet": "Verified enterprise AI source text 2026.",
+            "status": 200,
+            "scrape_ok": True,
+            "scrape_method": "rss+scrapling",
+            "quality": {"word_count": 120, "data_points": 1, "score": 140},
+        }
+        pipeline._generate_brief = lambda stories, evidence_pack, edition_key, config: make_brief()
+        pipeline._generate_article = lambda stories, brief, evidence_pack, edition_key, config, **kwargs: make_article()
+        pipeline._rewrite_article_for_copyright_compliance = lambda article, copyright_compliance, evidence_pack, config, **kwargs: article
+        pipeline._fact_check = lambda article, evidence_pack, config, **kwargs: {"status": "pass", "issues": []}
+        compliance = pipeline._normalize_copyright_compliance_report({
+            "max_risk": "medium",
+            "issues": [
+                {
+                    "risk": "medium",
+                    "rule_ids": ["2"],
+                    "locale": "en",
+                    "passage": "A sentence follows the same source wording.",
+                    "source_url": "https://example.com/story",
+                    "reason": "The passage is a close paraphrase of source wording and preserves sentence structure.",
+                    "suggestion": "Rewrite with a different structure.",
+                    "requires_external_verification": False,
+                }
+            ],
+        })
+        pipeline._copyright_compliance_check = lambda article, evidence_pack, config, **kwargs: compliance
         pipeline._generate_summary30 = lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("summary should not run"))
         pipeline._sendfox_request = lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("newsletter should not send"))
 
@@ -712,10 +1037,150 @@ class RecapPipelineScraplingTests(unittest.TestCase):
         self.assertEqual(result["reason"], "copyright_compliance_failed")
         self.assertEqual(repo.posts, {})
         self.assertIsNone(repo.dispatch)
-        self.assertEqual(repo.edition["quality_report"]["stage"], "copyright_compliance")
         self.assertEqual(repo.edition["quality_report"]["copyright_compliance"]["max_risk"], "medium")
+        self.assertEqual(repo.edition["quality_report"]["copyright_compliance"]["status"], "fail")
         self.assertEqual(repo.run_marks[-1]["failure_reason"], "copyright_compliance_failed")
-        self.assertEqual(repo.run_marks[-1]["metrics"]["copyright_compliance_max_risk"], "medium")
+
+    def test_copyright_compliance_medium_weak_attribution_does_not_block_policy(self):
+        report = pipeline._normalize_copyright_compliance_report({
+            "max_risk": "medium",
+            "issues": [
+                {
+                    "risk": "medium",
+                    "rule_ids": ["3"],
+                    "locale": "en",
+                    "passage": "The claim needs closer attribution.",
+                    "source_url": "https://example.com/story",
+                    "reason": "Attribution is present but not close enough to the paragraph.",
+                    "suggestion": "Add proximity attribution.",
+                    "requires_external_verification": False,
+                }
+            ],
+        })
+
+        self.assertEqual(report["status"], "warn")
+        self.assertFalse(pipeline._copyright_compliance_should_block(report))
+
+    def test_copyright_compliance_medium_copy_language_blocks_policy(self):
+        report = pipeline._normalize_copyright_compliance_report({
+            "max_risk": "medium",
+            "issues": [
+                {
+                    "risk": "medium",
+                    "rule_ids": ["2"],
+                    "locale": "en",
+                    "passage": "The article keeps the source structure.",
+                    "source_url": "https://example.com/story",
+                    "reason": "This is a close translation and paragraph-level paraphrase of source wording.",
+                    "suggestion": "Rewrite independently.",
+                    "requires_external_verification": False,
+                }
+            ],
+        })
+
+        self.assertEqual(report["status"], "fail")
+        self.assertTrue(pipeline._copyright_compliance_should_block(report))
+
+    def test_copyright_compliance_high_risk_uses_deterministic_digest_without_rewrite(self):
+        repo = FakeRepo()
+        compliance_reports = [
+            make_copyright_compliance(
+                "high",
+                [
+                    {
+                        "risk": "high",
+                        "rule_ids": ["1"],
+                        "locale": "en",
+                        "passage": "A copied source sentence appears verbatim.",
+                        "source_url": "https://example.com/story",
+                        "reason": "Too close to the source.",
+                        "suggestion": "Rewrite with attribution.",
+                        "requires_external_verification": False,
+                    }
+                ],
+            ),
+            make_copyright_compliance("low", []),
+        ]
+        pipeline._scrape_source = lambda source, config, seen_source_urls=None: {
+            "source_url": "https://example.com/story",
+            "title": "Enterprise AI story",
+            "text": ("Verified enterprise AI source text 2026. " * 20).strip(),
+            "snippet": "Verified enterprise AI source text 2026.",
+            "status": 200,
+            "scrape_ok": True,
+            "scrape_method": "rss+scrapling",
+            "quality": {"word_count": 120, "data_points": 1, "score": 140},
+        }
+        pipeline._generate_brief = lambda stories, evidence_pack, edition_key, config: make_brief()
+        pipeline._generate_article = lambda stories, brief, evidence_pack, edition_key, config, **kwargs: make_article()
+        pipeline._rewrite_article_for_copyright_compliance = lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("rewrite should not run"))
+        pipeline._fact_check = lambda article, evidence_pack, config, **kwargs: {"status": "pass", "issues": []}
+        pipeline._copyright_compliance_check = lambda article, evidence_pack, config, **kwargs: compliance_reports.pop(0)
+        pipeline._generate_summary30 = lambda *args, **kwargs: make_summary()
+
+        result = pipeline._run_build_article(
+            {"trigger": "manual", "editionKey": "AI-2026-W18"},
+            repo=repo,
+            config=make_config(),
+            schedule_timezone="America/Toronto",
+        )
+
+        self.assertEqual(result["status"], "succeeded")
+        self.assertEqual(repo.posts["en"]["title"], "Today's AI Signals That Matter")
+        self.assertFalse(repo.edition["quality_report"]["copyright_rewrite"]["attempted"])
+        self.assertEqual(repo.run_marks[-1]["metrics"]["copyright_rewrite_attempted"], False)
+        self.assertTrue(repo.run_marks[-1]["metrics"]["copyright_safe_digest_attempted"])
+        self.assertEqual(repo.run_marks[-1]["metrics"]["copyright_compliance_max_risk"], "low")
+
+    def test_copyright_safe_digest_can_recover_from_high_risk_without_extra_generation(self):
+        repo = FakeRepo()
+        compliance_reports = [
+            make_copyright_compliance(
+                "high",
+                [
+                    {
+                        "risk": "high",
+                        "rule_ids": ["1"],
+                        "locale": "en",
+                        "passage": "A copied source sentence appears verbatim.",
+                        "source_url": "https://example.com/story",
+                        "reason": "Too close to the source.",
+                        "suggestion": "Rewrite with attribution.",
+                        "requires_external_verification": False,
+                    }
+                ],
+            ),
+            make_copyright_compliance("low", []),
+        ]
+        pipeline._scrape_source = lambda source, config, seen_source_urls=None: {
+            "source_url": "https://example.com/story",
+            "title": "Exact Source Title That Must Not Be Published",
+            "text": ("Verified enterprise AI source text 2026. " * 20).strip(),
+            "snippet": "Verified enterprise AI source text 2026.",
+            "status": 200,
+            "scrape_ok": True,
+            "scrape_method": "rss+scrapling",
+            "quality": {"word_count": 120, "data_points": 1, "score": 140},
+        }
+        pipeline._generate_brief = lambda stories, evidence_pack, edition_key, config: make_brief()
+        pipeline._generate_article = lambda stories, brief, evidence_pack, edition_key, config, **kwargs: make_article()
+        pipeline._rewrite_article_for_copyright_compliance = lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("rewrite should not run"))
+        pipeline._fact_check = lambda article, evidence_pack, config, **kwargs: {"status": "pass", "issues": []}
+        pipeline._copyright_compliance_check = lambda article, evidence_pack, config, **kwargs: compliance_reports.pop(0)
+        pipeline._generate_summary30 = lambda *args, **kwargs: make_summary()
+
+        result = pipeline._run_build_article(
+            {"trigger": "manual", "editionKey": "AI-2026-W18"},
+            repo=repo,
+            config=make_config(),
+            schedule_timezone="America/Toronto",
+        )
+
+        self.assertEqual(result["status"], "succeeded")
+        self.assertTrue(repo.edition["quality_report"]["copyright_safe_digest"]["attempted"])
+        self.assertTrue(repo.run_marks[-1]["metrics"]["copyright_safe_digest_attempted"])
+        self.assertEqual(repo.run_marks[-1]["metrics"]["copyright_compliance_max_risk"], "low")
+        self.assertNotIn("Exact Source Title That Must Not Be Published", repo.posts["en"]["content_markdown"])
 
     def test_copyright_compliance_high_risk_blocks_copied_passage(self):
         repo = FakeRepo()
@@ -731,6 +1196,7 @@ class RecapPipelineScraplingTests(unittest.TestCase):
         }
         pipeline._generate_brief = lambda stories, evidence_pack, edition_key, config: make_brief()
         pipeline._generate_article = lambda stories, brief, evidence_pack, edition_key, config, **kwargs: make_article()
+        pipeline._rewrite_article_for_copyright_compliance = lambda article, copyright_compliance, evidence_pack, config, **kwargs: article
         pipeline._fact_check = lambda article, evidence_pack, config, **kwargs: {"status": "pass", "issues": []}
         pipeline._copyright_compliance_check = lambda article, evidence_pack, config, **kwargs: make_copyright_compliance(
             "high",

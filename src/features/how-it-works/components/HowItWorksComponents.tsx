@@ -149,7 +149,7 @@ export const HowItWorksCta = () => {
       </h3>
       <p className="text-kode01-noir/60 mb-6">{t('text')}</p>
       <Link
-        href="/market"
+        href="/news"
         className="inline-block bg-kode01-pink text-kode01-noir font-black uppercase tracking-widest px-8 py-4 hover:bg-kode01-noir hover:text-white transition-colors no-underline"
       >
         {t('button')}

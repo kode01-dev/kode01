@@ -16,10 +16,11 @@
       "infrastructure": "Infrastructures",
       "opensource": "Infrastructures",
       "models": "Modèles IA",
-      "apps": "Apps"
+      "apps": "Apps",
+      "marketplace_coming_soon": "Marketplace bientôt disponible"
     },
     "search": {
-      "placeholder": "Rechercher outils, produits et actualités...",
+      "placeholder": "Rechercher AI News et articles de blog...",
       "open": "Ouvrir la recherche",
       "close": "Fermer la recherche"
     },
@@ -55,7 +56,8 @@
         "prompt": "Je suis un créateur digital ou un builder qui veut rester à jour sur l'IA, repérer les bons outils et transformer son expertise en ressources numériques utiles. Analyse KODE01 (https://kode01.com) comme une plateforme de veille IA, de découverte d'outils, de ressources pratiques et de marketplace. Explique comment l'utiliser pour suivre les nouveautés IA, comprendre les tendances importantes, découvrir des workflows n8n, systèmes Notion, blueprints d'agents et produits numériques validés, puis passer plus vite à l'action.",
         "copied": "Prompt copié !"
       },
-      "resources": "Ressources"
+      "resources": "Ressources",
+      "marketplace_coming_soon": "Marketplace bientôt disponible"
     },
     "cookie_manage": "Gerer les cookies"
   },
@@ -78,7 +80,7 @@
       "featured_label": "en vedette : pack ui kit premium",
       "featured_price": "48 $",
       "badge_text": "nouveau",
-      "search_placeholder": "Rechercher outils, produits et actualités..."
+      "search_placeholder": "Rechercher AI News et articles de blog..."
     },
     "filters": {
       "all_assets": "tous les assets",
@@ -308,6 +310,15 @@
   "market": {
     "meta_title": "Produits numériques – Templates, outils IA et plus",
     "meta_description": "Parcourez et achetez des produits numériques premium. Templates, kits UI, workflows IA et kits SaaS de créateurs.",
+    "coming_soon": {
+      "meta_title": "Marketplace bientôt disponible",
+      "meta_description": "La marketplace KODE01 est en préparation pour la production. Suivez AI News et le Blog pendant la finalisation du lancement public.",
+      "eyebrow": "Préparation production",
+      "title": "Marketplace bientôt disponible",
+      "description": "Nous gardons la marketplace attachée à la plateforme, mais l'achat public et la navigation marketplace ne sont pas encore prêts pour la production. Suivez AI News et le Blog pendant la finalisation du lancement.",
+      "cta_news": "Lire AI News",
+      "cta_blog": "Lire le Blog"
+    },
     "hero": {
       "title": "explorer les produits numeriques",
       "description": "Parcourez des produits numeriques classes par categories et sous-categories pour aller plus vite."
@@ -485,7 +496,7 @@
       "heading_line1": "Restez à jour sur l'IA.",
       "heading_line2": "Découvrez les outils qui comptent.",
       "subtitle": "",
-      "search_placeholder": "Rechercher outils, produits et actualités...",
+      "search_placeholder": "Rechercher AI News et articles de blog...",
       "start_selling": "Commencer à Vendre",
       "explore_assets": "Explorer",
       "proof_assets": "{count}+ ressources IA et produits",
@@ -501,7 +512,8 @@
       "open_shop": "Ouvrir une Boutique",
       "builders_label": "Pour Bâtisseurs",
       "builders_heading": "Comprenez les nouveautés. Commencez à bâtir.",
-      "browse_catalog": "Parcourir le Catalogue"
+      "browse_catalog": "Parcourir le Catalogue",
+      "read_ai_news": "Lire AI News"
     },
     "products": {
       "title": "Ressources et nouveautés",
@@ -695,6 +707,7 @@
       "cta_success": "Aller aux parametres",
       "cta_error": "Retour a l accueil",
       "cta_market": "Explorer le marketplace",
+      "cta_news": "Lire AI News",
       "support_hint": "Si le probleme continue, contacte support@kode01.com.",
       "cta_login": "Se connecter"
     },
@@ -2958,13 +2971,13 @@
     }
   },
   "global_search": {
-    "meta_title": "Rechercher outils, produits et actualités",
-    "meta_description": "Recherchez outils IA, produits numériques et actualités depuis une seule page.",
+    "meta_title": "Rechercher AI News et Blog",
+    "meta_description": "Recherchez les actualités IA et les contenus éditoriaux KODE01 depuis une seule page.",
     "title": "Recherche globale kode01",
-    "subtitle": "Trouvez outils, produits et actualités IA au même endroit.",
-    "placeholder": "Rechercher outils, produits et actualités...",
+    "subtitle": "Trouvez actualités IA et contenus éditoriaux au même endroit.",
+    "placeholder": "Rechercher AI News et articles de blog...",
     "submit": "Rechercher",
-    "empty_prompt": "Commencez à taper pour chercher dans les outils, produits et actualités IA.",
+    "empty_prompt": "Commencez à taper pour chercher dans AI News et les articles de blog.",
     "no_results": "Aucun resultat pour \"{query}\".",
     "summary": "{count, plural, =0 {0 resultat} =1 {1 resultat} other {# resultats}}",
     "section_products": "Produits",
@@ -3455,7 +3468,8 @@
     "title": "Page introuvable",
     "description": "Cette page n existe pas ou a ete deplacee.",
     "go_home": "Retour accueil",
-    "browse_market": "Explorer le marketplace"
+    "browse_market": "Explorer le marketplace",
+    "browse_news": "Lire AI News"
   },
   "onboarding": {
     "welcome": {
@@ -3495,9 +3509,9 @@
     "stripe_return_error_toast": "Impossible de reprendre l'onboarding Stripe. Reessayez d'ouvrir Stripe."
   },
   "search": {
-    "meta_description": "Recherchez outils IA, produits numériques et actualités depuis une seule page.",
-    "subtitle": "Trouvez outils, produits et actualités IA au même endroit.",
-    "placeholder": "Rechercher outils, produits et actualités...",
-    "empty_prompt": "Commencez à taper pour chercher dans les outils, produits et actualités IA."
+    "meta_description": "Recherchez les actualités IA et les contenus éditoriaux KODE01 depuis une seule page.",
+    "subtitle": "Trouvez actualités IA et contenus éditoriaux au même endroit.",
+    "placeholder": "Rechercher AI News et articles de blog...",
+    "empty_prompt": "Commencez à taper pour chercher dans AI News et les articles de blog."
   }
 }

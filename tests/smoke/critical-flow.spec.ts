@@ -22,8 +22,8 @@ test.describe('Smoke Test - Critical User Flows', () => {
     } else {
         console.log('Site is UNLOCKED. Proceeding with home check.');
         // Verify we see some main content
-        const marketLink = page.locator('a[href*="/market"]').first();
-        await expect(marketLink).toBeVisible();
+        await expect(page.getByRole('link', { name: /AI News/i }).first()).toBeVisible();
+        await expect(page.getByRole('link', { name: /Blog/i }).first()).toBeVisible();
     }
   });
 

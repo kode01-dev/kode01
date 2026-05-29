@@ -40,8 +40,7 @@ python -m modal deploy services/modal-agent-runtime/runtime.py
 ## Weekly recap execution target
 
 - `RECAP_EXECUTION_TARGET=modal_native` (default): Modal runs the native AI News pipeline end-to-end.
-- `RECAP_EXECUTION_TARGET=edge_proxy`: compatibility fallback that calls `weekly-ai-recap-cron` upstream.
-- `RECAP_EXECUTION_TARGET=dual_shadow`: calls the upstream edge path and also runs Modal-native for comparison.
+- `RECAP_EXECUTION_TARGET=edge_proxy` and `RECAP_EXECUTION_TARGET=dual_shadow` are ignored for the weekly recap. The production recap now stays on the Modal-native path to avoid the legacy Supabase Edge timeout path.
 
 The Modal-native path handles `tick`, `build_article`, `send_newsletter`, and `retry_newsletter`. It uses Scrapling for article extraction and Firecrawl only as a fallback.
 

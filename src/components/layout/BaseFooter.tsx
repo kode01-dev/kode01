@@ -9,6 +9,7 @@ import { AskAiSection } from './AskAiSection';
 import { ScrollToTopButton } from './ScrollToTopButton';
 import { useEffect, useState } from 'react';
 import type { SocialLink } from '@/features/footer-social-links/types';
+import { PUBLIC_MARKETPLACE_ENABLED } from '@/config/marketplace';
 
 const ICON_MAP: Record<string, LucideIcon> = {
     Twitter: Twitter,
@@ -85,9 +86,18 @@ export function BaseFooter() {
                                 {t('marketplace')}
                             </h4>
                             <ul className="space-y-4 font-bold text-sm list-none p-0">
-                                <li><Link href="/market" className="text-white/40 hover:text-kode01-pink transition-all no-underline font-sans flex items-center gap-2 group/item"><span className="w-0 h-0.5 bg-kode01-pink group-hover/item:w-3 transition-all"></span>{n('explore')}</Link></li>
-                                <li><Link href="/creators" className="text-white/40 hover:text-kode01-pink transition-all no-underline font-sans flex items-center gap-2 group/item"><span className="w-0 h-0.5 bg-kode01-pink group-hover/item:w-3 transition-all"></span>{n('creators')}</Link></li>
-                                <li><Link href="/bundles" className="text-white/40 hover:text-kode01-pink transition-all no-underline font-sans flex items-center gap-2 group/item"><span className="w-0 h-0.5 bg-kode01-pink group-hover/item:w-3 transition-all"></span>{n('bundles')}</Link></li>
+                                {PUBLIC_MARKETPLACE_ENABLED ? (
+                                    <>
+                                        <li><Link href="/market" className="text-white/40 hover:text-kode01-pink transition-all no-underline font-sans flex items-center gap-2 group/item"><span className="w-0 h-0.5 bg-kode01-pink group-hover/item:w-3 transition-all"></span>{n('explore')}</Link></li>
+                                        <li><Link href="/creators" className="text-white/40 hover:text-kode01-pink transition-all no-underline font-sans flex items-center gap-2 group/item"><span className="w-0 h-0.5 bg-kode01-pink group-hover/item:w-3 transition-all"></span>{n('creators')}</Link></li>
+                                        <li><Link href="/bundles" className="text-white/40 hover:text-kode01-pink transition-all no-underline font-sans flex items-center gap-2 group/item"><span className="w-0 h-0.5 bg-kode01-pink group-hover/item:w-3 transition-all"></span>{n('bundles')}</Link></li>
+                                    </>
+                                ) : (
+                                    <li className="text-white/35 font-sans flex items-center gap-2 cursor-default">
+                                        <span className="w-3 h-0.5 bg-white/15" />
+                                        {t('marketplace_coming_soon')}
+                                    </li>
+                                )}
                                 <li><Link href="/pricing" className="text-white/40 hover:text-kode01-pink transition-all no-underline font-sans flex items-center gap-2 group/item"><span className="w-0 h-0.5 bg-kode01-pink group-hover/item:w-3 transition-all"></span>{n('pricing')}</Link></li>
                             </ul>
                         </div>

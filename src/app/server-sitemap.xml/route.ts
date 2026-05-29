@@ -1,5 +1,6 @@
 import { getServerSideSitemap } from 'next-sitemap'
 import { createClient } from '@/lib/supabase/server'
+import { PUBLIC_MARKETPLACE_ENABLED } from '@/config/marketplace'
 
 export async function GET() {
     const supabase = await createClient()
@@ -15,18 +16,22 @@ export async function GET() {
         .select('locale, slug, published_at, created_at')
         .eq('status', 'published')
 
-    const { data: products } = await supabase
-        .from('products')
-        .select('slug, updated_at, created_at, is_bundle')
-        .eq('status', 'published')
-        .limit(5000)
+    const { data: products } = PUBLIC_MARKETPLACE_ENABLED
+        ? await supabase
+            .from('products')
+            .select('slug, updated_at, created_at, is_bundle')
+            .eq('status', 'published')
+            .limit(5000)
+        : { data: null }
 
-    const { data: creators } = await supabase
-        .from('profiles')
-        .select('slug, updated_at, created_at')
-        .in('role', ['seller', 'admin'])
-        .not('slug', 'is', null)
-        .limit(5000)
+    const { data: creators } = PUBLIC_MARKETPLACE_ENABLED
+        ? await supabase
+            .from('profiles')
+            .select('slug, updated_at, created_at')
+            .in('role', ['seller', 'admin'])
+            .not('slug', 'is', null)
+            .limit(5000)
+        : { data: null }
 
     const fields: { loc: string; lastmod: string; changefreq: 'weekly'; priority: number }[] = []
     const locales = ['en', 'fr']

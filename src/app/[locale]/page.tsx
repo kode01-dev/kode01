@@ -9,6 +9,7 @@ import {
     getTopDealsServer,
     type HomeStatsData,
 } from '@/features/homepage/lib/homepage-data-server';
+import { PUBLIC_MARKETPLACE_ENABLED } from '@/config/marketplace';
 import { CANONICAL_SITE_URL, applySeoMetadata } from '@/lib/seo';
 import { SeoAppJsonLd } from '@/components/seo/SeoAppJsonLd';
 
@@ -32,29 +33,33 @@ const EMPTY_HOME_STATS: HomeStatsData = {
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params;
-    const sections = getDefaultSections();
+    const sections = getDefaultSections().filter(
+        (section) =>
+            PUBLIC_MARKETPLACE_ENABLED
+            || (section.type !== 'products_latest' && section.type !== 'top_deals'),
+    );
 
     // Preload critical homepage data to avoid client-side layout popping while scrolling.
     // Use a soft-fail strategy so one backend/env issue does not crash Server Components render.
     const [statsResult, productsResult, topDealsResult] = await Promise.allSettled([
         getHomeStatsServer(),
-        getHomeProductsServer(4),
-        getTopDealsServer(6),
+        PUBLIC_MARKETPLACE_ENABLED ? getHomeProductsServer(4) : Promise.resolve([]),
+        PUBLIC_MARKETPLACE_ENABLED ? getTopDealsServer(6) : Promise.resolve([]),
     ]);
 
     if (statsResult.status === 'rejected') {
         console.error('Homepage stats preload failed:', statsResult.reason);
     }
-    if (productsResult.status === 'rejected') {
+    if (PUBLIC_MARKETPLACE_ENABLED && productsResult.status === 'rejected') {
         console.error('Homepage products preload failed:', productsResult.reason);
     }
-    if (topDealsResult.status === 'rejected') {
+    if (PUBLIC_MARKETPLACE_ENABLED && topDealsResult.status === 'rejected') {
         console.error('Homepage top deals preload failed:', topDealsResult.reason);
     }
 
     const initialStats = statsResult.status === 'fulfilled' ? statsResult.value : EMPTY_HOME_STATS;
-    const initialProducts = productsResult.status === 'fulfilled' ? productsResult.value : [];
-    const initialTopDeals = topDealsResult.status === 'fulfilled' ? topDealsResult.value : [];
+    const initialProducts = PUBLIC_MARKETPLACE_ENABLED && productsResult.status === 'fulfilled' ? productsResult.value : [];
+    const initialTopDeals = PUBLIC_MARKETPLACE_ENABLED && topDealsResult.status === 'fulfilled' ? topDealsResult.value : [];
     const jsonLd = [
         {
             '@context': 'https://schema.org',
